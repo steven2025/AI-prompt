@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI应用开发提示词术语训练平台</title>
+  <style>
+    :root {
+      --bg: #071328;
+      --bg-2: #0d1b3d;
+      --panel: rgba(13, 31, 65, 0.72);
+      --panel-strong: rgba(18, 38, 83, 0.92);
+      --text: #eef7ff;
+      --muted: #a9bed8;
+      --line: rgba(105, 219, 255, 0.22);
+      --cyan: #27d7ff;
+      --blue: #4f7cff;
+      --violet: #8f62ff;
+      --pink: #e55cff;
+      --good: #48f0a9;
+      --warn: #ffd166;
+      --shadow: rgba(39, 215, 255, 0.18);
+      --radius: 8px;
+      --top-height: 86px;
+      --side-width: 220px;
+    }
+
+    body.light {
+      --bg: #eef6ff;
+      --bg-2: #f7fbff;
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-strong: rgba(255, 255, 255, 0.96);
+      --text: #10213f;
+      --muted: #51637d;
+      --line: rgba(38, 118, 180, 0.2);
+      --cyan: #008fc5;
+      --blue: #355eea;
+      --violet: #7651dc;
+      --pink: #be3cd2;
+      --shadow: rgba(49, 111, 194, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(39, 215, 255, 0.24), transparent 28%),
+        radial-gradient(circle at 88% 6%, rgba(143, 98, 255, 0.24), transparent 26%),
+        linear-gradient(135deg, var(--bg), var(--bg-2) 58%, #14112d);
+      overflow-x: hidden;
+    }
+
+    body.light {
+      background:
+        radial-gradient(circle at 12% 8%, rgba(39, 215, 255, 0.22), transparent 28%),
+        radial-gradient(circle at 88% 6%, rgba(143, 98, 255, 0.18), transparent 26%),
+        linear-gradient(135deg, var(--bg), var(--bg-2) 62%, #f8f0ff);
+    }
+
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: var(--top-height);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 14px 24px;
+      background: linear-gradient(90deg, rgba(7, 19, 40, 0.92), rgba(25, 33, 78, 0.78));
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 12px 38px rgba(0, 0, 0, 0.25);
+    }
+
+    body.light .topbar {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(242, 247, 255, 0.8));
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.1vw, 30px);
+      line-height: 1.15;
+      letter-spacing: 0;
+      background: linear-gradient(90deg, var(--cyan), #fff, var(--violet));
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 24px rgba(39, 215, 255, 0.2);
+    }
+
+    body.light .brand h1 { background: linear-gradient(90deg, #006cba, #203c86, #8b40ca); -webkit-background-clip: text; }
+
+    .brand p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .teacher {
+      color: var(--cyan);
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .search-box {
+      width: min(32vw, 340px);
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 42px;
+      padding: 0 14px 0 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+      box-shadow: inset 0 0 18px rgba(39, 215, 255, 0.06);
+    }
+
+    .search-box::before {
+      content: "⌕";
+      position: absolute;
+      left: 13px;
+      top: 8px;
+      color: var(--cyan);
+      font-size: 20px;
+    }
+
+    button {
+      font: inherit;
+      color: var(--text);
+      cursor: pointer;
+      border: 0;
+    }
+
+    .gradient-btn {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--blue), var(--cyan), var(--violet));
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 10px 26px var(--shadow);
+      transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+    }
+
+    .gradient-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+      box-shadow: 0 16px 34px var(--shadow);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: var(--side-width) minmax(0, 1fr);
+      gap: 22px;
+      padding: calc(var(--top-height) + 22px) 24px 28px;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: calc(var(--top-height) + 22px);
+      left: 24px;
+      width: var(--side-width);
+      max-height: calc(100vh - var(--top-height) - 42px);
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.24);
+      overflow: auto;
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      margin: 6px 0;
+      padding: 0 12px;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      transition: all .2s ease;
+      border: 1px solid transparent;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(39, 215, 255, 0.18), rgba(143, 98, 255, 0.22));
+      border-color: var(--line);
+      box-shadow: 0 0 22px var(--shadow);
+      transform: translateX(3px);
+    }
+
+    body.light .nav-btn:hover,
+    body.light .nav-btn.active { color: #16315f; }
+
+    .main {
+      grid-column: 2;
+      min-width: 0;
+    }
+
+    .view {
+      display: none;
+      animation: rise .32s ease both;
+    }
+
+    .view.active { display: block; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-panel,
+    .glass-card,
+    .term-card,
+    .case-card,
+    .quiz-card,
+    .builder-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.2), 0 0 28px rgba(39, 215, 255, 0.06);
+    }
+
+    .hero-panel {
+      padding: clamp(24px, 4vw, 44px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      top: -90px;
+      width: 270px;
+      height: 270px;
+      border: 1px solid rgba(39, 215, 255, 0.24);
+      border-radius: 50%;
+      box-shadow: inset 0 0 60px rgba(143, 98, 255, 0.2);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: clamp(24px, 3vw, 38px);
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    p { line-height: 1.75; }
+    .muted { color: var(--muted); }
+
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 0 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .value-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 22px; }
+    .two-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .glass-card {
+      padding: 20px;
+      transition: transform .22s ease, border-color .22s ease;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(39, 215, 255, 0.5);
+    }
+
+    .metric {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--cyan);
+      margin-bottom: 6px;
+    }
+
+    .path {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .path span,
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: var(--text);
+      border: 1px solid var(--line);
+      background: rgba(39, 215, 255, 0.1);
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 0 0 18px;
+    }
+
+    .filter-btn {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .filter-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      box-shadow: 0 8px 20px var(--shadow);
+    }
+
+    body.light .filter-btn.active { color: #fff; }
+
+    .term-category {
+      margin: 0 0 22px;
+    }
+
+    .term-category h3 {
+      color: var(--cyan);
+      padding-left: 10px;
+      border-left: 3px solid var(--cyan);
+    }
+
+    .level-nav {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .level-btn {
+      min-height: 74px;
+      padding: 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--muted);
+      text-align: left;
+      transition: all .22s ease;
+    }
+
+    .level-btn b {
+      display: block;
+      color: var(--text);
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .level-btn span {
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .level-btn.active,
+    .level-btn:hover {
+      background: linear-gradient(135deg, rgba(39, 215, 255, 0.18), rgba(143, 98, 255, 0.24));
+      border-color: rgba(39, 215, 255, 0.5);
+      box-shadow: 0 12px 28px var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .level-summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr);
+      gap: 16px;
+      margin: 0 0 16px;
+    }
+
+    .dictionary-content {
+      min-height: 320px;
+    }
+
+    .term-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .term-card {
+      padding: 18px;
+      transition: transform .22s ease, border-color .22s ease;
+    }
+
+    .term-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(229, 92, 255, 0.42);
+    }
+
+    .term-card strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .example {
+      margin-top: 10px;
+      padding: 11px 12px;
+      border-left: 3px solid var(--cyan);
+      background: rgba(39, 215, 255, 0.08);
+      color: var(--muted);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .flip-grid {
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    }
+
+    .flip {
+      min-height: 250px;
+      perspective: 1000px;
+    }
+
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 250px;
+      transition: transform .62s ease;
+      transform-style: preserve-3d;
+    }
+
+    .flip:hover .flip-inner { transform: rotateY(180deg); }
+
+    .flip-face {
+      position: absolute;
+      inset: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(39, 215, 255, 0.12), rgba(143, 98, 255, 0.14)), var(--panel-strong);
+      backface-visibility: hidden;
+      overflow: auto;
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
+    }
+
+    .flip-back { transform: rotateY(180deg); }
+    .flip-title { font-size: 24px; font-weight: 800; margin-top: 42px; }
+
+    .graph-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, .6fr);
+      gap: 18px;
+    }
+
+    .graph-stage {
+      min-height: 540px;
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(39, 215, 255, 0.16), transparent 23%),
+        radial-gradient(circle at 22% 26%, rgba(143, 98, 255, 0.16), transparent 18%),
+        radial-gradient(circle at 80% 74%, rgba(72, 240, 169, 0.1), transparent 18%),
+        linear-gradient(rgba(39, 215, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(39, 215, 255, 0.05) 1px, transparent 1px),
+        rgba(0, 0, 0, 0.1);
+      background-size: 28px 28px;
+      overflow: hidden;
+    }
+
+    .graph-stage svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .node {
+      position: absolute;
+      width: 132px;
+      min-height: 50px;
+      padding: 10px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border-radius: var(--radius);
+      border: 1px solid rgba(39, 215, 255, 0.45);
+      background: rgba(14, 36, 78, 0.88);
+      box-shadow: 0 0 26px rgba(39, 215, 255, 0.14);
+      color: #fff;
+      font-weight: 700;
+      transform: translate(-50%, -50%);
+      transition: all .22s ease;
+    }
+
+    body.light .node { background: rgba(255, 255, 255, 0.94); color: #143265; }
+
+    .node.center {
+      width: 170px;
+      min-height: 72px;
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+    }
+
+    .node.level-node {
+      width: 158px;
+      min-height: 66px;
+      background: linear-gradient(145deg, rgba(39, 215, 255, 0.2), rgba(143, 98, 255, 0.22)), rgba(14, 36, 78, 0.92);
+    }
+
+    .node.category-node {
+      width: 118px;
+      min-height: 44px;
+      font-size: 12px;
+      border-color: rgba(72, 240, 169, 0.42);
+      box-shadow: 0 0 18px rgba(72, 240, 169, 0.12);
+    }
+
+    .node:hover,
+    .node.active {
+      border-color: var(--pink);
+      box-shadow: 0 0 34px rgba(229, 92, 255, 0.36);
+      transform: translate(-50%, -50%) scale(1.04);
+    }
+
+    .case-card {
+      padding: 20px;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      padding: 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .compare-card.professional {
+      border-color: rgba(72, 240, 169, 0.45);
+      box-shadow: 0 0 26px rgba(72, 240, 169, 0.08);
+    }
+
+    .builder {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(360px, 1.08fr);
+      gap: 18px;
+    }
+
+    .builder-panel {
+      padding: 18px;
+    }
+
+    .check-group {
+      margin-bottom: 18px;
+    }
+
+    .check-group h3 {
+      font-size: 17px;
+      color: var(--cyan);
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    label.option {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    label.option:has(input:checked) {
+      color: var(--text);
+      border-color: rgba(39, 215, 255, 0.55);
+      background: rgba(39, 215, 255, 0.14);
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      accent-color: var(--cyan);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 300px;
+      resize: vertical;
+      padding: 14px;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0, 0, 0, 0.18);
+      outline: none;
+      line-height: 1.72;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    body.light textarea { background: rgba(255, 255, 255, 0.72); }
+
+    .scores {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .score {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.06);
+      text-align: center;
+    }
+
+    .score b {
+      display: block;
+      font-size: 24px;
+      color: var(--good);
+    }
+
+    .quiz-card {
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .quiz-options {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .quiz-option {
+      width: 100%;
+      padding: 12px;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+    }
+
+    .quiz-option.correct { border-color: var(--good); background: rgba(72, 240, 169, 0.14); }
+    .quiz-option.wrong { border-color: #ff6b8a; background: rgba(255, 107, 138, 0.14); }
+
+    .answer {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: var(--radius);
+      background: rgba(39, 215, 255, 0.08);
+      color: var(--muted);
+    }
+
+    .answer.show { display: block; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 42px;
+      padding: 0 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+    }
+
+    .status-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(39, 215, 255, 0.08);
+    }
+
+    .locked-note {
+      padding: 24px;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius);
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .data-table th {
+      color: var(--text);
+      background: rgba(39, 215, 255, 0.1);
+    }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 90;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .25s ease;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1050px) {
+      :root { --side-width: 188px; }
+      .value-grid, .three-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .term-list, .builder, .graph-wrap, .level-summary { grid-template-columns: 1fr; }
+      .level-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .graph-stage { min-height: 460px; }
+    }
+
+    @media (max-width: 760px) {
+      :root { --top-height: 148px; }
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 14px;
+      }
+      .top-actions { width: 100%; }
+      .search-box { width: 100%; }
+      .gradient-btn { flex-shrink: 0; }
+      .layout {
+        display: block;
+        padding: calc(var(--top-height) + 12px) 12px 20px;
+      }
+      .sidebar {
+        position: sticky;
+        top: var(--top-height);
+        left: auto;
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        margin-bottom: 14px;
+      }
+      .nav-btn {
+        min-width: 126px;
+        justify-content: center;
+        margin: 0;
+      }
+      .main { grid-column: auto; }
+      .value-grid, .two-grid, .three-grid, .compare, .options, .scores, .form-grid { grid-template-columns: 1fr; }
+      .level-nav { grid-template-columns: 1fr; }
+      .brand p { white-space: normal; }
+      .node { width: 112px; font-size: 13px; }
+      .node.center { width: 142px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>AI应用开发提示词术语训练平台</h1>
+      <p>指导教师 <span class="teacher">/ 鄢清华</span> · 面向非计算机专业学生与企业人士的 AI 编程表达训练工具</p>
+    </div>
+    <div class="top-actions">
+      <div class="search-box">
+        <input id="searchInput" type="search" placeholder="搜索术语、解释或提示词示例" />
+      </div>
+      <button id="themeToggle" class="gradient-btn">明亮风格</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main">
+      <section id="home" class="view active"></section>
+      <section id="auth" class="view"></section>
+      <section id="dictionary" class="view"></section>
+      <section id="cards" class="view"></section>
+      <section id="graph" class="view"></section>
+      <section id="cases" class="view"></section>
+      <section id="builder" class="view"></section>
+      <section id="quiz" class="view"></section>
+      <section id="admin" class="view"></section>
+      <section id="searchResults" class="view"></section>
+    </main>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const navItems = [
+      { id: "home", label: "首页导览", icon: "◆", access: "public" },
+      { id: "auth", label: "登录", icon: "◉", access: "public" },
+      { id: "dictionary", label: "术语词典", icon: "▣", access: "user" },
+      { id: "cards", label: "术语卡片", icon: "◇", access: "user" },
+      { id: "graph", label: "知识图谱", icon: "◎", access: "user" },
+      { id: "cases", label: "场景案例", icon: "▤", access: "user" },
+      { id: "builder", label: "提示词拼装器", icon: "✦", access: "user" },
+      { id: "quiz", label: "小测验", icon: "✓", access: "user" },
+      { id: "admin", label: "管理员后台", icon: "★", access: "admin" }
+    ];
+
+    const terms = [
+      ["项目与文件结构类", "单文件 HTML", "把页面结构、样式和脚本都写在一个 HTML 文件中。", "像一个装好所有零件的演示文件，打开浏览器就能运行。", "请生成一个单文件 HTML 程序，CSS 和 JavaScript 全部内嵌。"],
+      ["项目与文件结构类", "前端页面", "用户在浏览器中看到和操作的网页界面。", "就像系统的门面和操作台。", "请先生成前端页面原型，重点展示布局和交互效果。"],
+      ["项目与文件结构类", "静态网页原型", "不连接后端数据库，主要用于展示界面和流程的网页。", "像一套可以点击的效果图。", "请制作一个静态网页原型，所有数据使用 JavaScript 数组模拟。"],
+      ["项目与文件结构类", "本地运行", "程序不依赖服务器，直接用浏览器打开即可使用。", "文件放在电脑上双击就能看。", "要求程序可以本地运行，不依赖后端服务。"],
+      ["项目与文件结构类", "模块化结构", "把功能按模块分组，便于阅读、维护和扩展。", "像把课程按章节整理好。", "请将代码按数据、渲染、交互三个模块组织。"],
+
+      ["页面布局与视觉设计类", "UI", "User Interface，用户界面，指按钮、卡片、菜单等视觉与操作元素。", "用户看到和点击的所有界面部分。", "请设计清晰、美观、适合课堂展示的 UI。"],
+      ["页面布局与视觉设计类", "响应式布局", "页面能根据电脑、平板、手机屏幕自动调整排版。", "大屏小屏都不挤、不乱。", "请实现响应式布局，电脑端优先，同时兼容手机。"],
+      ["页面布局与视觉设计类", "卡片式布局", "用一个个卡片承载信息，便于分组展示。", "像把信息放进整齐的信息盒子。", "请使用卡片式布局展示指标、术语和案例。"],
+      ["页面布局与视觉设计类", "毛玻璃效果", "半透明背景配合模糊，形成现代科技感。", "像隔着磨砂玻璃看背景。", "请为主要内容卡片增加毛玻璃效果和轻微发光边框。"],
+      ["页面布局与视觉设计类", "渐变按钮", "按钮背景由多个颜色平滑过渡。", "让关键操作更醒目。", "请为主要按钮使用蓝紫青色渐变效果。"],
+      ["页面布局与视觉设计类", "发光边框", "边框带有柔和光晕，增强科技视觉。", "像电子屏边缘微微发亮。", "请给当前卡片增加青色发光边框。"],
+      ["页面布局与视觉设计类", "视觉层级", "通过大小、颜色、间距区分信息重要程度。", "让用户先看到重点，再看细节。", "请优化视觉层级，使标题、说明和操作按钮清晰区分。"],
+
+      ["导航与菜单类", "顶部导航栏", "固定在页面顶部的导航或标题区域。", "页面最上方的控制条。", "请在页面顶部固定显示系统名称、搜索框和风格切换按钮。"],
+      ["导航与菜单类", "左侧导航键", "放在页面左边的功能切换按钮。", "像软件左边的功能目录。", "请使用左侧导航键切换不同功能模块。"],
+      ["导航与菜单类", "共享主显示区", "多个功能共用同一个内容区域，根据点击切换显示。", "一个大屏幕，点不同菜单就换不同内容。", "点击左侧导航后，所有内容都在共享主显示区切换，不跳转页面。"],
+      ["导航与菜单类", "隐藏抽屉式菜单", "菜单默认收起，需要点击按钮后从侧边滑出。", "像手机 App 里的侧滑菜单。", "请在移动端使用隐藏抽屉式菜单节省空间。"],
+      ["导航与菜单类", "高亮状态", "当前选中菜单或按钮用颜色、背景等方式突出。", "告诉用户现在在哪个栏目。", "请为当前选中的导航键添加高亮效果。"],
+
+      ["交互控件类", "搜索框", "用于输入关键词并筛选内容的控件。", "输入想找的词，系统显示相关结果。", "请添加搜索框，支持按术语名称、解释和示例搜索。"],
+      ["交互控件类", "复选框", "可以多选的选项控件。", "适合同时选择多个功能。", "请用复选框让用户选择需要的功能模块。"],
+      ["交互控件类", "单选按钮", "一组选项中只能选择一个。", "适合二选一或多选一。", "请用单选按钮选择模型输出模式。"],
+      ["交互控件类", "筛选器", "按分类、标签或条件缩小显示范围。", "从很多内容里快速挑出想看的部分。", "请为术语卡片增加分类筛选器。"],
+      ["交互控件类", "一键复制", "点击按钮复制文本到剪贴板。", "不用手动选中文字。", "请为生成的提示词增加一键复制按钮。"],
+      ["交互控件类", "悬浮动画", "鼠标经过元素时产生轻微移动、发光或翻转。", "让界面更有反馈感。", "请为卡片添加鼠标悬浮动画。"],
+
+      ["AI 大模型接入类", "API Key", "调用大模型服务时用于身份验证的密钥。", "像访问 AI 服务的专用钥匙。", "请预留 API Key 输入框，但不要在前端代码中写死密钥。"],
+      ["AI 大模型接入类", "大模型接入", "让程序通过接口调用 AI 模型生成、分析或对话。", "把 AI 能力接进应用里。", "请预留大模型 API 接入模块，包含模型选择和提示词模板。"],
+      ["AI 大模型接入类", "模型选择", "让用户选择不同 AI 模型处理任务。", "根据任务选择不同 AI 助手。", "请添加模型选择下拉框，支持后续扩展更多模型。"],
+      ["AI 大模型接入类", "提示词模板", "预先设计好的提示词结构，可重复使用。", "像一张标准提需求表。", "请内置提示词模板，用户勾选后自动拼装完整需求。"],
+      ["AI 大模型接入类", "流式输出", "AI 生成内容时逐字或分段显示。", "像正在实时打字。", "请设计流式输出展示区域，便于观察 AI 生成过程。"],
+      ["AI 大模型接入类", "上下文保留", "保存前面对话或数据，让 AI 理解连续任务。", "让 AI 记得刚才说过什么。", "请支持上下文保留，便于多轮修改同一个应用。"],
+
+      ["数据导入、存储与管理类", "JSON 数据", "一种常见的数据格式，适合在网页中保存结构化信息。", "像用键值对整理出来的表格信息。", "请使用 JSON 数组内置术语、案例和测验数据。"],
+      ["数据导入、存储与管理类", "数据导入", "把外部表格、文本或文件加载到系统中。", "把资料放进系统让它处理。", "请添加数据导入入口，支持后续读取 Excel 或 CSV 文件。"],
+      ["数据导入、存储与管理类", "本地存储", "把少量数据保存在用户浏览器中。", "关闭网页后还能保留一些设置。", "请用 localStorage 保存用户的主题偏好。"],
+      ["数据导入、存储与管理类", "数据表", "按行列组织的数据集合。", "像 Excel 里的表。", "请用数据表展示导入后的员工或课程信息。"],
+      ["数据导入、存储与管理类", "增删改查", "新增、删除、修改、查询数据的基本操作。", "管理数据最常见的四件事。", "请为企业管理系统设计增删改查功能模块。"],
+
+      ["图表与可视化类", "数据可视化", "用图表把数据规律展示出来。", "把数字变成更容易看懂的图。", "请加入数据可视化模块，展示趋势、占比和排名。"],
+      ["图表与可视化类", "柱状图", "用长短不同的柱子比较数量。", "适合看谁多谁少。", "请用柱状图展示各部门培训人数。"],
+      ["图表与可视化类", "折线图", "用线条展示数据随时间变化的趋势。", "适合看上升或下降。", "请用折线图展示近 12 个月销售趋势。"],
+      ["图表与可视化类", "饼图", "用扇形展示各部分占比。", "适合看构成比例。", "请用饼图展示不同岗位简历占比。"],
+      ["图表与可视化类", "大屏看板", "适合投屏展示的综合数据页面。", "像企业会议室里的数据大屏。", "请设计科技风大屏看板，展示核心指标和动态图表。"],
+
+      ["功能模块设计类", "登录模块", "用于用户进入系统前身份确认的功能。", "进入系统的门禁。", "请设计登录模块界面，可先使用模拟账号。"],
+      ["功能模块设计类", "报告生成", "根据数据自动生成分析结论或文档。", "让系统帮忙写总结。", "请添加报告生成按钮，根据图表数据生成分析摘要。"],
+      ["功能模块设计类", "一键下载", "点击按钮下载报告、图片或数据文件。", "把结果保存到电脑。", "请加入一键下载功能，导出当前报告文本。"],
+      ["功能模块设计类", "用户设置", "让用户修改偏好、主题、模型等配置。", "系统里的个人设置区。", "请设计用户设置模块，包含主题和模型配置。"],
+      ["功能模块设计类", "权限管理", "控制不同角色能看到或操作哪些内容。", "不同身份有不同权限。", "请为企业管理系统预留权限管理模块。"],
+
+      ["用户体验与界面细节类", "可读性", "文字清晰、对比足够、信息不过度拥挤。", "看得清、读得顺。", "请保证文字清晰可读，深色背景下对比度足够。"],
+      ["用户体验与界面细节类", "空状态", "没有数据时显示的提示内容。", "没有结果时别让页面空白。", "请为搜索无结果时设计空状态提示。"],
+      ["用户体验与界面细节类", "即时反馈", "用户操作后马上显示结果或提示。", "点了按钮就知道发生了什么。", "请在复制、答题和筛选后提供即时反馈。"],
+      ["用户体验与界面细节类", "加载状态", "数据处理中显示等待提示。", "告诉用户系统正在处理。", "请为生成报告过程设计加载状态。"],
+      ["用户体验与界面细节类", "信息密度", "单位屏幕内展示的信息多少。", "信息太少显空，太多显乱。", "请控制信息密度，适合课堂投屏和企业演示。"],
+
+      ["AI 编程提示词动作词类", "生成", "要求 AI 从零创建内容或代码。", "让 AI 帮你做出来。", "请生成一个完整可运行的单文件 HTML 程序。"],
+      ["AI 编程提示词动作词类", "优化", "在原有基础上改得更好。", "不是重做，而是变好。", "请优化页面布局和按钮交互，让界面更专业。"],
+      ["AI 编程提示词动作词类", "重构", "调整代码结构，提升可维护性，不一定改变外观。", "把内部整理得更清楚。", "请重构 JavaScript 代码，使数据和渲染逻辑分离。"],
+      ["AI 编程提示词动作词类", "修复", "解决错误、异常或不符合预期的问题。", "把坏掉的地方改好。", "请修复搜索框无法匹配提示词示例的问题。"],
+      ["AI 编程提示词动作词类", "扩展", "在已有功能上增加新功能。", "继续加模块。", "请扩展小测验模块，增加答题统计和错题回顾。"],
+      ["AI 编程提示词动作词类", "预留", "先设计接口或位置，方便后续接入真实能力。", "先留好插口。", "请预留真实数据库和大模型 API 接入位置。"]
+    ].map(([category, name, desc, plain, example]) => ({ category, name, desc, plain, example }));
+
+    terms.push(...[
+      ["对象存储及文件写入调用类", "对象存储", "一种把图片、文档、音视频、压缩包、日志等非结构化文件保存到云端的存储服务。它通常用 Bucket 管理空间，用 Object 表示每个文件，并通过 HTTP/HTTPS 链接、API 或 SDK 完成上传、读取、下载、删除、权限控制和生命周期管理。", "像给应用配了一个云端文件柜：前端负责选择文件和发起上传，云端负责可靠保存文件，并返回一个可访问或受权限保护的文件链接。", "请为系统设计对象存储模块，支持文件上传、文件列表、访问链接生成、权限控制和后续接入云函数安全写入。"],
+      ["对象存储及文件写入调用类", "Bucket", "对象存储中用于归类存放文件的容器。", "像云端文件柜里的一个文件夹。", "请在提示词中说明文件上传到指定 Bucket，并返回可访问链接。"],
+      ["对象存储及文件写入调用类", "文件上传", "把本地文件传到系统或云端存储服务中。", "把电脑里的资料放到应用里。", "请添加文件上传控件，支持上传图片、PDF 或 Excel 文件。"],
+      ["对象存储及文件写入调用类", "文件下载", "把系统中的文件保存到用户电脑。", "把云端或页面里的结果取回来。", "请提供文件下载按钮，允许用户下载生成的报告。"],
+      ["对象存储及文件写入调用类", "文件写入", "程序把文本、数据或文件内容保存到指定位置。", "让系统真的把结果写进去，而不是只显示。", "请通过后端接口或云函数完成文件写入，不要只在前端模拟。"],
+      ["对象存储及文件写入调用类", "访问链接", "文件上传后生成的可访问 URL 地址。", "别人打开这个链接就能看到文件。", "请在上传成功后返回文件访问链接，并显示在结果列表中。"],
+      ["对象存储及文件写入调用类", "权限策略", "控制谁可以读取、上传、删除文件的规则。", "给云端文件柜设置开门权限。", "请说明对象存储权限策略，避免所有文件被公开访问。"],
+
+      ["云函数部署类", "云函数", "运行在云端的轻量后端函数，属于 Serverless 计算方式。它通常由 HTTP 请求、文件上传、定时任务、数据库变化等事件触发，用来处理大模型调用、文件写入、数据清洗、权限校验、消息通知等前端不适合直接完成的任务。", "像给前端页面配了一个云端办事窗口：网页把请求交给云函数，云函数在云端安全处理密钥、接口、文件和数据，再把结果返回给网页。", "请使用云函数作为前端和大模型 API 之间的服务端代理，把 API Key 放在环境变量中，并通过 HTTP 触发器返回 AI 生成结果。"],
+      ["云函数部署类", "触发器", "决定云函数何时被调用的入口，例如 HTTP 请求触发。", "像按下按钮后启动云端处理。", "请配置 HTTP 触发器，让前端可以访问云函数。"],
+      ["云函数部署类", "环境变量", "部署环境中保存配置和密钥的变量。", "把敏感钥匙放在云端保险箱里。", "请把 API Key 放入云函数环境变量，不要暴露在前端。"],
+      ["云函数部署类", "服务端代理", "由后端代替前端调用第三方接口，保护密钥并处理跨域。", "让云端中转请求，前端不直接碰密钥。", "请通过服务端代理调用大模型 API，并把结果返回给前端。"],
+      ["云函数部署类", "跨域配置", "允许不同域名之间安全访问接口的配置。", "让网页和云函数能互相说话。", "请为云函数接口配置跨域访问，允许静态网页调用。"],
+      ["云函数部署类", "日志调试", "查看云端运行日志，用于定位错误。", "出问题时看云端记录。", "请加入日志调试说明，便于排查云函数请求失败原因。"],
+
+      ["GitHub 静态链接部署类", "GitHub Pages", "GitHub 提供的静态网页托管服务。", "把网页放到 GitHub 后生成公开访问链接。", "请说明如何用 GitHub Pages 发布这个静态网页。"],
+      ["GitHub 静态链接部署类", "静态部署", "发布不需要后端运行环境的 HTML、CSS、JavaScript 文件。", "把网页文件直接放到线上展示。", "请将项目整理为可静态部署的结构，确保 index.html 可直接访问。"],
+      ["GitHub 静态链接部署类", "仓库", "GitHub 上保存项目代码的空间。", "像一个线上项目文件夹。", "请把 HTML 文件放入 GitHub 仓库，并准备发布说明。"],
+      ["GitHub 静态链接部署类", "分支", "代码仓库中的版本线，GitHub Pages 常用指定分支发布。", "像同一个项目的不同版本通道。", "请说明使用 main 分支或 docs 目录进行静态发布。"],
+      ["GitHub 静态链接部署类", "index.html", "静态网站默认打开的首页文件。", "访问网站时最先显示的页面。", "请确保入口文件命名为 index.html，方便 GitHub Pages 识别。"],
+      ["GitHub 静态链接部署类", "版本更新", "修改代码后重新提交并刷新线上页面。", "网页发布后还能继续迭代。", "请提供版本更新步骤，说明修改后如何重新发布。"]
+    ].map(([category, name, desc, plain, example]) => ({ category, name, desc, plain, example })));
+
+    const dictionaryLevels = [
+      {
+        title: "前端程序",
+        rank: "菜鸟级",
+        ability: "这个级别您可以做到：用清晰提示词让 AI 生成一个可直接打开的单文件 HTML 页面，包含基础布局、导航菜单、卡片展示、按钮交互、搜索筛选、响应式适配等前端原型功能。",
+        keywords: ["单文件 HTML", "UI", "顶部导航栏", "共享主显示区", "响应式布局"],
+        categories: {
+          "需求描述类": ["生成", "优化", "扩展", "静态网页原型"],
+          "页面结构类": ["单文件 HTML", "前端页面", "顶部导航栏", "左侧导航键", "共享主显示区", "卡片式布局", "响应式布局"],
+          "UI 风格类": ["UI", "毛玻璃效果", "渐变按钮", "发光边框", "视觉层级", "可读性"],
+          "交互功能类": ["搜索框", "复选框", "筛选器", "一键复制", "悬浮动画", "即时反馈"],
+          "数据处理类": ["JSON 数据", "数据表", "本地存储"]
+        }
+      },
+      {
+        title: "前端大模型接入",
+        rank: "入门级",
+        ability: "这个级别您可以做到：理解“大模型接入”不是简单放一个聊天框，而是让网页能够把用户输入、业务数据或页面内容发送给 AI，让 AI 完成问答、总结、分类、改写、评分、生成报告、生成提示词等任务。您可以让 AI 帮您在前端页面中设计或预留模型调用区域，包括 API Key 输入、模型选择、提示词模板、请求参数、结果展示和流式输出。需要注意：真实项目中 API Key 不应直接暴露在前端，入门阶段可以先做演示原型，后续再通过云函数或后端代理实现安全调用。",
+        keywords: ["API Key", "大模型接入", "模型选择", "提示词模板", "流式输出"],
+        categories: {
+          "需求描述类": ["预留", "大模型接入", "提示词模板"],
+          "接口调用类": ["API Key", "模型选择", "流式输出", "上下文保留"],
+          "交互功能类": ["搜索框", "单选按钮", "即时反馈", "加载状态"],
+          "调试优化类": ["修复", "优化", "重构"]
+        }
+      },
+      {
+        title: "对象存储及文件写入调用",
+        rank: "实战级",
+        ability: "这个级别您可以做到：理解对象存储是用来保存“文件类数据”的云端能力，适合存图片、PDF、Excel、音视频、压缩包、导出的报告、用户上传材料等。它的基本原理是：先创建一个存储空间 Bucket，再把每个文件作为 Object 上传进去，系统会为文件生成路径、访问链接或临时签名；前端负责选择文件、显示上传进度和展示链接，云端负责持久保存、权限控制、下载分发、生命周期管理和日志审计。通过提示词，您可以让 AI 设计文件上传、文件下载、图片或文档保存、对象存储链接、文件写入调用等功能。需要注意：真实项目中不建议直接把云存储密钥写在前端，通常应通过云函数、后端接口或临时签名完成安全上传。国内常见平台包括阿里云 OSS、腾讯云 COS、华为云 OBS、七牛云 Kodo、百度智能云 BOS、火山引擎 TOS、京东云 OSS 等。",
+        keywords: ["对象存储", "Bucket", "文件上传", "文件写入", "访问链接"],
+        categories: {
+          "文件与存储类": ["对象存储", "Bucket", "文件上传", "文件下载", "文件写入", "访问链接", "权限策略"],
+          "数据处理类": ["数据导入", "数据表", "JSON 数据"],
+          "交互功能类": ["一键下载", "加载状态", "即时反馈"],
+          "安全说明类": ["权限策略", "API Key", "服务端代理"]
+        }
+      },
+      {
+        title: "云函数部署",
+        rank: "工程级",
+        ability: "这个级别您可以做到：理解云函数是一种“不用自己管理服务器”的后端能力，适合把前端页面不能安全直接做的事情放到云端处理，例如保存 API Key、调用大模型接口、写入对象存储、生成报告文件、处理表单数据、做权限校验、定时执行任务等。它的基本原理是：先在云平台创建一个函数，编写一小段后端代码，再配置触发器；当前端发起 HTTP 请求、用户上传文件、定时任务到点或其他云服务产生事件时，云平台自动运行这段函数，并把处理结果返回。通过提示词，您可以让 AI 设计“前端页面 + 云函数接口 + 环境变量 + 日志调试 + 跨域配置”的完整调用流程。需要注意：云函数不是页面美化工具，而是让应用从静态原型迈向真实可用系统的关键中间层。国内常见平台包括阿里云函数计算 FC、腾讯云云函数 SCF、华为云 FunctionGraph、百度智能云函数计算 CFC、火山引擎函数服务、京东云函数服务等。",
+        keywords: ["云函数", "环境变量", "服务端代理", "跨域配置", "日志调试"],
+        categories: {
+          "部署发布类": ["云函数", "触发器", "环境变量", "跨域配置", "日志调试"],
+          "接口调用类": ["服务端代理", "大模型接入", "API Key", "模型选择"],
+          "安全说明类": ["环境变量", "权限策略", "服务端代理"],
+          "调试优化类": ["日志调试", "修复", "优化"]
+        }
+      },
+      {
+        title: "GitHub 静态链接部署",
+        rank: "发布级",
+        ability: "这个级别您可以做到：让 AI 帮您把单文件 HTML 或静态网页整理成可发布项目，通过 GitHub Pages 生成公开访问链接，实现作品展示、课堂提交、企业内部演示和版本更新。",
+        keywords: ["GitHub Pages", "静态部署", "仓库", "index.html", "版本更新"],
+        categories: {
+          "部署发布类": ["GitHub Pages", "静态部署", "仓库", "分支", "index.html", "访问链接", "版本更新"],
+          "页面结构类": ["单文件 HTML", "静态网页原型", "本地运行"],
+          "调试优化类": ["修复", "优化", "版本更新"],
+          "成果交付类": ["一键下载", "访问链接", "GitHub Pages"]
+        }
+      }
+    ];
+
+    const cases = [
+      {
+        title: "HR 数据分析看板",
+        scene: "用于人力资源部门查看招聘、培训、离职率、部门人数等核心指标。",
+        terms: ["数据看板", "柱状图", "折线图", "数据导入", "报告生成", "响应式布局"],
+        demand: "说明业务指标、页面布局、图表类型、筛选条件和报告输出方式。",
+        prompt: "请生成一个单文件 HTML 的 HR 数据分析看板，采用顶部导航栏、左侧导航键和共享主显示区布局，支持员工数据导入、部门筛选、柱状图和折线图展示，并提供报告生成和一键下载功能。",
+        modules: ["指标总览", "部门对比", "招聘趋势", "离职分析", "报告生成"]
+      },
+      {
+        title: "简历智能筛选系统",
+        scene: "帮助招聘人员根据岗位要求快速筛选简历、标注匹配度和生成候选人摘要。",
+        terms: ["大模型接入", "API Key", "提示词模板", "搜索筛选", "数据表", "权限管理"],
+        demand: "说明岗位条件、简历字段、筛选规则、AI 分析输出和人工复核流程。",
+        prompt: "请设计一个简历智能筛选系统原型，包含简历数据表、岗位条件输入、AI 匹配度分析、候选人标签、筛选排序和结果报告模块，并预留 API Key 与模型选择区域。",
+        modules: ["岗位需求录入", "简历列表", "AI 匹配评分", "候选人详情", "筛选报告"]
+      },
+      {
+        title: "AI 课程学习平台",
+        scene: "用于课堂培训，展示课程内容、术语学习、案例练习和学习测验。",
+        terms: ["卡片式布局", "共享主显示区", "术语卡片", "小测验", "本地存储", "即时反馈"],
+        demand: "说明课程模块、学习路径、互动练习、测验反馈和视觉风格。",
+        prompt: "请生成一个 AI 课程学习平台单文件 HTML，包含首页导览、课程目录、术语卡片、案例练习和小测验，使用科技风 UI，支持模块切换、答题即时反馈和学习进度展示。",
+        modules: ["课程首页", "术语学习", "案例练习", "测验反馈", "学习进度"]
+      },
+      {
+        title: "企业经营数据分析工具",
+        scene: "帮助管理者查看销售、成本、利润、客户和区域经营情况。",
+        terms: ["大屏看板", "数据可视化", "饼图", "折线图", "增删改查", "一键下载"],
+        demand: "说明经营指标、数据来源、图表类型、管理动作和导出需求。",
+        prompt: "请制作一个企业经营数据分析工具，采用大屏看板风格，展示销售额、利润率、客户增长和区域贡献，支持搜索筛选、动态图表、数据表管理和一键下载经营分析摘要。",
+        modules: ["经营总览", "区域分析", "客户分析", "利润趋势", "数据管理"]
+      }
+    ];
+
+    const quizzes = [
+      { type: "choice", q: "“单文件 HTML”最准确的含义是？", options: ["HTML、CSS、JavaScript 都集中在一个 HTML 文件中", "只包含文字的网页", "必须连接数据库的网页", "只能在服务器上运行的网页"], answer: 0, explain: "单文件 HTML 适合课堂演示和快速原型，本页面就是这种形式。" },
+      { type: "choice", q: "UI 主要指什么？", options: ["用户界面", "服务器地址", "数据库密码", "网络协议"], answer: 0, explain: "UI 是 User Interface，包括按钮、菜单、卡片、页面布局等。" },
+      { type: "judge", q: "共享主显示区的特点是不同导航内容在同一区域切换显示。", options: ["正确", "错误"], answer: 0, explain: "共享主显示区可以避免跳转多个页面，适合单页应用原型。" },
+      { type: "choice", q: "隐藏抽屉式菜单通常适合哪种场景？", options: ["移动端节省空间", "强制刷新页面", "存储 API Key", "生成 JSON"], answer: 0, explain: "抽屉式菜单常用于手机和平板端，让菜单按需展开。" },
+      { type: "choice", q: "API Key 在大模型接入中主要用于什么？", options: ["身份验证和调用授权", "改变按钮颜色", "绘制图表", "保存图片"], answer: 0, explain: "API Key 是调用模型服务的重要凭证，不能随意公开。" },
+      { type: "judge", q: "大模型接入只需要好看的页面，不需要考虑提示词模板。", options: ["正确", "错误"], answer: 1, explain: "提示词模板能让 AI 输出更稳定、更符合业务目标。" },
+      { type: "choice", q: "JSON 数据更适合描述哪类内容？", options: ["结构化对象和数组", "纯图片像素", "网页字体", "电脑硬件"], answer: 0, explain: "术语、案例、测验都可以用 JSON 对象或数组保存。" },
+      { type: "choice", q: "数据可视化的主要价值是？", options: ["用图表帮助理解数据规律", "隐藏所有数据", "只改变背景颜色", "替代所有文字说明"], answer: 0, explain: "图表能帮助用户快速看趋势、对比和占比。" },
+      { type: "judge", q: "响应式布局意味着页面能适配不同屏幕尺寸。", options: ["正确", "错误"], answer: 0, explain: "响应式布局可以让电脑、平板、手机都有较好的浏览体验。" },
+      { type: "choice", q: "提示词模板的作用是？", options: ["提供可复用的需求表达结构", "删除网页内容", "压缩图片", "修改浏览器设置"], answer: 0, explain: "模板能帮助非技术人员更完整地描述应用目标、布局和功能。" }
+    ];
+
+    const graphNodes = [
+      { id: "center", label: "AI应用开发提示词", x: 50, y: 50, center: true, terms: ["提示词模板", "生成", "优化", "扩展"] },
+      { id: "front", label: "前端结构", x: 50, y: 17, terms: ["单文件 HTML", "前端页面", "静态网页原型", "模块化结构"] },
+      { id: "ui", label: "UI设计", x: 80, y: 30, terms: ["UI", "毛玻璃效果", "渐变按钮", "视觉层级"] },
+      { id: "nav", label: "导航交互", x: 82, y: 68, terms: ["顶部导航栏", "左侧导航键", "共享主显示区", "高亮状态"] },
+      { id: "data", label: "数据处理", x: 50, y: 84, terms: ["JSON 数据", "数据导入", "数据表", "增删改查"] },
+      { id: "ai", label: "大模型接入", x: 18, y: 68, terms: ["API Key", "大模型接入", "模型选择", "流式输出", "上下文保留"] },
+      { id: "chart", label: "图表可视化", x: 20, y: 30, terms: ["数据可视化", "柱状图", "折线图", "饼图", "大屏看板"] },
+      { id: "deploy", label: "部署上线", x: 50, y: 33, terms: ["本地运行", "静态网页原型", "一键下载", "预留"] }
+    ];
+
+    const builderGroups = {
+      "应用类型": ["数据看板", "学习平台", "简历筛选系统", "企业管理系统", "AI助手工具"],
+      "文件形式": ["单文件 HTML", "前端页面", "静态网页原型"],
+      "页面布局": ["顶部导航栏", "左侧导航键", "共享主显示区", "卡片式布局", "响应式布局"],
+      "UI 风格": ["科技风格", "企业管理风格", "极简风格", "大屏风格", "毛玻璃效果"],
+      "功能模块": ["数据导入", "图表可视化", "搜索筛选", "报告生成", "一键下载", "用户设置", "大模型 API 接入"],
+      "AI 接入": ["API Key 输入框", "模型选择", "提示词模板", "流式输出", "上下文保留"]
+    };
+
+    let activeView = "home";
+    let cardCategory = "全部";
+    let graphActive = graphNodes[0];
+    let dictionaryLevelIndex = 0;
+    let dictionaryPromptCategory = "";
+    let cardLevelIndex = 0;
+    let cardPromptCategory = "";
+    let graphLevelIndex = 0;
+    let graphPromptCategory = "";
+    const ADMIN_NAME = "鄢清华";
+    const ADMIN_PHONE = ["130", "023", "204", "85"].join("");
+    const AUTH_STORE_KEY = "ai-term-auth-store";
+    let currentUser = null;
+    let currentSessionId = "";
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => document.querySelectorAll(selector);
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[s]));
+    }
+
+    function showToast(text) {
+      const toast = $("#toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function nowText() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function normalizePhone(phone) {
+      return String(phone || "").replace(/\s+/g, "");
+    }
+
+    function isValidPhone(phone) {
+      return /^\d{11}$/.test(normalizePhone(phone));
+    }
+
+    function getAuthStore() {
+      const fallback = { users: [], loginLogs: [], actionLogs: [], loginSeq: 0 };
+      try {
+        return { ...fallback, ...(JSON.parse(localStorage.getItem(AUTH_STORE_KEY)) || {}) };
+      } catch (err) {
+        return fallback;
+      }
+    }
+
+    function saveAuthStore(store) {
+      localStorage.setItem(AUTH_STORE_KEY, JSON.stringify(store));
+    }
+
+    function getRole(name, phone) {
+      return name === ADMIN_NAME && normalizePhone(phone) === ADMIN_PHONE ? "admin" : "user";
+    }
+
+    function ensureUser(name, phone) {
+      const store = getAuthStore();
+      const cleanPhone = normalizePhone(phone);
+      let user = store.users.find(u => u.phone === cleanPhone);
+      const role = getRole(name, cleanPhone);
+      if (!user) {
+        user = {
+          name,
+          phone: cleanPhone,
+          role,
+          firstLoginTime: nowText(),
+          loginCount: 0,
+          lastLoginTime: "",
+          usedModules: []
+        };
+        store.users.push(user);
+      } else {
+        user.name = name;
+        user.role = role;
+      }
+      saveAuthStore(store);
+      return user;
+    }
+
+    function setCurrentUser(user) {
+      currentUser = user;
+      localStorage.setItem("ai-term-current-user", JSON.stringify(user));
+    }
+
+    function loadCurrentUser() {
+      try {
+        currentUser = JSON.parse(localStorage.getItem("ai-term-current-user")) || null;
+      } catch (err) {
+        currentUser = null;
+      }
+    }
+
+    function loginUser(name, phone) {
+      const cleanPhone = normalizePhone(phone);
+      const role = getRole(name, cleanPhone);
+      const store = getAuthStore();
+      let user = store.users.find(u => u.phone === cleanPhone && u.name === name);
+      if (!user) {
+        user = {
+          name,
+          phone: cleanPhone,
+          role,
+          registerTime: nowText(),
+          loginCount: 0,
+          lastLoginTime: "",
+          usedModules: []
+        };
+        store.users.push(user);
+      }
+      store.loginSeq = Number(store.loginSeq || 0) + 1;
+      const loginNo = `LOGIN-${String(store.loginSeq).padStart(5, "0")}`;
+      currentSessionId = loginNo;
+      user.role = role;
+      user.loginCount = Number(user.loginCount || 0) + 1;
+      user.lastLoginTime = nowText();
+      store.loginLogs.unshift({
+        loginNo,
+        name: user.name,
+        phone: user.phone,
+        role: user.role,
+        loginTime: user.lastLoginTime,
+        source: "登录"
+      });
+      saveAuthStore(store);
+      setCurrentUser(user);
+      recordAction("登录", "登录");
+      return user;
+    }
+
+    function logoutUser() {
+      recordAction("退出登录", "登录");
+      currentUser = null;
+      currentSessionId = "";
+      localStorage.removeItem("ai-term-current-user");
+      renderNav();
+      renderAuth();
+      switchView("home");
+      showToast("已退出登录");
+    }
+
+    function recordAction(action, moduleName) {
+      if (!currentUser) return;
+      const store = getAuthStore();
+      const user = store.users.find(u => u.phone === currentUser.phone);
+      if (user && moduleName && !["登录", "管理员后台"].includes(moduleName)) {
+        user.usedModules = Array.from(new Set([...(user.usedModules || []), moduleName]));
+      }
+      store.actionLogs.unshift({
+        sessionId: currentSessionId || "LOCAL-SESSION",
+        name: currentUser.name,
+        phone: currentUser.phone,
+        role: currentUser.role,
+        action,
+        module: moduleName,
+        time: nowText()
+      });
+      saveAuthStore(store);
+    }
+
+    function canAccess(item) {
+      if (item.access === "public") return true;
+      if (item.access === "admin") return currentUser?.role === "admin";
+      return Boolean(currentUser);
+    }
+
+    function navLabelById(id) {
+      return navItems.find(item => item.id === id)?.label || id;
+    }
+
+    function renderNav() {
+      $("#sidebar").innerHTML = navItems
+        .filter(item => item.access !== "admin" || currentUser?.role === "admin")
+        .map(item => {
+          const locked = !canAccess(item);
+          return `
+        <button class="nav-btn ${item.id === activeView ? "active" : ""}" data-view="${item.id}" data-locked="${locked}">
+          <span>${item.icon}</span><span>${item.label}${locked ? " [锁]" : ""}</span>
+        </button>
+      `;
+        }).join("");
+      $$("#sidebar .nav-btn").forEach(btn => btn.addEventListener("click", () => {
+        if (btn.dataset.locked === "true") {
+          showToast("请先登录后解锁该模块");
+          switchView("auth");
+          return;
+        }
+        switchView(btn.dataset.view);
+      }));
+    }
+
+    function switchView(id) {
+      const item = navItems.find(n => n.id === id);
+      if (item && !canAccess(item)) {
+        showToast("请先登录后解锁该模块");
+        id = "auth";
+      }
+      activeView = id;
+      $$(".view").forEach(view => view.classList.remove("active"));
+      $("#" + id).classList.add("active");
+      $("#searchInput").value = "";
+      renderNav();
+      if (id !== "auth" && id !== "searchResults") {
+        recordAction("访问模块", navLabelById(id));
+      }
+      if (id === "admin") renderAdmin();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderHome() {
+      $("#home").innerHTML = `
+        <div class="hero-panel">
+          <div style="max-width: 860px; position: relative; z-index: 1;">
+            <h2>把“我想做个系统”训练成“AI 能准确执行的开发需求”</h2>
+            <p class="muted">本平台帮助非计算机专业学生和企业人士理解 AI 编程常见术语，学会用专业、清晰、可执行的方式描述页面、功能、数据、交互和大模型接入需求。</p>
+            <div class="path">
+              <span>认识术语</span><span>→</span><span>理解场景</span><span>→</span><span>学会表达</span><span>→</span><span>拼装提示词</span><span>→</span><span>生成应用原型</span>
+            </div>
+          </div>
+        </div>
+        <div class="grid two-grid" style="margin-top: 18px;">
+          <div class="glass-card">
+            <h3>培训目标</h3>
+            <p class="muted">建立 AI 应用开发表达能力，让学习者能够说清楚“做什么、长什么样、有哪些模块、数据怎么来、AI 如何接入、结果如何展示”。</p>
+          </div>
+          <div class="glass-card">
+            <h3>为什么要学习术语</h3>
+            <p class="muted">AI 编程不是只说一句“帮我做页面”。越能准确使用布局、交互、数据和模型术语，AI 越能生成贴近业务场景的原型。</p>
+          </div>
+        </div>
+        <div class="grid value-grid">
+          ${[
+            ["01", "降低 AI 编程沟通成本", "用统一术语减少反复解释。"],
+            ["02", "提高程序生成准确度", "让 AI 明确页面结构和功能边界。"],
+            ["03", "帮助业务人员表达系统需求", "把业务语言转换成开发语言。"],
+            ["04", "支持快速开发应用原型", "课堂和企业展示可直接落地演示。"]
+          ].map(item => `<div class="glass-card"><div class="metric">${item[0]}</div><h3>${item[1]}</h3><p class="muted">${item[2]}</p></div>`).join("")}
+        </div>
+      `;
+    }
+
+    function renderAuth() {
+      const status = currentUser
+        ? `<div class="status-strip"><div><b>当前用户：</b>${escapeHtml(currentUser.name)} · ${escapeHtml(currentUser.phone)} · ${currentUser.role === "admin" ? "管理员" : "普通用户"}</div><button class="gradient-btn" id="logoutBtn">退出登录</button></div>`
+        : `<div class="status-strip"><div><b>当前状态：</b>未登录。未登录只能使用首页导览，请登录后解锁学习模块。</div></div>`;
+      $("#auth").innerHTML = `
+        <div class="section-title">
+          <div><h2>登录</h2><p class="muted">请输入姓名和 11 位手机号完成登录。未登录时只能查看首页导览，登录后可使用学习模块。</p></div>
+        </div>
+        ${status}
+        <div class="glass-card" style="max-width: 760px;">
+          <h3>用户登录</h3>
+          <div class="form-grid">
+            <div class="field"><label>姓名</label><input id="loginName" placeholder="请输入姓名"></div>
+            <div class="field"><label>手机号</label><input id="loginPhone" placeholder="请输入 11 位手机号" maxlength="11" inputmode="numeric"></div>
+          </div>
+          <button class="gradient-btn" id="loginBtn">登录</button>
+          <p class="muted">手机号必须为 11 位数字。管理员账号登录后将自动显示管理后台。</p>
+        </div>
+      `;
+      $("#loginBtn").addEventListener("click", () => {
+        const name = $("#loginName").value.trim();
+        const phone = normalizePhone($("#loginPhone").value);
+        if (!name || !phone) return showToast("请填写姓名和手机号");
+        if (!isValidPhone(phone)) return showToast("手机号必须为 11 位数字");
+        const user = loginUser(name, phone);
+        renderNav();
+        renderAuth();
+        showToast(user.role === "admin" ? "管理员登录成功" : "登录成功，学习模块已解锁");
+      });
+      const logoutBtn = $("#logoutBtn");
+      if (logoutBtn) logoutBtn.addEventListener("click", logoutUser);
+    }
+
+    function renderAdmin() {
+      if (currentUser?.role !== "admin") {
+        $("#admin").innerHTML = `<div class="locked-note"><h2>管理员后台</h2><p class="muted">仅管理员可查看用户列表和行为记录。</p></div>`;
+        return;
+      }
+      const store = getAuthStore();
+      $("#admin").innerHTML = `
+        <div class="section-title">
+          <div><h2>管理员后台</h2><p class="muted">查看用户用户信息、登录编号、登录时间和模块使用行为。用户列表包含手机号，便于课堂签到和使用追踪。</p></div>
+          <span class="chip">用户 ${store.users.length} · 登录 ${store.loginLogs.length} · 行为 ${store.actionLogs.length}</span>
+        </div>
+        <div class="grid three-grid">
+          <div class="glass-card"><div class="metric">${store.users.length}</div><h3>登录用户</h3><p class="muted">含普通用户和管理员。</p></div>
+          <div class="glass-card"><div class="metric">${store.loginLogs.length}</div><h3>登录记录</h3><p class="muted">每次登录自动编号。</p></div>
+          <div class="glass-card"><div class="metric">${store.actionLogs.length}</div><h3>行为记录</h3><p class="muted">记录访问模块和操作时间。</p></div>
+        </div>
+        <div class="glass-card" style="margin-top:16px; overflow:auto;">
+          <h3>用户列表</h3>
+          <table class="data-table">
+            <thead><tr><th>姓名</th><th>手机号</th><th>身份</th><th>首次登录时间</th><th>登录次数</th><th>最近登录</th><th>使用模块</th></tr></thead>
+            <tbody>${store.users.map(u => `<tr><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.phone)}</td><td>${u.role === "admin" ? "管理员" : "普通用户"}</td><td>${escapeHtml(u.firstLoginTime || u.registerTime || "")}</td><td>${u.loginCount || 0}</td><td>${escapeHtml(u.lastLoginTime || "")}</td><td>${escapeHtml((u.usedModules || []).join("、") || "暂无")}</td></tr>`).join("") || `<tr><td colspan="7">暂无用户</td></tr>`}</tbody>
+          </table>
+        </div>
+        <div class="glass-card" style="margin-top:16px; overflow:auto;">
+          <h3>登录记录</h3>
+          <table class="data-table">
+            <thead><tr><th>登录编号</th><th>姓名</th><th>手机号</th><th>身份</th><th>登录时间</th><th>来源</th></tr></thead>
+            <tbody>${store.loginLogs.map(log => `<tr><td>${escapeHtml(log.loginNo)}</td><td>${escapeHtml(log.name)}</td><td>${escapeHtml(log.phone)}</td><td>${log.role === "admin" ? "管理员" : "普通用户"}</td><td>${escapeHtml(log.loginTime)}</td><td>${escapeHtml(log.source || "")}</td></tr>`).join("") || `<tr><td colspan="6">暂无登录记录</td></tr>`}</tbody>
+          </table>
+        </div>
+        <div class="glass-card" style="margin-top:16px; overflow:auto;">
+          <h3>行为列表</h3>
+          <table class="data-table">
+            <thead><tr><th>登录编号</th><th>姓名</th><th>手机号</th><th>行为</th><th>使用模块</th><th>时间</th></tr></thead>
+            <tbody>${store.actionLogs.map(log => `<tr><td>${escapeHtml(log.sessionId)}</td><td>${escapeHtml(log.name)}</td><td>${escapeHtml(log.phone)}</td><td>${escapeHtml(log.action)}</td><td>${escapeHtml(log.module)}</td><td>${escapeHtml(log.time)}</td></tr>`).join("") || `<tr><td colspan="6">暂无行为记录</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function groupedTerms() {
+      return terms.reduce((acc, term) => {
+        acc[term.category] = acc[term.category] || [];
+        acc[term.category].push(term);
+        return acc;
+      }, {});
+    }
+
+    function renderDictionary() {
+      const level = dictionaryLevels[dictionaryLevelIndex];
+      const categoryNames = Object.keys(level.categories);
+      if (!dictionaryPromptCategory || !categoryNames.includes(dictionaryPromptCategory)) {
+        dictionaryPromptCategory = categoryNames[0];
+      }
+      const termNames = level.categories[dictionaryPromptCategory];
+      const list = termNames.map(findTermByName).filter(Boolean);
+
+      $("#dictionary").innerHTML = `
+        <div class="section-title">
+          <div><h2>术语词典</h2><p class="muted">按照进阶能力由低到高学习：先会描述前端页面，再逐步掌握大模型接入、文件存储、云函数和静态发布。</p></div>
+          <span class="chip">当前：${level.title}（${level.rank}）</span>
+        </div>
+        <div class="level-nav">
+          ${dictionaryLevels.map((item, index) => `
+            <button class="level-btn ${index === dictionaryLevelIndex ? "active" : ""}" data-level="${index}">
+              <b>${item.title}</b>
+              <span>${item.rank}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div class="level-summary">
+          <div class="glass-card">
+            <h3>${level.title}（${level.rank}）</h3>
+            <p class="muted">${level.ability}</p>
+          </div>
+          <div class="glass-card">
+            <h3>本级关键词</h3>
+            <p>${level.keywords.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join(" ")}</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          ${categoryNames.map(name => `<button class="filter-btn ${name === dictionaryPromptCategory ? "active" : ""}" data-prompt-category="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}
+        </div>
+        <div class="dictionary-content">
+          <div class="term-category">
+            <h3>${dictionaryPromptCategory}</h3>
+            ${list.length ? `<div class="grid term-list">${list.map(termCardHtml).join("")}</div>` : `<div class="glass-card empty">当前类别暂无术语，可继续扩展。</div>`}
+          </div>
+        </div>
+      `;
+
+      $$("#dictionary .level-btn").forEach(btn => btn.addEventListener("click", () => {
+        dictionaryLevelIndex = Number(btn.dataset.level);
+        dictionaryPromptCategory = "";
+        renderDictionary();
+      }));
+      $$("#dictionary .filter-btn").forEach(btn => btn.addEventListener("click", () => {
+        dictionaryPromptCategory = btn.dataset.promptCategory;
+        renderDictionary();
+      }));
+    }
+
+    function findTermByName(name) {
+      return terms.find(t => t.name === name) || {
+        category: "扩展术语",
+        name,
+        desc: "该术语属于当前进阶能力模块，可作为后续课程继续扩展的提示词关键词。",
+        plain: "先把关键词放进表达框架里，后续再补充更细解释。",
+        example: `请在应用中加入${name}相关设计，并说明它在当前功能中的作用。`
+      };
+    }
+
+    function getLevelCategoryTerms(level, categoryName) {
+      return (level.categories[categoryName] || []).map(findTermByName).filter(Boolean);
+    }
+
+    function termCardHtml(t) {
+      return `
+        <article class="term-card">
+          <strong>${escapeHtml(t.name)}</strong>
+          <p class="muted"><b>简要解释：</b>${escapeHtml(t.desc)}</p>
+          <p class="muted"><b>通俗理解：</b>${escapeHtml(t.plain)}</p>
+          <div class="example"><b>提示词示例：</b>${escapeHtml(t.example)}</div>
+        </article>
+      `;
+    }
+
+    function renderCards() {
+      const level = dictionaryLevels[cardLevelIndex];
+      const categoryNames = Object.keys(level.categories);
+      if (!cardPromptCategory || !categoryNames.includes(cardPromptCategory)) {
+        cardPromptCategory = categoryNames[0];
+      }
+      const list = getLevelCategoryTerms(level, cardPromptCategory);
+      $("#cards").innerHTML = `
+        <div class="section-title">
+          <div><h2>术语卡片</h2><p class="muted">按照术语词典的进阶结构抽卡复习，先选能力级别，再选提示词类别。</p></div>
+          <span class="chip">${level.title}（${level.rank}） · ${list.length} 张卡片</span>
+        </div>
+        <div class="level-nav">
+          ${dictionaryLevels.map((item, index) => `
+            <button class="level-btn ${index === cardLevelIndex ? "active" : ""}" data-card-level="${index}">
+              <b>${item.title}</b>
+              <span>${item.rank}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div class="toolbar">
+          ${categoryNames.map(name => `<button class="filter-btn ${name === cardPromptCategory ? "active" : ""}" data-card-category="${escapeHtml(name)}">${escapeHtml(name)}</button>`).join("")}
+        </div>
+        <div class="grid flip-grid">
+          ${list.map(t => `
+            <div class="flip">
+              <div class="flip-inner">
+                <div class="flip-face">
+                  <span class="chip">${escapeHtml(level.rank)}</span>
+                  <span class="chip">${escapeHtml(cardPromptCategory)}</span>
+                  <div class="flip-title">${escapeHtml(t.name)}</div>
+                  <p class="muted">悬浮查看背面内容</p>
+                </div>
+                <div class="flip-face flip-back">
+                  <h3>${escapeHtml(t.name)}</h3>
+                  <p class="muted"><b>解释：</b>${escapeHtml(t.desc)}</p>
+                  <p class="muted"><b>通俗理解：</b>${escapeHtml(t.plain)}</p>
+                  <div class="example">${escapeHtml(t.example)}</div>
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+      $$("#cards .level-btn").forEach(btn => btn.addEventListener("click", () => {
+        cardLevelIndex = Number(btn.dataset.cardLevel);
+        cardPromptCategory = "";
+        renderCards();
+      }));
+      $$("#cards .filter-btn").forEach(btn => btn.addEventListener("click", () => {
+        cardPromptCategory = btn.dataset.cardCategory;
+        renderCards();
+      }));
+    }
+
+    function renderGraph() {
+      const levelPositions = [
+        { x: 50, y: 15 },
+        { x: 82, y: 35 },
+        { x: 70, y: 78 },
+        { x: 30, y: 78 },
+        { x: 18, y: 35 }
+      ];
+      const level = dictionaryLevels[graphLevelIndex];
+      const categoryNames = Object.keys(level.categories);
+      if (!graphPromptCategory || !categoryNames.includes(graphPromptCategory)) {
+        graphPromptCategory = categoryNames[0];
+      }
+      const categoryPositions = categoryNames.map((name, index) => {
+        const count = categoryNames.length;
+        const angle = -115 + (230 / Math.max(1, count - 1)) * index;
+        const rad = angle * Math.PI / 180;
+        return {
+          name,
+          x: 50 + Math.cos(rad) * 34,
+          y: 52 + Math.sin(rad) * 27
+        };
+      });
+
+      $("#graph").innerHTML = `
+        <div class="section-title">
+          <div><h2>知识图谱</h2><p class="muted">按术语词典的进阶能力生成图谱：中心是提示词训练，外圈是能力级别，当前级别展开为提示词类别。</p></div>
+          <span class="chip">${level.title}（${level.rank}）</span>
+        </div>
+        <div class="graph-wrap">
+          <div class="graph-stage" id="graphStage">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="graphLine" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="rgba(39,215,255,.72)" />
+                  <stop offset="100%" stop-color="rgba(229,92,255,.58)" />
+                </linearGradient>
+              </defs>
+              ${levelPositions.map(p => `<line x1="50" y1="50" x2="${p.x}" y2="${p.y}" stroke="url(#graphLine)" stroke-width=".32" />`).join("")}
+              ${categoryPositions.map(p => `<line x1="${levelPositions[graphLevelIndex].x}" y1="${levelPositions[graphLevelIndex].y}" x2="${p.x}" y2="${p.y}" stroke="rgba(72,240,169,.45)" stroke-width=".22" stroke-dasharray="1.2 1.2" />`).join("")}
+              <circle cx="50" cy="50" r="18" fill="none" stroke="rgba(39,215,255,.18)" stroke-width=".35" />
+              <circle cx="50" cy="50" r="32" fill="none" stroke="rgba(143,98,255,.14)" stroke-width=".28" />
+            </svg>
+            <button class="node center active" style="left:50%; top:50%;">AI应用开发<br>提示词训练</button>
+            ${dictionaryLevels.map((item, index) => `
+              <button class="node level-node ${index === graphLevelIndex ? "active" : ""}" data-graph-level="${index}" style="left:${levelPositions[index].x}%; top:${levelPositions[index].y}%;">
+                ${item.title}<br><span style="font-size:12px;color:var(--muted);">${item.rank}</span>
+              </button>
+            `).join("")}
+            ${categoryPositions.map(p => `
+              <button class="node category-node ${p.name === graphPromptCategory ? "active" : ""}" data-graph-category="${escapeHtml(p.name)}" style="left:${p.x}%; top:${p.y}%;">${escapeHtml(p.name)}</button>
+            `).join("")}
+          </div>
+          <div class="glass-card" id="graphInfo">
+            ${graphInfoHtml(level, graphPromptCategory)}
+          </div>
+        </div>
+      `;
+      $$("#graph .level-node").forEach(btn => btn.addEventListener("click", () => {
+        graphLevelIndex = Number(btn.dataset.graphLevel);
+        graphPromptCategory = "";
+        renderGraph();
+      }));
+      $$("#graph .category-node").forEach(btn => btn.addEventListener("click", () => {
+        graphPromptCategory = btn.dataset.graphCategory;
+        renderGraph();
+      }));
+    }
+
+    function graphInfoHtml(level, categoryName) {
+      const related = getLevelCategoryTerms(level, categoryName);
+      return `
+        <h3>${level.title}（${level.rank}）</h3>
+        <p class="muted">${level.ability}</p>
+        <p><span class="chip">${escapeHtml(categoryName)}</span></p>
+        <div class="grid" style="margin-top: 14px;">
+          ${related.map(t => `<div class="compare-card"><b>${escapeHtml(t.name)}</b><p class="muted">${escapeHtml(t.desc)}</p><div class="example">${escapeHtml(t.example)}</div></div>`).join("")}
+        </div>
+      `;
+    }
+
+    function renderCases() {
+      $("#cases").innerHTML = `
+        <div class="section-title">
+          <div><h2>场景案例</h2><p class="muted">从真实业务场景出发，学习如何把需求讲完整。</p></div>
+        </div>
+        <div class="compare">
+          <div class="compare-card">
+            <h3>普通表达</h3>
+            <p>帮我做一个页面。</p>
+            <p class="muted">问题：缺少文件形式、布局、风格、功能、数据和 AI 接入要求。</p>
+          </div>
+          <div class="compare-card professional">
+            <h3>专业表达</h3>
+            <p>请帮我生成一个单文件 HTML 程序，采用左侧导航键和共享主显示区布局，整体 UI 使用科技风格，支持数据导入、动态图表展示，并预留大模型 API 接入模块。</p>
+            <p class="muted">优势：目标清楚、边界明确、可直接执行。</p>
+          </div>
+        </div>
+        <div class="grid two-grid">
+          ${cases.map(c => `
+            <article class="case-card">
+              <h3>${c.title}</h3>
+              <p class="muted"><b>应用场景：</b>${c.scene}</p>
+              <p>${c.terms.map(t => `<span class="chip">${t}</span>`).join(" ")}</p>
+              <p class="muted"><b>怎样向 AI 提需求：</b>${c.demand}</p>
+              <div class="example"><b>推荐提示词：</b>${c.prompt}</div>
+              <p class="muted"><b>预期功能模块：</b>${c.modules.join("、")}</p>
+            </article>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderBuilder() {
+      $("#builder").innerHTML = `
+        <div class="section-title">
+          <div><h2>提示词拼装器</h2><p class="muted">勾选应用目标、文件形式、布局风格和功能模块，自动生成完整 AI 编程提示词。</p></div>
+        </div>
+        <div class="builder">
+          <div class="builder-panel">
+            ${Object.entries(builderGroups).map(([group, values]) => `
+              <div class="check-group">
+                <h3>${group}</h3>
+                <div class="options">
+                  ${values.map(v => `<label class="option"><input type="checkbox" data-group="${group}" value="${v}"> ${v}</label>`).join("")}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="builder-panel">
+            <h3>自动生成的 AI 编程提示词</h3>
+            <textarea id="promptOutput" readonly></textarea>
+            <div class="scores">
+              <div class="score"><span>完整度</span><b id="scoreFull">0</b></div>
+              <div class="score"><span>清晰度</span><b id="scoreClear">0</b></div>
+              <div class="score"><span>可执行性</span><b id="scoreAction">0</b></div>
+            </div>
+            <div class="toolbar">
+              <button class="gradient-btn" id="copyPrompt">一键复制</button>
+              <button class="gradient-btn" id="clearPrompt">清空重选</button>
+              <button class="gradient-btn" id="regenPrompt">重新生成</button>
+            </div>
+            <div class="compare">
+              <div class="compare-card">
+                <h3>普通表达</h3>
+                <p>帮我做一个页面。</p>
+              </div>
+              <div class="compare-card professional">
+                <h3>专业表达</h3>
+                <p>请明确文件形式、页面布局、UI 风格、核心功能、数据形式、AI 接入方式和运行要求。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      $$("#builder input[type='checkbox']").forEach(input => input.addEventListener("change", updatePrompt));
+      $("#copyPrompt").addEventListener("click", copyPrompt);
+      $("#clearPrompt").addEventListener("click", () => {
+        $$("#builder input[type='checkbox']").forEach(i => i.checked = false);
+        updatePrompt();
+        showToast("已清空，可重新选择");
+      });
+      $("#regenPrompt").addEventListener("click", () => {
+        updatePrompt();
+        showToast("已重新生成提示词");
+      });
+      updatePrompt();
+    }
+
+    function selectedByGroup() {
+      const result = {};
+      $$("#builder input[type='checkbox']:checked").forEach(input => {
+        result[input.dataset.group] = result[input.dataset.group] || [];
+        result[input.dataset.group].push(input.value);
+      });
+      return result;
+    }
+
+    function updatePrompt() {
+      const s = selectedByGroup();
+      const app = (s["应用类型"] || ["AI 应用原型"]).join("、");
+      const file = (s["文件形式"] || ["单文件 HTML"]).join("、");
+      const layout = (s["页面布局"] || ["顶部导航栏", "左侧导航键", "共享主显示区", "响应式布局"]).join("、");
+      const style = (s["UI 风格"] || ["科技风格", "毛玻璃效果"]).join("、");
+      const modules = (s["功能模块"] || ["搜索筛选", "图表可视化"]).join("、");
+      const ai = (s["AI 接入"] || ["提示词模板", "模型选择"]).join("、");
+      const prompt = `请帮我开发一个${file}程序，应用类型为${app}。\n\n页面结构要求：采用${layout}，点击导航时内容在共享主显示区切换，不跳转新页面。\n\n视觉风格要求：整体使用${style}，界面专业、大气、适合课堂培训和企业展示，同时保证文字清晰可读。\n\n功能模块要求：内置或预留${modules}等功能，所有演示数据使用 JavaScript 数组或 JSON 对象保存，不依赖后端服务器。\n\nAI 接入要求：预留${ai}相关区域，注意不要在代码中写死真实 API Key，方便后续扩展为真实大模型服务。\n\n代码要求：输出完整可运行代码，CSS 和 JavaScript 内嵌，结构清晰、注释适当、交互流畅，并兼容电脑、平板和手机屏幕。`;
+      const out = $("#promptOutput");
+      if (out) out.value = prompt;
+      const selectedCount = Object.values(s).flat().length;
+      const groupCount = Object.keys(s).length;
+      const full = Math.min(100, 40 + groupCount * 10 + selectedCount * 2);
+      const clear = Math.min(100, 55 + groupCount * 7);
+      const action = Math.min(100, 50 + selectedCount * 4);
+      $("#scoreFull").textContent = full;
+      $("#scoreClear").textContent = clear;
+      $("#scoreAction").textContent = action;
+    }
+
+    async function copyPrompt() {
+      const text = $("#promptOutput").value;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("提示词已复制");
+      } catch (err) {
+        $("#promptOutput").select();
+        document.execCommand("copy");
+        showToast("提示词已复制");
+      }
+    }
+
+    function renderQuiz() {
+      $("#quiz").innerHTML = `
+        <div class="section-title">
+          <div><h2>小测验</h2><p class="muted">答题后立即显示正确答案和解释，巩固常见 AI 编程术语。</p></div>
+          <span class="chip">${quizzes.length} 道题</span>
+        </div>
+        ${quizzes.map((q, idx) => `
+          <article class="quiz-card" data-index="${idx}">
+            <h3>${idx + 1}. ${q.q}</h3>
+            <div class="quiz-options">
+              ${q.options.map((op, opIdx) => `<button class="quiz-option" data-index="${idx}" data-option="${opIdx}">${op}</button>`).join("")}
+            </div>
+            <div class="answer" id="answer-${idx}">正确答案：${q.options[q.answer]}。${q.explain}</div>
+          </article>
+        `).join("")}
+      `;
+      $$(".quiz-option").forEach(btn => btn.addEventListener("click", () => answerQuiz(btn)));
+    }
+
+    function answerQuiz(btn) {
+      const q = quizzes[Number(btn.dataset.index)];
+      const selected = Number(btn.dataset.option);
+      const card = btn.closest(".quiz-card");
+      card.querySelectorAll(".quiz-option").forEach(item => {
+        item.disabled = true;
+        const option = Number(item.dataset.option);
+        if (option === q.answer) item.classList.add("correct");
+        if (option === selected && selected !== q.answer) item.classList.add("wrong");
+      });
+      card.querySelector(".answer").classList.add("show");
+    }
+
+    function renderSearchResults(keyword) {
+      if (!currentUser) {
+        showToast("请先登录后使用搜索");
+        switchView("auth");
+        return;
+      }
+      const kw = keyword.trim().toLowerCase();
+      const list = kw ? terms.filter(t => [t.name, t.category, t.desc, t.plain, t.example].some(v => v.toLowerCase().includes(kw))) : [];
+      activeView = "searchResults";
+      $$(".view").forEach(view => view.classList.remove("active"));
+      $("#searchResults").classList.add("active");
+      renderNav();
+      $("#searchResults").innerHTML = `
+        <div class="section-title">
+          <div><h2>搜索结果</h2><p class="muted">关键词：${escapeHtml(keyword)}</p></div>
+          <span class="chip">${list.length} 条结果</span>
+        </div>
+        ${list.length ? `<div class="grid term-list">${list.map(termCardHtml).join("")}</div>` : `<div class="glass-card empty">没有找到相关术语，请尝试搜索“UI”“API Key”“响应式布局”等关键词。</div>`}
+      `;
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem("ai-term-theme");
+      if (saved === "light") document.body.classList.add("light");
+      updateThemeButton();
+      $("#themeToggle").addEventListener("click", () => {
+        document.body.classList.toggle("light");
+        localStorage.setItem("ai-term-theme", document.body.classList.contains("light") ? "light" : "dark");
+        updateThemeButton();
+      });
+    }
+
+    function updateThemeButton() {
+      $("#themeToggle").textContent = document.body.classList.contains("light") ? "科技深色风格" : "明亮风格";
+    }
+
+    function initSearch() {
+      $("#searchInput").addEventListener("input", (e) => {
+        const value = e.target.value.trim();
+        if (value.length === 0) {
+          switchView(activeView === "searchResults" ? "home" : activeView);
+          return;
+        }
+        renderSearchResults(value);
+      });
+    }
+
+    function init() {
+      loadCurrentUser();
+      renderNav();
+      renderHome();
+      renderAuth();
+      renderDictionary();
+      renderCards();
+      renderGraph();
+      renderCases();
+      renderBuilder();
+      renderQuiz();
+      renderAdmin();
+      initTheme();
+      initSearch();
+    }
+
+    init();
+  </script>
+</body>
+</html>
