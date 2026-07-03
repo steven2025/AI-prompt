@@ -1782,12 +1782,14 @@
     }
 
     async function recordPlatformAction(action, moduleName) {
-      if (!state.currentUser) return;
+      const user = state.currentUser ? { ...state.currentUser } : null;
+      const sessionId = state.currentSessionId || 'LOCAL-SESSION';
+      if (!user) return;
       const payload = {
         action: 'recordAction',
-        name: state.currentUser.name,
-        phone: state.currentUser.phone,
-        sessionId: state.currentSessionId,
+        name: user.name,
+        phone: user.phone,
+        sessionId,
         behavior: action,
         module: moduleName
       };
@@ -1796,10 +1798,10 @@
       } catch (err) {
         const store = localAuthStore();
         store.actionLogs.unshift({
-          sessionId: state.currentSessionId || 'LOCAL-SESSION',
-          name: state.currentUser.name,
-          phone: state.currentUser.phone,
-          role: state.currentUser.role,
+          sessionId,
+          name: user.name,
+          phone: user.phone,
+          role: user.role,
           action,
           module: moduleName,
           time: nowText()
