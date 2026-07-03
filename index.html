@@ -802,7 +802,8 @@
 
     .training-overlay,
     .works-overlay,
-    .auth-modal {
+    .auth-modal,
+    .admin-modal {
       position: fixed;
       inset: 0;
       z-index: 120;
@@ -814,13 +815,15 @@
 
     .training-overlay.open,
     .works-overlay.open,
-    .auth-modal.open {
+    .auth-modal.open,
+    .admin-modal.open {
       display: grid;
     }
 
     .training-head,
     .works-head,
-    .auth-head {
+    .auth-head,
+    .admin-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -832,14 +835,16 @@
 
     .training-head strong,
     .works-head strong,
-    .auth-head strong {
+    .auth-head strong,
+    .admin-head strong {
       color: #e0f2fe;
       font-size: 15px;
     }
 
     .training-head span,
     .works-head span,
-    .auth-head span {
+    .auth-head span,
+    .admin-head span {
       color: var(--muted);
       font-size: 12px;
       margin-left: 10px;
@@ -847,7 +852,8 @@
 
     .training-body,
     .works-body,
-    .auth-body {
+    .auth-body,
+    .admin-body {
       min-height: 0;
       background: rgba(2, 6, 23, .48);
       display: grid;
@@ -891,6 +897,7 @@
     }
 
     .auth-card,
+    .admin-shell,
     .works-shell {
       width: min(1180px, 94vw);
       max-height: calc(100vh - 96px);
@@ -903,6 +910,69 @@
     }
 
     .auth-card { width: min(520px, 92vw); }
+
+    .admin-shell {
+      width: min(1220px, 95vw);
+    }
+
+    .admin-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .admin-metric {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(15, 23, 42, .72);
+      padding: 12px;
+    }
+
+    .admin-metric strong {
+      display: block;
+      color: #e0f2fe;
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .admin-table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(15, 23, 42, .62);
+      margin-top: 12px;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: 12px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, .16);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .admin-table th {
+      color: #e0f2fe;
+      background: rgba(2, 6, 23, .46);
+      white-space: nowrap;
+    }
+
+    .admin-section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      color: #e0f2fe;
+    }
 
     .works-grid {
       display: grid;
@@ -1026,6 +1096,7 @@
 
       <div class="top-actions">
         <button class="btn" id="authBtn">登录</button>
+        <button class="btn hidden" id="adminBtn">系统管理</button>
         <label class="btn" for="openFiles">导入文件</label>
         <button class="btn" id="downloadAllBtn">下载全部</button>
         <button class="btn-primary" id="downloadMainBtn">下载主文件</button>
@@ -1324,6 +1395,44 @@
     </div>
   </div>
 
+  <div class="admin-modal" id="adminModal">
+    <div class="admin-head">
+      <div>
+        <strong>系统管理</strong>
+        <span>管理员统一查看主程序、培训和作品相关记录</span>
+      </div>
+      <div class="row">
+        <button class="btn" id="adminRefreshBtn">刷新</button>
+        <button class="btn-danger" id="adminCloseBtn">关闭</button>
+      </div>
+    </div>
+    <div class="admin-body">
+      <div class="admin-shell">
+        <div class="admin-summary" id="adminSummary"></div>
+        <div class="admin-section-title">
+          <strong>用户列表</strong>
+          <span class="hint">姓名、手机号、身份和使用模块</span>
+        </div>
+        <div class="admin-table-wrap" id="adminUsersTable"></div>
+        <div class="admin-section-title">
+          <strong>登录记录</strong>
+          <span class="hint">主平台和培训接入云函数后的登录都会汇总到这里</span>
+        </div>
+        <div class="admin-table-wrap" id="adminLoginTable"></div>
+        <div class="admin-section-title">
+          <strong>行为记录</strong>
+          <span class="hint">访问培训、打开作品、提交作品、审核作品等行为</span>
+        </div>
+        <div class="admin-table-wrap" id="adminActionTable"></div>
+        <div class="admin-section-title">
+          <strong>作品记录</strong>
+          <span class="hint">包含待审核、已发布和已驳回作品</span>
+        </div>
+        <div class="admin-table-wrap" id="adminWorksTable"></div>
+      </div>
+    </div>
+  </div>
+
 
 
 
@@ -1418,6 +1527,15 @@
       authModal: $('authModal'),
       authCloseBtn: $('authCloseBtn'),
       authStatus: $('authStatus'),
+      adminBtn: $('adminBtn'),
+      adminModal: $('adminModal'),
+      adminCloseBtn: $('adminCloseBtn'),
+      adminRefreshBtn: $('adminRefreshBtn'),
+      adminSummary: $('adminSummary'),
+      adminUsersTable: $('adminUsersTable'),
+      adminLoginTable: $('adminLoginTable'),
+      adminActionTable: $('adminActionTable'),
+      adminWorksTable: $('adminWorksTable'),
       loginName: $('loginName'),
       loginPhone: $('loginPhone'),
       loginBtn: $('loginBtn'),
@@ -1598,10 +1716,12 @@
         els.authBtn.textContent = user.role === 'admin' ? '管理员' : user.name;
         els.authStatus.innerHTML = `当前用户：<b>${escapeHtml(user.name)}</b> · ${escapeHtml(user.phone)} · ${user.role === 'admin' ? '管理员' : '普通用户'}`;
         els.workDeveloper.value = els.workDeveloper.value || user.name;
+        els.adminBtn.classList.toggle('hidden', user.role !== 'admin');
         els.worksAdminTab.classList.toggle('hidden', user.role !== 'admin');
       } else {
         els.authBtn.textContent = '登录';
         els.authStatus.textContent = '当前未登录。登录后可以上传作品，管理员可审核作品并查看记录。';
+        els.adminBtn.classList.add('hidden');
         els.worksAdminTab.classList.add('hidden');
       }
     }
@@ -1686,6 +1806,122 @@
         });
         saveLocalAuthStore(store);
       }
+    }
+
+    function openAdminModal() {
+      if (state.currentUser?.role !== 'admin') return toast('仅管理员可查看系统管理');
+      els.adminModal.classList.add('open');
+      loadAdminData();
+      recordPlatformAction('打开系统管理', '系统管理');
+    }
+
+    function closeAdminModal() {
+      els.adminModal.classList.remove('open');
+    }
+
+    async function loadAdminData() {
+      if (state.currentUser?.role !== 'admin') return;
+      let data;
+      try {
+        data = await platformApi({
+          action: 'adminData',
+          name: state.currentUser.name,
+          phone: state.currentUser.phone
+        });
+      } catch (err) {
+        const auth = localAuthStore();
+        const works = localWorksStore();
+        data = {
+          ok: true,
+          users: auth.users || [],
+          loginLogs: auth.loginLogs || [],
+          actionLogs: auth.actionLogs || [],
+          works: works.works || []
+        };
+      }
+      renderAdminData(data);
+    }
+
+    function renderAdminData(data) {
+      const users = Array.isArray(data.users) ? data.users : [];
+      const loginLogs = Array.isArray(data.loginLogs) ? data.loginLogs : [];
+      const actionLogs = Array.isArray(data.actionLogs) ? data.actionLogs : [];
+      const works = Array.isArray(data.works) ? data.works : [];
+      const pending = works.filter(work => work.status === 'pending').length;
+      const approved = works.filter(work => work.status === 'approved').length;
+
+      els.adminSummary.innerHTML = [
+        ['用户', users.length],
+        ['登录', loginLogs.length],
+        ['行为', actionLogs.length],
+        ['作品', works.length],
+        ['待审核', pending],
+        ['已发布', approved]
+      ].map(([label, value]) => `<div class="admin-metric"><strong>${value}</strong><span class="hint">${label}</span></div>`).join('');
+
+      els.adminUsersTable.innerHTML = adminTable(
+        ['姓名', '手机号', '身份', '首次登录', '登录次数', '最近登录', '使用模块'],
+        users.map(user => [
+          user.name,
+          user.phone,
+          user.role === 'admin' ? '管理员' : '普通用户',
+          user.firstLoginTime || user.registerTime || '',
+          user.loginCount || 0,
+          user.lastLoginTime || '',
+          (user.usedModules || []).join('、')
+        ]),
+        7
+      );
+
+      els.adminLoginTable.innerHTML = adminTable(
+        ['登录编号', '姓名', '手机号', '身份', '登录时间', '来源'],
+        loginLogs.map(log => [
+          log.loginNo,
+          log.name,
+          log.phone,
+          log.role === 'admin' ? '管理员' : '普通用户',
+          log.loginTime,
+          log.source || ''
+        ]),
+        6
+      );
+
+      els.adminActionTable.innerHTML = adminTable(
+        ['登录编号', '姓名', '手机号', '行为', '模块', '时间'],
+        actionLogs.map(log => [
+          log.sessionId,
+          log.name,
+          log.phone,
+          log.action,
+          log.module,
+          log.time
+        ]),
+        6
+      );
+
+      els.adminWorksTable.innerHTML = adminTable(
+        ['作品名称', '开发者', '提交人', '方式', '状态', '提交时间', '审核人', '审核时间', '链接'],
+        works.map(work => [
+          work.title,
+          work.developer,
+          `${work.authorName || ''} ${work.authorPhone || ''}`,
+          work.type === 'html' ? 'HTML上传' : '链接上传',
+          work.status === 'approved' ? '已发布' : work.status === 'rejected' ? '已驳回' : '待审核',
+          work.createdAt || '',
+          work.reviewer || '',
+          work.reviewedAt || '',
+          work.url ? `<a href="${escapeHtml(work.url)}" target="_blank" rel="noopener noreferrer">打开</a>` : ''
+        ]),
+        9,
+        true
+      );
+    }
+
+    function adminTable(headers, rows, colspan, allowHtml = false) {
+      const body = rows.length
+        ? rows.map(row => `<tr>${row.map(cell => `<td>${allowHtml && String(cell).includes('<a ') ? cell : escapeHtml(cell)}</td>`).join('')}</tr>`).join('')
+        : `<tr><td colspan="${colspan}">暂无数据</td></tr>`;
+      return `<table class="admin-table"><thead><tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>`;
     }
 
     function getApiKey() {
@@ -2640,8 +2876,12 @@ ${userText}
 
     function bind() {
       els.authBtn.addEventListener('click', openAuthModal);
+      els.adminBtn.addEventListener('click', openAdminModal);
+      els.adminCloseBtn.addEventListener('click', closeAdminModal);
+      els.adminRefreshBtn.addEventListener('click', loadAdminData);
       els.authCloseBtn.addEventListener('click', closeAuthModal);
       els.authModal.addEventListener('click', (e) => { if (e.target === els.authModal) closeAuthModal(); });
+      els.adminModal.addEventListener('click', (e) => { if (e.target === els.adminModal) closeAdminModal(); });
       els.loginBtn.addEventListener('click', loginPlatform);
       els.logoutBtn.addEventListener('click', logoutPlatform);
 
@@ -2702,6 +2942,7 @@ ${userText}
         if (e.key === 'Escape' && els.trainingOverlay.classList.contains('open')) closeTrainingApp();
         if (e.key === 'Escape' && els.worksOverlay.classList.contains('open')) closeWorksApp();
         if (e.key === 'Escape' && els.authModal.classList.contains('open')) closeAuthModal();
+        if (e.key === 'Escape' && els.adminModal.classList.contains('open')) closeAdminModal();
         if (e.key === 'Escape' && els.helpModal.classList.contains('open')) closeHelpModal();
       });
 
