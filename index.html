@@ -2532,6 +2532,11 @@ ${userText}
 
 
     function openTrainingApp() {
+      if (!state.currentUser) {
+        toast('请先登录后使用培训模块');
+        openAuthModal();
+        return;
+      }
       els.trainingOverlay.classList.add('open');
       recordPlatformAction('打开培训', 'AI开发培训小程序');
       if (TRAINING_APP_URL) {
@@ -2644,6 +2649,11 @@ ${userText}
     }
 
     function openWorksApp() {
+      if (!state.currentUser) {
+        toast('请先登录后使用作品模块');
+        openAuthModal();
+        return;
+      }
       els.worksOverlay.classList.add('open');
       switchWorksPanel('list');
       loadWorks();
