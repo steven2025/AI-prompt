@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v4-admin';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v5-login-gate';
 const APP_SHELL = [
   './',
   './index.html',
@@ -28,13 +28,26 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
 
-  // DeepSeek API 请求必须走网络，不缓存。
   if (request.url.includes('/chat/completions') || request.url.includes('api.deepseek.com')) {
     event.respondWith(fetch(request));
     return;
   }
 
   if (request.method !== 'GET') return;
+
+  const acceptsHtml = request.headers.get('accept')?.includes('text/html');
+  const isNavigation = request.mode === 'navigate' || acceptsHtml;
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(request).then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        return response;
+      }).catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(request).then(cached => {

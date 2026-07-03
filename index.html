@@ -1693,18 +1693,26 @@
       state.currentUser = user || null;
       state.currentSessionId = sessionId || state.currentSessionId || '';
       if (state.currentUser) {
-        localStorage.setItem('ds_platform_current_user', JSON.stringify({
+        sessionStorage.setItem('ds_platform_current_user', JSON.stringify({
           user: state.currentUser,
           sessionId: state.currentSessionId
         }));
+        localStorage.removeItem('ds_platform_current_user');
       } else {
+        sessionStorage.removeItem('ds_platform_current_user');
         localStorage.removeItem('ds_platform_current_user');
       }
       updateAuthUI();
     }
 
     function loadCurrentUser() {
-      const saved = loadJson('ds_platform_current_user', null);
+      localStorage.removeItem('ds_platform_current_user');
+      let saved = null;
+      try {
+        saved = JSON.parse(sessionStorage.getItem('ds_platform_current_user') || 'null');
+      } catch (err) {
+        saved = null;
+      }
       state.currentUser = saved?.user || null;
       state.currentSessionId = saved?.sessionId || '';
       updateAuthUI();
