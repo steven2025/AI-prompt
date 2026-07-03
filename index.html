@@ -764,7 +764,8 @@
     }
 
 
-    .training-float {
+    .training-float,
+    .works-float {
       position: fixed;
       right: 14px;
       top: 50%;
@@ -787,13 +788,21 @@
       transition: .18s ease;
     }
 
-    .training-float:hover {
+    .works-float {
+      top: calc(50% + 132px);
+      background: linear-gradient(180deg, rgba(52, 211, 153, .94), rgba(34, 211, 238, .92));
+    }
+
+    .training-float:hover,
+    .works-float:hover {
       right: 18px;
       transform: translateY(-50%) scale(1.02);
       box-shadow: 0 22px 60px rgba(34, 211, 238, .22);
     }
 
-    .training-overlay {
+    .training-overlay,
+    .works-overlay,
+    .auth-modal {
       position: fixed;
       inset: 0;
       z-index: 120;
@@ -803,11 +812,15 @@
       grid-template-rows: 58px 1fr;
     }
 
-    .training-overlay.open {
+    .training-overlay.open,
+    .works-overlay.open,
+    .auth-modal.open {
       display: grid;
     }
 
-    .training-head {
+    .training-head,
+    .works-head,
+    .auth-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -817,18 +830,24 @@
       background: rgba(2, 6, 23, .78);
     }
 
-    .training-head strong {
+    .training-head strong,
+    .works-head strong,
+    .auth-head strong {
       color: #e0f2fe;
       font-size: 15px;
     }
 
-    .training-head span {
+    .training-head span,
+    .works-head span,
+    .auth-head span {
       color: var(--muted);
       font-size: 12px;
       margin-left: 10px;
     }
 
-    .training-body {
+    .training-body,
+    .works-body,
+    .auth-body {
       min-height: 0;
       background: rgba(2, 6, 23, .48);
       display: grid;
@@ -871,13 +890,95 @@
       display: none;
     }
 
+    .auth-card,
+    .works-shell {
+      width: min(1180px, 94vw);
+      max-height: calc(100vh - 96px);
+      overflow: auto;
+      border: 1px solid var(--line2);
+      border-radius: 22px;
+      background: rgba(8, 13, 26, .94);
+      box-shadow: 0 26px 90px rgba(0,0,0,.36);
+      padding: 18px;
+    }
+
+    .auth-card { width: min(520px, 92vw); }
+
+    .works-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, 380px) 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .works-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(15, 23, 42, .72);
+      padding: 14px;
+    }
+
+    .works-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .work-item h3 {
+      margin: 0 0 8px;
+      color: #e0f2fe;
+      font-size: 15px;
+    }
+
+    .work-item p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .work-meta {
+      color: var(--muted2);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .works-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .auth-status {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .upload-tip {
+      margin-top: 8px;
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .review-list {
+      display: grid;
+      gap: 10px;
+    }
+
     @media (max-width: 980px) {
-      .training-float {
+      .training-float,
+      .works-float {
         right: 8px;
         width: 36px;
         height: 104px;
         font-size: 12px;
       }
+      .works-float { top: calc(50% + 118px); }
+      .works-grid { grid-template-columns: 1fr; }
     }
 
 
@@ -924,6 +1025,7 @@
       <div class="teacher"><b>AI 应用开发训练工具</b></div>
 
       <div class="top-actions">
+        <button class="btn" id="authBtn">登录</button>
         <label class="btn" for="openFiles">导入文件</label>
         <button class="btn" id="downloadAllBtn">下载全部</button>
         <button class="btn-primary" id="downloadMainBtn">下载主文件</button>
@@ -1076,6 +1178,7 @@
 
 
   <button class="training-float" id="trainingBtn" title="打开 AI 开发培训小程序">培训</button>
+  <button class="works-float" id="worksBtn" title="打开成员作品展示">作品</button>
 
   <div class="training-overlay" id="trainingOverlay">
     <div class="training-head">
@@ -1096,6 +1199,127 @@
         <p>AI开发培训小程序已接入。点击右侧“培训”按钮即可在全屏层中打开。</p>
         <p>建议用途：放置 AI 应用开发课程导航、提示词模板、云函数部署教程、对象存储教程、学生作品案例等。</p>
         <button class="btn-primary" id="trainingPlaceholderBtn">已接入培训小程序</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="works-overlay" id="worksOverlay">
+    <div class="works-head">
+      <div>
+        <strong>成员作品展示</strong>
+        <span>上传、审核和打开成员制作的应用</span>
+      </div>
+      <div class="row">
+        <button class="btn" id="worksRefreshBtn">刷新</button>
+        <button class="btn" id="worksFullscreenBtn">全屏</button>
+        <button class="btn-danger" id="worksCloseBtn">关闭</button>
+      </div>
+    </div>
+    <div class="works-body">
+      <div class="works-shell">
+        <div class="works-tabs">
+          <button class="btn-primary" id="worksListTab">作品列表</button>
+          <button class="btn" id="worksUploadTab">上传作品</button>
+          <button class="btn hidden" id="worksAdminTab">上传审核</button>
+        </div>
+
+        <div id="worksListPanel">
+          <div class="row between" style="margin-bottom:12px;">
+            <div>
+              <strong>已发布作品</strong>
+              <div class="hint">审核通过后会自动进入这里。点击“打开应用”会在新窗口打开，不会直接插入主程序运行。</div>
+            </div>
+            <span class="hint" id="worksCountText">作品：0</span>
+          </div>
+          <div class="works-list" id="worksList"></div>
+        </div>
+
+        <div id="worksUploadPanel" class="hidden">
+          <div class="works-grid">
+            <div class="works-card">
+              <h3>上传说明</h3>
+              <p class="upload-tip">请先登录。提交后作品进入“待审核”，管理员审核通过后才会公开展示。</p>
+              <p class="upload-tip"><b>HTML 上传：</b>适合单文件 HTML 应用。请选择一个 .html 或 .htm 文件，系统会上传到 COS 并生成可打开链接。</p>
+              <p class="upload-tip"><b>链接上传：</b>适合已经发布到 GitHub Pages、腾讯云静态网站或其他网页地址的应用。请填写完整 https:// 链接。</p>
+              <p class="upload-tip">为了保护主程序，用户上传的 HTML 会通过独立链接或受限预览打开，不会直接获得主程序页面权限。</p>
+            </div>
+            <div class="works-card">
+              <div class="field">
+                <label>程序名称</label>
+                <input id="workTitle" placeholder="例如：智能请假审批小应用" />
+              </div>
+              <div class="field">
+                <label>开发者姓名</label>
+                <input id="workDeveloper" placeholder="登录后会自动填入，也可以补充团队成员" />
+              </div>
+              <div class="field">
+                <label>程序主要功能简介</label>
+                <textarea id="workSummary" rows="4" placeholder="说明这个应用解决什么问题、主要功能是什么、适合谁使用。"></textarea>
+              </div>
+              <div class="field">
+                <label>上传方式</label>
+                <select id="workUploadMode">
+                  <option value="html">HTML 文件上传</option>
+                  <option value="link">网页/静态链接上传</option>
+                </select>
+              </div>
+              <div class="field" id="workHtmlField">
+                <label>选择 HTML 文件</label>
+                <input id="workHtmlFile" type="file" accept=".html,.htm" />
+                <label class="btn" for="workHtmlFile">选择 .html 文件</label>
+                <div class="hint" id="workFileName">尚未选择文件</div>
+              </div>
+              <div class="field hidden" id="workLinkField">
+                <label>作品链接</label>
+                <input id="workUrl" placeholder="https://example.com/my-app/" />
+                <div class="hint">请填写可以直接打开的网页地址。</div>
+              </div>
+              <div class="row">
+                <button class="btn-primary" id="workSubmitBtn">提交审核</button>
+                <button class="btn" id="workResetBtn">清空</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="worksAdminPanel" class="hidden">
+          <div class="row between" style="margin-bottom:12px;">
+            <div>
+              <strong>上传审核</strong>
+              <div class="hint">仅管理员可见。通过后作品会进入公开列表，用户即可打开。</div>
+            </div>
+            <span class="hint" id="worksPendingText">待审核：0</span>
+          </div>
+          <div class="review-list" id="worksReviewList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-modal" id="authModal">
+    <div class="auth-head">
+      <div>
+        <strong>用户登录</strong>
+        <span>沿用培训模块的姓名 + 手机号模式</span>
+      </div>
+      <button class="btn-danger" id="authCloseBtn">关闭</button>
+    </div>
+    <div class="auth-body">
+      <div class="auth-card">
+        <p class="auth-status" id="authStatus">当前未登录。登录后可以上传作品，管理员可审核作品并查看记录。</p>
+        <div class="field">
+          <label>姓名</label>
+          <input id="loginName" placeholder="请输入姓名" />
+        </div>
+        <div class="field">
+          <label>手机号</label>
+          <input id="loginPhone" placeholder="请输入 11 位手机号" maxlength="11" inputmode="numeric" />
+        </div>
+        <div class="row">
+          <button class="btn-primary" id="loginBtn">登录</button>
+          <button class="btn-danger" id="logoutBtn">退出登录</button>
+        </div>
+        <div class="hint" style="margin-top:10px;">管理员身份沿用原培训模块配置。云函数地址配置后，登录和行为会写入 COS；未配置时仅保存在本机浏览器。</div>
       </div>
     </div>
   </div>
@@ -1182,8 +1406,22 @@
     // 后续把你的 AI 开发培训小程序链接填到这里，例如：
     // const TRAINING_APP_URL = './training.html';
     const TRAINING_APP_URL = './training.html';
+    // 部署新版云函数后，把 HTTP 触发器地址填到这里；留空时使用本机浏览器数据演示。
+    const PLATFORM_API_URL = '';
+    const ADMIN_NAME = '鄢清华';
+    const ADMIN_PHONE = '13002320485';
+    const AUTH_STORE_KEY = 'ds_platform_auth_store';
+    const WORKS_STORE_KEY = 'ds_platform_works_store';
 
     const els = {
+      authBtn: $('authBtn'),
+      authModal: $('authModal'),
+      authCloseBtn: $('authCloseBtn'),
+      authStatus: $('authStatus'),
+      loginName: $('loginName'),
+      loginPhone: $('loginPhone'),
+      loginBtn: $('loginBtn'),
+      logoutBtn: $('logoutBtn'),
       apiBtn: $('apiBtn'),
       apiPanel: $('apiPanel'),
       closeApiBtn: $('closeApiBtn'),
@@ -1231,7 +1469,33 @@
       trainingCloseBtn: $('trainingCloseBtn'),
       trainingFullscreenBtn: $('trainingFullscreenBtn'),
       trainingOpenNewBtn: $('trainingOpenNewBtn'),
-      trainingPlaceholderBtn: $('trainingPlaceholderBtn')
+      trainingPlaceholderBtn: $('trainingPlaceholderBtn'),
+      worksBtn: $('worksBtn'),
+      worksOverlay: $('worksOverlay'),
+      worksCloseBtn: $('worksCloseBtn'),
+      worksRefreshBtn: $('worksRefreshBtn'),
+      worksFullscreenBtn: $('worksFullscreenBtn'),
+      worksListTab: $('worksListTab'),
+      worksUploadTab: $('worksUploadTab'),
+      worksAdminTab: $('worksAdminTab'),
+      worksListPanel: $('worksListPanel'),
+      worksUploadPanel: $('worksUploadPanel'),
+      worksAdminPanel: $('worksAdminPanel'),
+      worksList: $('worksList'),
+      worksCountText: $('worksCountText'),
+      worksPendingText: $('worksPendingText'),
+      worksReviewList: $('worksReviewList'),
+      workTitle: $('workTitle'),
+      workDeveloper: $('workDeveloper'),
+      workSummary: $('workSummary'),
+      workUploadMode: $('workUploadMode'),
+      workHtmlField: $('workHtmlField'),
+      workLinkField: $('workLinkField'),
+      workHtmlFile: $('workHtmlFile'),
+      workFileName: $('workFileName'),
+      workUrl: $('workUrl'),
+      workSubmitBtn: $('workSubmitBtn'),
+      workResetBtn: $('workResetBtn')
     };
 
     const state = {
@@ -1240,7 +1504,10 @@
       currentFile: '',
       mainFile: '',
       lastAnswer: '',
-      busy: false
+      busy: false,
+      currentUser: null,
+      currentSessionId: '',
+      works: []
     };
 
     function toast(text) {
@@ -1260,6 +1527,165 @@
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+    }
+
+    function nowText() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function cleanPhone(phone) {
+      return String(phone || '').replace(/\s+/g, '');
+    }
+
+    function isValidPhone(phone) {
+      return /^\d{11}$/.test(cleanPhone(phone));
+    }
+
+    function getRole(name, phone) {
+      return name === ADMIN_NAME && cleanPhone(phone) === ADMIN_PHONE ? 'admin' : 'user';
+    }
+
+    function loadJson(key, fallback) {
+      try {
+        return JSON.parse(localStorage.getItem(key) || 'null') || fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function saveJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    async function platformApi(payload) {
+      if (!PLATFORM_API_URL) throw new Error('云函数地址未配置');
+      const res = await fetch(PLATFORM_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok || data.ok === false) throw new Error(data.message || '云函数请求失败');
+      return data;
+    }
+
+    function setCurrentUser(user, sessionId) {
+      state.currentUser = user || null;
+      state.currentSessionId = sessionId || state.currentSessionId || '';
+      if (state.currentUser) {
+        localStorage.setItem('ds_platform_current_user', JSON.stringify({
+          user: state.currentUser,
+          sessionId: state.currentSessionId
+        }));
+      } else {
+        localStorage.removeItem('ds_platform_current_user');
+      }
+      updateAuthUI();
+    }
+
+    function loadCurrentUser() {
+      const saved = loadJson('ds_platform_current_user', null);
+      state.currentUser = saved?.user || null;
+      state.currentSessionId = saved?.sessionId || '';
+      updateAuthUI();
+    }
+
+    function updateAuthUI() {
+      const user = state.currentUser;
+      if (user) {
+        els.authBtn.textContent = user.role === 'admin' ? '管理员' : user.name;
+        els.authStatus.innerHTML = `当前用户：<b>${escapeHtml(user.name)}</b> · ${escapeHtml(user.phone)} · ${user.role === 'admin' ? '管理员' : '普通用户'}`;
+        els.workDeveloper.value = els.workDeveloper.value || user.name;
+        els.worksAdminTab.classList.toggle('hidden', user.role !== 'admin');
+      } else {
+        els.authBtn.textContent = '登录';
+        els.authStatus.textContent = '当前未登录。登录后可以上传作品，管理员可审核作品并查看记录。';
+        els.worksAdminTab.classList.add('hidden');
+      }
+    }
+
+    function localAuthStore() {
+      return loadJson(AUTH_STORE_KEY, { users: [], loginLogs: [], actionLogs: [], loginSeq: 0 });
+    }
+
+    function saveLocalAuthStore(store) {
+      saveJson(AUTH_STORE_KEY, store);
+    }
+
+    async function loginPlatform() {
+      const name = els.loginName.value.trim();
+      const phone = cleanPhone(els.loginPhone.value);
+      if (!name || !phone) return toast('请填写姓名和手机号');
+      if (!isValidPhone(phone)) return toast('手机号必须为 11 位数字');
+
+      try {
+        const data = await platformApi({ action: 'login', name, phone });
+        setCurrentUser(data.user, data.loginNo);
+        toast(data.user.role === 'admin' ? '管理员登录成功' : '登录成功');
+        closeAuthModal();
+      } catch (err) {
+        const store = localAuthStore();
+        let user = store.users.find(u => u.name === name && u.phone === phone);
+        if (!user) {
+          user = { name, phone, role: getRole(name, phone), firstLoginTime: nowText(), loginCount: 0, lastLoginTime: '', usedModules: [] };
+          store.users.push(user);
+        }
+        user.role = getRole(name, phone);
+        store.loginSeq = Number(store.loginSeq || 0) + 1;
+        const loginNo = `LOCAL-${String(store.loginSeq).padStart(5, '0')}`;
+        user.loginCount = Number(user.loginCount || 0) + 1;
+        user.lastLoginTime = nowText();
+        store.loginLogs.unshift({ loginNo, name, phone, role: user.role, loginTime: user.lastLoginTime, source: '主程序登录' });
+        store.actionLogs.unshift({ sessionId: loginNo, name, phone, role: user.role, action: '登录', module: '主程序', time: user.lastLoginTime });
+        saveLocalAuthStore(store);
+        setCurrentUser(user, loginNo);
+        toast('已使用本机模式登录');
+        closeAuthModal();
+      }
+    }
+
+    function logoutPlatform() {
+      if (state.currentUser) recordPlatformAction('退出登录', '主程序');
+      setCurrentUser(null, '');
+      toast('已退出登录');
+    }
+
+    function openAuthModal() {
+      els.authModal.classList.add('open');
+      updateAuthUI();
+    }
+
+    function closeAuthModal() {
+      els.authModal.classList.remove('open');
+    }
+
+    async function recordPlatformAction(action, moduleName) {
+      if (!state.currentUser) return;
+      const payload = {
+        action: 'recordAction',
+        name: state.currentUser.name,
+        phone: state.currentUser.phone,
+        sessionId: state.currentSessionId,
+        behavior: action,
+        module: moduleName
+      };
+      try {
+        await platformApi(payload);
+      } catch (err) {
+        const store = localAuthStore();
+        store.actionLogs.unshift({
+          sessionId: state.currentSessionId || 'LOCAL-SESSION',
+          name: state.currentUser.name,
+          phone: state.currentUser.phone,
+          role: state.currentUser.role,
+          action,
+          module: moduleName,
+          time: nowText()
+        });
+        saveLocalAuthStore(store);
+      }
     }
 
     function getApiKey() {
@@ -1869,6 +2295,7 @@ ${userText}
 
     function openTrainingApp() {
       els.trainingOverlay.classList.add('open');
+      recordPlatformAction('打开培训', 'AI开发培训小程序');
       if (TRAINING_APP_URL) {
         els.trainingFrame.src = TRAINING_APP_URL;
         els.trainingFrame.style.display = 'block';
@@ -1888,6 +2315,235 @@ ${userText}
       if (target.requestFullscreen) target.requestFullscreen();
       else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
       else toast('当前浏览器不支持全屏 API');
+    }
+
+    function emptyWorksStore() {
+      return { works: [], workSeq: 0 };
+    }
+
+    function localWorksStore() {
+      return loadJson(WORKS_STORE_KEY, emptyWorksStore());
+    }
+
+    function saveLocalWorksStore(store) {
+      saveJson(WORKS_STORE_KEY, store);
+    }
+
+    async function loadWorks() {
+      try {
+        const data = await platformApi({
+          action: 'worksList',
+          name: state.currentUser?.name || '',
+          phone: state.currentUser?.phone || '',
+          includePending: state.currentUser?.role === 'admin'
+        });
+        state.works = Array.isArray(data.works) ? data.works : [];
+      } catch (err) {
+        state.works = localWorksStore().works || [];
+      }
+      renderWorks();
+    }
+
+    function renderWorks() {
+      const approved = state.works.filter(work => work.status === 'approved');
+      const pending = state.works.filter(work => work.status === 'pending');
+      els.worksCountText.textContent = `作品：${approved.length}`;
+      els.worksPendingText.textContent = `待审核：${pending.length}`;
+
+      els.worksList.innerHTML = approved.map(work => workCardHtml(work, false)).join('')
+        || `<div class="works-card"><p class="upload-tip">暂无已发布作品。用户提交并由管理员审核后，会显示在这里。</p></div>`;
+
+      els.worksReviewList.innerHTML = pending.map(work => workCardHtml(work, true)).join('')
+        || `<div class="works-card"><p class="upload-tip">暂无待审核作品。</p></div>`;
+
+      els.worksList.querySelectorAll('[data-open-work]').forEach(btn => {
+        btn.addEventListener('click', () => openWork(btn.dataset.openWork));
+      });
+      els.worksReviewList.querySelectorAll('[data-open-work]').forEach(btn => {
+        btn.addEventListener('click', () => openWork(btn.dataset.openWork));
+      });
+      els.worksReviewList.querySelectorAll('[data-approve-work]').forEach(btn => {
+        btn.addEventListener('click', () => reviewWork(btn.dataset.approveWork, 'approved'));
+      });
+      els.worksReviewList.querySelectorAll('[data-reject-work]').forEach(btn => {
+        btn.addEventListener('click', () => reviewWork(btn.dataset.rejectWork, 'rejected'));
+      });
+    }
+
+    function workCardHtml(work, reviewMode) {
+      return `
+        <div class="works-card work-item">
+          <h3>${escapeHtml(work.title)}</h3>
+          <div class="work-meta">${escapeHtml(work.developer || work.authorName || '')} · ${escapeHtml(work.type === 'html' ? 'HTML上传' : '链接上传')} · ${escapeHtml(work.createdAt || '')}</div>
+          <p>${escapeHtml(work.summary || '')}</p>
+          <div class="row">
+            <button class="btn-primary" data-open-work="${escapeHtml(work.id)}">打开应用</button>
+            ${reviewMode ? `<button class="btn" data-approve-work="${escapeHtml(work.id)}">通过</button><button class="btn-danger" data-reject-work="${escapeHtml(work.id)}">驳回</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function findWork(id) {
+      return state.works.find(work => work.id === id);
+    }
+
+    function openWork(id) {
+      const work = findWork(id);
+      if (!work || !work.url) return toast('作品链接不可用');
+      recordPlatformAction('打开作品', work.title || '作品');
+      window.open(work.url, '_blank', 'noopener,noreferrer');
+    }
+
+    function switchWorksPanel(panel) {
+      els.worksListPanel.classList.toggle('hidden', panel !== 'list');
+      els.worksUploadPanel.classList.toggle('hidden', panel !== 'upload');
+      els.worksAdminPanel.classList.toggle('hidden', panel !== 'admin');
+      els.worksListTab.className = panel === 'list' ? 'btn-primary' : 'btn';
+      els.worksUploadTab.className = panel === 'upload' ? 'btn-primary' : 'btn';
+      els.worksAdminTab.className = panel === 'admin' ? 'btn-primary' : 'btn';
+      els.worksAdminTab.classList.toggle('hidden', state.currentUser?.role !== 'admin');
+    }
+
+    function openWorksApp() {
+      els.worksOverlay.classList.add('open');
+      switchWorksPanel('list');
+      loadWorks();
+      recordPlatformAction('打开作品', '成员作品展示');
+    }
+
+    function closeWorksApp() {
+      els.worksOverlay.classList.remove('open');
+    }
+
+    function fullscreenWorksApp() {
+      const target = els.worksOverlay;
+      if (target.requestFullscreen) target.requestFullscreen();
+      else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+      else toast('当前浏览器不支持全屏 API');
+    }
+
+    function resetWorkForm() {
+      els.workTitle.value = '';
+      els.workSummary.value = '';
+      els.workUrl.value = '';
+      els.workHtmlFile.value = '';
+      els.workFileName.textContent = '尚未选择文件';
+      els.workDeveloper.value = state.currentUser?.name || '';
+      els.workUploadMode.value = 'html';
+      toggleWorkUploadMode();
+    }
+
+    function toggleWorkUploadMode() {
+      const isHtml = els.workUploadMode.value === 'html';
+      els.workHtmlField.classList.toggle('hidden', !isHtml);
+      els.workLinkField.classList.toggle('hidden', isHtml);
+    }
+
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = reject;
+        reader.readAsText(file, 'utf-8');
+      });
+    }
+
+    async function submitWork() {
+      if (!state.currentUser) {
+        toast('请先登录后上传作品');
+        openAuthModal();
+        return;
+      }
+
+      const title = els.workTitle.value.trim();
+      const developer = els.workDeveloper.value.trim() || state.currentUser.name;
+      const summary = els.workSummary.value.trim();
+      const type = els.workUploadMode.value;
+      if (!title) return toast('请填写程序名称');
+      if (!developer) return toast('请填写开发者姓名');
+      if (!summary) return toast('请填写程序主要功能简介');
+
+      const payload = {
+        action: 'submitWork',
+        name: state.currentUser.name,
+        phone: state.currentUser.phone,
+        title,
+        developer,
+        summary,
+        type
+      };
+
+      if (type === 'link') {
+        const url = els.workUrl.value.trim();
+        if (!/^https?:\/\//i.test(url)) return toast('请填写完整的 http 或 https 链接');
+        payload.url = url;
+      } else {
+        const file = els.workHtmlFile.files?.[0];
+        if (!file) return toast('请选择 HTML 文件');
+        if (!/\.html?$/i.test(file.name)) return toast('只能上传 .html 或 .htm 文件');
+        payload.fileName = file.name;
+        payload.fileContent = await readFileAsText(file);
+      }
+
+      try {
+        const data = await platformApi(payload);
+        toast(data.status === 'approved' ? '作品已发布' : '作品已提交，等待管理员审核');
+      } catch (err) {
+        const store = localWorksStore();
+        store.workSeq = Number(store.workSeq || 0) + 1;
+        const id = `LOCAL-WORK-${String(store.workSeq).padStart(5, '0')}`;
+        let url = payload.url || '';
+        if (type === 'html') {
+          const blob = new Blob([payload.fileContent], { type: 'text/html;charset=utf-8' });
+          url = URL.createObjectURL(blob);
+        }
+        store.works.unshift({
+          id,
+          title,
+          developer,
+          summary,
+          type,
+          url,
+          status: 'pending',
+          authorName: state.currentUser.name,
+          authorPhone: state.currentUser.phone,
+          createdAt: nowText()
+        });
+        saveLocalWorksStore(store);
+        toast('作品已保存到本机待审核列表');
+      }
+      resetWorkForm();
+      await loadWorks();
+      switchWorksPanel('list');
+      recordPlatformAction('提交作品', title);
+    }
+
+    async function reviewWork(id, status) {
+      if (state.currentUser?.role !== 'admin') return toast('仅管理员可审核作品');
+      const work = findWork(id);
+      if (!work) return toast('未找到作品');
+      try {
+        await platformApi({
+          action: 'reviewWork',
+          name: state.currentUser.name,
+          phone: state.currentUser.phone,
+          workId: id,
+          status
+        });
+      } catch (err) {
+        const store = localWorksStore();
+        const target = store.works.find(item => item.id === id);
+        if (target) {
+          target.status = status;
+          target.reviewedAt = nowText();
+          target.reviewer = state.currentUser.name;
+          saveLocalWorksStore(store);
+        }
+      }
+      toast(status === 'approved' ? '已通过，作品进入列表' : '已驳回');
+      await loadWorks();
+      recordPlatformAction(status === 'approved' ? '审核通过作品' : '驳回作品', work.title);
     }
 
 
@@ -1983,6 +2639,12 @@ ${userText}
 
 
     function bind() {
+      els.authBtn.addEventListener('click', openAuthModal);
+      els.authCloseBtn.addEventListener('click', closeAuthModal);
+      els.authModal.addEventListener('click', (e) => { if (e.target === els.authModal) closeAuthModal(); });
+      els.loginBtn.addEventListener('click', loginPlatform);
+      els.logoutBtn.addEventListener('click', logoutPlatform);
+
       els.helpBtn.addEventListener('click', openHelpModal);
       els.helpCloseBtn.addEventListener('click', closeHelpModal);
       els.helpModal.addEventListener('click', (e) => { if (e.target === els.helpModal) closeHelpModal(); });
@@ -2013,8 +2675,33 @@ ${userText}
         else toast('培训小程序链接尚未设置');
       });
       els.trainingPlaceholderBtn.addEventListener('click', () => toast('占位入口已保留，后续可接入链接或程序'));
+      els.worksBtn.addEventListener('click', openWorksApp);
+      els.worksCloseBtn.addEventListener('click', closeWorksApp);
+      els.worksRefreshBtn.addEventListener('click', loadWorks);
+      els.worksFullscreenBtn.addEventListener('click', fullscreenWorksApp);
+      els.worksListTab.addEventListener('click', () => switchWorksPanel('list'));
+      els.worksUploadTab.addEventListener('click', () => {
+        if (!state.currentUser) {
+          toast('请先登录后上传作品');
+          openAuthModal();
+          return;
+        }
+        switchWorksPanel('upload');
+      });
+      els.worksAdminTab.addEventListener('click', () => {
+        if (state.currentUser?.role !== 'admin') return toast('仅管理员可审核作品');
+        switchWorksPanel('admin');
+      });
+      els.workUploadMode.addEventListener('change', toggleWorkUploadMode);
+      els.workHtmlFile.addEventListener('change', () => {
+        els.workFileName.textContent = els.workHtmlFile.files?.[0]?.name || '尚未选择文件';
+      });
+      els.workSubmitBtn.addEventListener('click', submitWork);
+      els.workResetBtn.addEventListener('click', resetWorkForm);
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && els.trainingOverlay.classList.contains('open')) closeTrainingApp();
+        if (e.key === 'Escape' && els.worksOverlay.classList.contains('open')) closeWorksApp();
+        if (e.key === 'Escape' && els.authModal.classList.contains('open')) closeAuthModal();
         if (e.key === 'Escape' && els.helpModal.classList.contains('open')) closeHelpModal();
       });
 
@@ -2084,6 +2771,9 @@ ${userText}
 
     registerPWA();
     loadApiSettings();
+    loadCurrentUser();
+    resetWorkForm();
+    loadWorks();
     showFirstUseGuide();
     bind();
     if (!els.memoryText.value) {

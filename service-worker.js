@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v2';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v3-works';
 const APP_SHELL = [
   './',
   './index.html',
