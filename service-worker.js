@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v9-file-safe';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v10-work-delete';
 const APP_SHELL = [
   './',
   './index.html',

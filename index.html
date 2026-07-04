@@ -2648,18 +2648,27 @@ ${userText}
       els.worksReviewList.querySelectorAll('[data-reject-work]').forEach(btn => {
         btn.addEventListener('click', () => reviewWork(btn.dataset.rejectWork, 'rejected'));
       });
+      els.worksList.querySelectorAll('[data-delete-work]').forEach(btn => {
+        btn.addEventListener('click', () => deleteWork(btn.dataset.deleteWork));
+      });
+      els.worksReviewList.querySelectorAll('[data-delete-work]').forEach(btn => {
+        btn.addEventListener('click', () => deleteWork(btn.dataset.deleteWork));
+      });
     }
 
     function workCardHtml(work, reviewMode, index = 0) {
       const tone = `work-tone-${index % 5}`;
+      const canManage = state.currentUser?.role === 'admin';
+      const statusText = work.status === 'approved' ? '已发布' : work.status === 'rejected' ? '已驳回' : '待审核';
       return `
         <div class="works-card work-item ${tone}">
           <h3>${escapeHtml(work.title)}</h3>
-          <div class="work-meta">${escapeHtml(work.developer || work.authorName || '')} · ${escapeHtml(work.type === 'html' ? 'HTML上传' : '链接上传')} · ${escapeHtml(work.createdAt || '')}</div>
+          <div class="work-meta">${escapeHtml(work.developer || work.authorName || '')} · ${escapeHtml(work.type === 'html' ? 'HTML上传' : '链接上传')} · ${escapeHtml(statusText)} · ${escapeHtml(work.createdAt || '')}</div>
           <p>${escapeHtml(work.summary || '')}</p>
           <div class="row">
             <button class="btn-primary" data-open-work="${escapeHtml(work.id)}">打开应用</button>
             ${reviewMode ? `<button class="btn" data-approve-work="${escapeHtml(work.id)}">通过</button><button class="btn-danger" data-reject-work="${escapeHtml(work.id)}">驳回</button>` : ''}
+            ${canManage ? `<button class="btn-danger" data-delete-work="${escapeHtml(work.id)}">删除</button>` : ''}
           </div>
         </div>
       `;
@@ -2832,6 +2841,27 @@ ${userText}
       recordPlatformAction(status === 'approved' ? '审核通过作品' : '驳回作品', work.title);
     }
 
+    async function deleteWork(id) {
+      if (state.currentUser?.role !== 'admin') return toast('仅管理员可删除作品');
+      const work = findWork(id);
+      if (!work) return toast('未找到作品');
+      if (!confirm(`确定删除作品“${work.title || ''}”吗？删除后作品列表和审核列表都不会再显示。`)) return;
+      try {
+        await platformApi({
+          action: 'deleteWork',
+          name: state.currentUser.name,
+          phone: state.currentUser.phone,
+          workId: id
+        });
+      } catch (err) {
+        const store = localWorksStore();
+        store.works = (store.works || []).filter(item => item.id !== id);
+        saveLocalWorksStore(store);
+      }
+      toast('作品已删除');
+      await loadWorks();
+    }
+
 
 
     let deferredInstallPrompt = null;
@@ -2988,8 +3018,9 @@ ${userText}
         }
         switchWorksPanel('upload');
       });
-      els.worksAdminTab.addEventListener('click', () => {
+      els.worksAdminTab.addEventListener('click', async () => {
         if (state.currentUser?.role !== 'admin') return toast('仅管理员可审核作品');
+        await loadWorks();
         switchWorksPanel('admin');
       });
       els.workUploadMode.addEventListener('change', toggleWorkUploadMode);
