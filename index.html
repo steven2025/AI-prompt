@@ -1426,6 +1426,7 @@
     </div>
     <div class="admin-body">
       <div class="admin-shell">
+        <div class="cloud-mode-note hidden" id="adminCloudNote">当前未配置云函数地址，系统管理正在显示本机浏览器数据；换电脑或换浏览器将看不到。要读取 COS 数据，请在 index.html 中填写 PLATFORM_API_URL。</div>
         <div class="admin-summary" id="adminSummary"></div>
         <div class="admin-section-title">
           <strong>用户列表</strong>
@@ -1549,6 +1550,7 @@
       adminModal: $('adminModal'),
       adminCloseBtn: $('adminCloseBtn'),
       adminRefreshBtn: $('adminRefreshBtn'),
+      adminCloudNote: $('adminCloudNote'),
       adminSummary: $('adminSummary'),
       adminUsersTable: $('adminUsersTable'),
       adminLoginTable: $('adminLoginTable'),
@@ -1812,6 +1814,7 @@
       const user = state.currentUser ? { ...state.currentUser } : null;
       const sessionId = state.currentSessionId || 'LOCAL-SESSION';
       if (!user) return;
+      if (user.role === 'admin') return;
       const payload = {
         action: 'recordAction',
         name: user.name,
@@ -1874,10 +1877,11 @@
     function renderAdminData(data) {
       const users = Array.isArray(data.users) ? data.users : [];
       const loginLogs = Array.isArray(data.loginLogs) ? data.loginLogs : [];
-      const actionLogs = Array.isArray(data.actionLogs) ? data.actionLogs : [];
+      const actionLogs = (Array.isArray(data.actionLogs) ? data.actionLogs : []).filter(log => log.role !== 'admin');
       const works = Array.isArray(data.works) ? data.works : [];
       const pending = works.filter(work => work.status === 'pending').length;
       const approved = works.filter(work => work.status === 'approved').length;
+      els.adminCloudNote.classList.toggle('hidden', Boolean(PLATFORM_API_URL));
 
       els.adminSummary.innerHTML = [
         ['用户', users.length],
