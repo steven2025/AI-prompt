@@ -1088,7 +1088,6 @@
     }
   </style>
 
-  <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./favicon.png" />
   <link rel="apple-touch-icon" href="./icon-180.png" />
   <meta name="theme-color" content="#060913" />
@@ -2570,6 +2569,12 @@ ${userText}
       }
       els.trainingOverlay.classList.add('open');
       recordPlatformAction('打开培训', 'AI开发培训小程序');
+      if (location.protocol === 'file:') {
+        els.trainingFrame.style.display = 'none';
+        els.trainingPlaceholder.style.display = 'block';
+        toast('本地双击打开时不能嵌入培训页，请用“本地预览-启动.bat”或部署后的网页地址访问');
+        return;
+      }
       if (TRAINING_APP_URL) {
         els.trainingFrame.src = TRAINING_APP_URL;
         els.trainingFrame.style.display = 'block';
@@ -2893,6 +2898,16 @@ ${userText}
     }
 
     function registerPWA() {
+      const canUsePWA = location.protocol === 'http:' || location.protocol === 'https:';
+      if (!canUsePWA) return;
+
+      if (!document.querySelector('link[rel="manifest"]')) {
+        const manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = './manifest.json';
+        document.head.appendChild(manifestLink);
+      }
+
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./service-worker.js').catch(() => {});

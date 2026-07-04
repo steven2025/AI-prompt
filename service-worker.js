@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v8-cloud-url';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v9-file-safe';
 const APP_SHELL = [
   './',
   './index.html',
