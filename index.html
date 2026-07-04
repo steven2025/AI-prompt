@@ -1000,6 +1000,23 @@
       font-size: 15px;
     }
 
+    .work-tone-0 { border-color: rgba(34, 211, 238, .38); background: linear-gradient(135deg, rgba(8, 47, 73, .78), rgba(15, 23, 42, .72)); }
+    .work-tone-1 { border-color: rgba(52, 211, 153, .38); background: linear-gradient(135deg, rgba(6, 78, 59, .74), rgba(15, 23, 42, .72)); }
+    .work-tone-2 { border-color: rgba(167, 139, 250, .42); background: linear-gradient(135deg, rgba(59, 37, 111, .74), rgba(15, 23, 42, .72)); }
+    .work-tone-3 { border-color: rgba(251, 191, 36, .38); background: linear-gradient(135deg, rgba(92, 58, 12, .70), rgba(15, 23, 42, .72)); }
+    .work-tone-4 { border-color: rgba(248, 113, 113, .36); background: linear-gradient(135deg, rgba(88, 28, 45, .68), rgba(15, 23, 42, .72)); }
+
+    .cloud-mode-note {
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(251, 191, 36, .32);
+      border-radius: 12px;
+      background: rgba(92, 58, 12, .22);
+      color: #fde68a;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
     .work-item p {
       margin: 0 0 10px;
       color: var(--muted);
@@ -1302,6 +1319,7 @@
             </div>
             <span class="hint" id="worksCountText">作品：0</span>
           </div>
+          <div class="cloud-mode-note hidden" id="worksCloudNote">当前未配置云函数地址，作品数据只保存在本机浏览器；换电脑或换浏览器将看不到。要全员共享，请在 index.html 中填写 PLATFORM_API_URL。</div>
           <div class="works-list" id="worksList"></div>
         </div>
 
@@ -1600,6 +1618,7 @@
       worksUploadPanel: $('worksUploadPanel'),
       worksAdminPanel: $('worksAdminPanel'),
       worksList: $('worksList'),
+      worksCloudNote: $('worksCloudNote'),
       worksCountText: $('worksCountText'),
       worksPendingText: $('worksPendingText'),
       worksReviewList: $('worksReviewList'),
@@ -1769,7 +1788,7 @@
         store.actionLogs.unshift({ sessionId: loginNo, name, phone, role: user.role, action: '登录', module: '主程序', time: user.lastLoginTime });
         saveLocalAuthStore(store);
         setCurrentUser(user, loginNo);
-        toast('已使用本机模式登录');
+        toast('云函数未配置或不可用，已使用本机模式登录');
         closeAuthModal();
       }
     }
@@ -2600,11 +2619,12 @@ ${userText}
       const pending = state.works.filter(work => work.status === 'pending');
       els.worksCountText.textContent = `作品：${approved.length}`;
       els.worksPendingText.textContent = `待审核：${pending.length}`;
+      els.worksCloudNote.classList.toggle('hidden', Boolean(PLATFORM_API_URL));
 
-      els.worksList.innerHTML = approved.map(work => workCardHtml(work, false)).join('')
+      els.worksList.innerHTML = approved.map((work, index) => workCardHtml(work, false, index)).join('')
         || `<div class="works-card"><p class="upload-tip">暂无已发布作品。用户提交并由管理员审核后，会显示在这里。</p></div>`;
 
-      els.worksReviewList.innerHTML = pending.map(work => workCardHtml(work, true)).join('')
+      els.worksReviewList.innerHTML = pending.map((work, index) => workCardHtml(work, true, index)).join('')
         || `<div class="works-card"><p class="upload-tip">暂无待审核作品。</p></div>`;
 
       els.worksList.querySelectorAll('[data-open-work]').forEach(btn => {
@@ -2621,9 +2641,10 @@ ${userText}
       });
     }
 
-    function workCardHtml(work, reviewMode) {
+    function workCardHtml(work, reviewMode, index = 0) {
+      const tone = `work-tone-${index % 5}`;
       return `
-        <div class="works-card work-item">
+        <div class="works-card work-item ${tone}">
           <h3>${escapeHtml(work.title)}</h3>
           <div class="work-meta">${escapeHtml(work.developer || work.authorName || '')} · ${escapeHtml(work.type === 'html' ? 'HTML上传' : '链接上传')} · ${escapeHtml(work.createdAt || '')}</div>
           <p>${escapeHtml(work.summary || '')}</p>
@@ -2767,7 +2788,7 @@ ${userText}
           createdAt: nowText()
         });
         saveLocalWorksStore(store);
-        toast('作品已保存到本机待审核列表');
+        toast('云函数未配置或不可用，作品仅保存到本机待审核列表');
       }
       resetWorkForm();
       await loadWorks();

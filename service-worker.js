@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v5-login-gate';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v6-works-cloud-note';
 const APP_SHELL = [
   './',
   './index.html',
