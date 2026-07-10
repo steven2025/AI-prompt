@@ -3636,13 +3636,41 @@ ${userText}
       return new Blob(chunks, { type: type || 'application/octet-stream' });
     }
 
+    function safeDownloadName(name) {
+      return String(name || '协作文件').replace(/[\\/:*?"<>|]/g, '_');
+    }
+
+    async function saveBlobToDevice(blob, fileName, fileHandle = null) {
+      const safeName = safeDownloadName(fileName);
+      if (fileHandle) {
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = safeName;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+    }
+
     async function downloadCollabFile(objectKey, fileName) {
       if (!objectKey) return toast('文件地址缺失，无法下载');
       if (!state.currentUser) {
         openAuthModal();
         return;
       }
+      let fileHandle = null;
       try {
+        if (window.showSaveFilePicker && window.isSecureContext) {
+          fileHandle = await window.showSaveFilePicker({ suggestedName: safeDownloadName(fileName) });
+        }
         const data = await platformApi({
           action: 'downloadCollabFile',
           name: state.currentUser.name,
@@ -3650,15 +3678,9 @@ ${userText}
           objectKey
         });
         const blob = base64ToBlob(data.dataBase64, data.type);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = data.name || fileName || '协作文件';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1200);
+        await saveBlobToDevice(blob, data.name || fileName || '协作文件', fileHandle);
       } catch (err) {
+        if (err?.name === 'AbortError') return;
         toast(err.message || '文件下载失败');
       }
     }
@@ -3793,7 +3815,24 @@ ${userText}
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+          navigator.serviceWorker.register('./service-worker.js').then(registration => {
+            registration.update().catch(() => {});
+            if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            registration.addEventListener('updatefound', () => {
+              const worker = registration.installing;
+              if (!worker) return;
+              worker.addEventListener('statechange', () => {
+                if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                  worker.postMessage({ type: 'SKIP_WAITING' });
+                }
+              });
+            });
+          }).catch(() => {});
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (window.__dsSwReloading) return;
+            window.__dsSwReloading = true;
+            window.location.reload();
+          });
         });
       }
 
