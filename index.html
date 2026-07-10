@@ -1267,9 +1267,10 @@
             <span>DeepSeek API 设置</span>
             <button class="icon-btn" id="closeApiBtn">×</button>
           </div>
+          <form id="apiSettingsForm" autocomplete="off" onsubmit="return false;">
           <div class="field">
             <label>API Key</label>
-            <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" />
+            <input id="apiKey" type="password" placeholder="sk-..." autocomplete="new-password" />
             <div class="hint">学生使用自己的 API Key。静态网页不会上传 Key 到 GitHub；Key 只在本机浏览器中使用。</div>
           </div>
           <div class="field">
@@ -1306,10 +1307,11 @@
             </select>
           </div>
           <div class="row">
-            <button class="btn-primary" id="saveApiBtn">保存设置</button>
-            <button class="btn" id="testApiBtn">测试连接</button>
-            <button class="btn-danger" id="clearApiBtn">清除</button>
+            <button type="button" class="btn-primary" id="saveApiBtn">保存设置</button>
+            <button type="button" class="btn" id="testApiBtn">测试连接</button>
+            <button type="button" class="btn-danger" id="clearApiBtn">清除</button>
           </div>
+          </form>
         </div>
       </div>
     </header>
@@ -3291,7 +3293,7 @@ ${userText}
       if (!list.length) return '';
       return `<div class="collab-files">${list.map(file => {
         const label = [file.category, file.name || '文件', formatFileSize(file.size)].filter(Boolean).join(' · ');
-        return `<a class="collab-file" href="${escapeHtml(file.url || '#')}" download="${escapeHtml(file.name || 'file')}" target="_blank" rel="noopener noreferrer">下载 ${escapeHtml(label)}</a>`;
+        return `<button type="button" class="collab-file" data-collab-download-key="${escapeHtml(file.objectKey || '')}" data-collab-download-name="${escapeHtml(file.name || 'file')}">下载 ${escapeHtml(label)}</button>`;
       }).join('')}</div>`;
     }
 
@@ -3622,6 +3624,45 @@ ${userText}
       }
     }
 
+    function base64ToBlob(base64, type) {
+      const binary = atob(base64 || '');
+      const chunks = [];
+      for (let i = 0; i < binary.length; i += 8192) {
+        const slice = binary.slice(i, i + 8192);
+        const bytes = new Uint8Array(slice.length);
+        for (let j = 0; j < slice.length; j++) bytes[j] = slice.charCodeAt(j);
+        chunks.push(bytes);
+      }
+      return new Blob(chunks, { type: type || 'application/octet-stream' });
+    }
+
+    async function downloadCollabFile(objectKey, fileName) {
+      if (!objectKey) return toast('文件地址缺失，无法下载');
+      if (!state.currentUser) {
+        openAuthModal();
+        return;
+      }
+      try {
+        const data = await platformApi({
+          action: 'downloadCollabFile',
+          name: state.currentUser.name,
+          phone: state.currentUser.phone,
+          objectKey
+        });
+        const blob = base64ToBlob(data.dataBase64, data.type);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.name || fileName || '协作文件';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1200);
+      } catch (err) {
+        toast(err.message || '文件下载失败');
+      }
+    }
+
     async function closeCollabIssue() {
       if (state.currentUser?.role !== 'admin') return toast('仅管理员可关闭问题');
       const issueId = els.collabTeacherIssue.value;
@@ -3843,6 +3884,11 @@ ${userText}
       els.workResetBtn.addEventListener('click', resetWorkForm);
       els.collabBtn.addEventListener('click', openCollabApp);
       els.collabCloseBtn.addEventListener('click', closeCollabApp);
+      els.collabOverlay.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-collab-download-key]');
+        if (!btn) return;
+        downloadCollabFile(btn.dataset.collabDownloadKey, btn.dataset.collabDownloadName);
+      });
       els.collabRefreshBtn.addEventListener('click', loadCollab);
       els.collabFullscreenBtn.addEventListener('click', fullscreenCollabApp);
       els.collabProjectsTab.addEventListener('click', () => switchCollabPanel('projects'));
