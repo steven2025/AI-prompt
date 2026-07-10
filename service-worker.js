@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v17-pwa-save-file';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v18-collab-filters';
 const APP_SHELL = [
   './',
   './index.html',

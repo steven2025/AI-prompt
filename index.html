@@ -1102,6 +1102,45 @@
       background: rgba(2, 6, 23, .32);
     }
 
+    .collab-status-new {
+      border-color: rgba(251, 191, 36, .42);
+      color: #fde68a;
+      background: rgba(92, 58, 12, .34);
+    }
+
+    .collab-status-teacher_replied {
+      border-color: rgba(34, 211, 238, .42);
+      color: #bae6fd;
+      background: rgba(8, 47, 73, .34);
+    }
+
+    .collab-status-student_feedback {
+      border-color: rgba(167, 139, 250, .46);
+      color: #ddd6fe;
+      background: rgba(59, 37, 111, .34);
+    }
+
+    .collab-status-closed {
+      border-color: rgba(52, 211, 153, .42);
+      color: #bbf7d0;
+      background: rgba(6, 78, 59, .32);
+    }
+
+    .collab-filterbar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 12px;
+      padding: 10px;
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-radius: 12px;
+      background: rgba(2, 6, 23, .22);
+    }
+
+    .collab-filterbar .field {
+      margin: 0;
+    }
+
     .collab-files {
       display: flex;
       gap: 8px;
@@ -1207,7 +1246,8 @@
       .works-grid,
       .collab-grid { grid-template-columns: 1fr; }
       .collab-form-grid,
-      .collab-upload-grid { grid-template-columns: 1fr; }
+      .collab-upload-grid,
+      .collab-filterbar { grid-template-columns: 1fr; }
     }
 
 
@@ -1663,6 +1703,26 @@
                 </div>
                 <span class="hint" id="collabPendingCount">待处理：0</span>
               </div>
+              <div class="collab-filterbar">
+                <div class="field">
+                  <label>学生</label>
+                  <select id="collabFilterStudent"></select>
+                </div>
+                <div class="field">
+                  <label>项目</label>
+                  <select id="collabFilterProject"></select>
+                </div>
+                <div class="field">
+                  <label>状态</label>
+                  <select id="collabFilterStatus">
+                    <option value="">全部状态</option>
+                    <option value="new">新提交</option>
+                    <option value="teacher_replied">已回传</option>
+                    <option value="student_feedback">学生复测</option>
+                    <option value="closed">已关闭</option>
+                  </select>
+                </div>
+              </div>
               <div class="collab-list" id="collabAdminIssueList"></div>
             </div>
             <div class="collab-card collab-quiet-card">
@@ -2015,6 +2075,9 @@
       collabLogList: $('collabLogList'),
       collabPendingCount: $('collabPendingCount'),
       collabAdminIssueList: $('collabAdminIssueList'),
+      collabFilterStudent: $('collabFilterStudent'),
+      collabFilterProject: $('collabFilterProject'),
+      collabFilterStatus: $('collabFilterStatus'),
       collabTeacherIssue: $('collabTeacherIssue'),
       collabFixType: $('collabFixType'),
       collabDeployAdvice: $('collabDeployAdvice'),
@@ -2042,7 +2105,10 @@
         issues: [],
         notifications: [],
         selectedProjectId: '',
-        selectedIssueId: ''
+        selectedIssueId: '',
+        filterStudent: '',
+        filterProject: '',
+        filterStatus: ''
       }
     };
 
@@ -3280,6 +3346,31 @@ ${userText}
       return map[status] || status || '处理中';
     }
 
+    function collabStatusClass(status) {
+      const safe = String(status || 'new').replace(/[^\w-]/g, '');
+      return `collab-status collab-status-${safe}`;
+    }
+
+    function uniqueOptions(items, valueGetter, labelGetter) {
+      const map = new Map();
+      items.forEach(item => {
+        const value = valueGetter(item);
+        if (!value || map.has(value)) return;
+        map.set(value, labelGetter(item));
+      });
+      return Array.from(map.entries());
+    }
+
+    function filterCollabIssues(issues, includeClosed = true) {
+      return issues.filter(issue => {
+        if (!includeClosed && issue.status === 'closed') return false;
+        if (state.collab.filterStudent && issue.studentPhone !== state.collab.filterStudent) return false;
+        if (state.collab.filterProject && issue.projectId !== state.collab.filterProject) return false;
+        if (state.collab.filterStatus && issue.status !== state.collab.filterStatus) return false;
+        return true;
+      });
+    }
+
     function formatFileSize(size) {
       const num = Number(size || 0);
       if (!num) return '';
@@ -3358,7 +3449,17 @@ ${userText}
       els.collabProjectCount.textContent = `项目：${projects.length}`;
       els.collabIssueCount.textContent = `问题：${issues.length}`;
       const pendingIssues = issues.filter(issue => issue.status !== 'closed');
-      els.collabPendingCount.textContent = `待处理：${pendingIssues.length}`;
+      const visibleAdminIssues = filterCollabIssues(issues, state.collab.filterStatus === 'closed');
+      const actionableIssues = filterCollabIssues(issues, false);
+      els.collabPendingCount.textContent = `待处理：${pendingIssues.length} ｜ 当前显示：${visibleAdminIssues.length}`;
+
+      const studentOptions = uniqueOptions(issues, issue => issue.studentPhone, issue => `${issue.studentName || '学生'}（${issue.studentPhone}）`);
+      const projectFilterOptions = uniqueOptions(issues, issue => issue.projectId, issue => issue.projectName || issue.projectId);
+      els.collabFilterStudent.innerHTML = '<option value="">全部学生</option>' + studentOptions.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join('');
+      els.collabFilterProject.innerHTML = '<option value="">全部项目</option>' + projectFilterOptions.map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join('');
+      els.collabFilterStudent.value = state.collab.filterStudent;
+      els.collabFilterProject.value = state.collab.filterProject;
+      els.collabFilterStatus.value = state.collab.filterStatus;
 
       els.collabProjectList.innerHTML = projects.map(project => {
         const count = issues.filter(issue => issue.projectId === project.id).length;
@@ -3374,14 +3475,19 @@ ${userText}
       els.collabIssueProject.innerHTML = projectOptions || '<option value="">请先创建项目</option>';
       if (state.collab.selectedProjectId) els.collabIssueProject.value = state.collab.selectedProjectId;
 
-      const issueOptions = pendingIssues.map(issue => `<option value="${escapeHtml(issue.id)}">${escapeHtml(issue.projectName)} / ${escapeHtml(issue.moduleName)} / ${escapeHtml(issue.title)}</option>`).join('');
+      const issueOptions = actionableIssues.map(issue => `<option value="${escapeHtml(issue.id)}">${escapeHtml(issue.studentName || '')} / ${escapeHtml(issue.projectName)} / ${escapeHtml(issue.title)}</option>`).join('');
       els.collabTeacherIssue.innerHTML = issueOptions || '<option value="">暂无待处理问题</option>';
-      if (state.collab.selectedIssueId) els.collabTeacherIssue.value = state.collab.selectedIssueId;
+      if (state.collab.selectedIssueId && actionableIssues.some(issue => issue.id === state.collab.selectedIssueId)) {
+        els.collabTeacherIssue.value = state.collab.selectedIssueId;
+      } else {
+        state.collab.selectedIssueId = actionableIssues[0]?.id || '';
+        els.collabTeacherIssue.value = state.collab.selectedIssueId;
+      }
 
       els.collabNoticeList.innerHTML = notices.map(notice => {
         const issue = issues.find(item => item.id === notice.issueId);
         return `<div class="collab-card collab-item ${notice.read ? '' : 'collab-notice'}">
-          <div class="row between"><h3>${escapeHtml(notice.title || '通知')}</h3><span class="collab-status">${notice.read ? '已读' : '未读'}</span></div>
+          <div class="row between"><h3>${escapeHtml(notice.title || '通知')}</h3><span class="${notice.read ? 'collab-status collab-status-closed' : 'collab-status collab-status-new'}">${notice.read ? '已读' : '未读'}</span></div>
           <div class="work-meta">${escapeHtml(notice.createdAt || '')}</div>
           <p>${escapeHtml(notice.message || '')}</p>
           ${issue ? collabIssueReturnHtml(issue, true) : ''}
@@ -3391,8 +3497,8 @@ ${userText}
       els.collabLogList.innerHTML = issues.map(issue => collabIssueLogHtml(issue)).join('')
         || `<div class="collab-card"><p class="upload-tip">暂无协作日志。</p></div>`;
 
-      els.collabAdminIssueList.innerHTML = pendingIssues.map(issue => collabIssueCardHtml(issue, true)).join('')
-        || `<div class="collab-card"><p class="upload-tip">暂无待处理问题。</p></div>`;
+      els.collabAdminIssueList.innerHTML = visibleAdminIssues.map(issue => collabIssueCardHtml(issue, true)).join('')
+        || `<div class="collab-card"><p class="upload-tip">当前筛选条件下暂无问题。</p></div>`;
 
       els.collabProjectList.querySelectorAll('[data-collab-project]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -3414,7 +3520,7 @@ ${userText}
 
     function collabIssueCardHtml(issue, adminMode) {
       return `<div class="collab-card collab-item">
-        <div class="row between"><h3>${escapeHtml(issue.title)}</h3><span class="collab-status">${escapeHtml(collabStatusText(issue.status))}</span></div>
+        <div class="row between"><h3>${escapeHtml(issue.title)}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
         <div class="work-meta">${escapeHtml(issue.projectName)} · ${escapeHtml(issue.moduleName)} · ${escapeHtml(issue.studentName || '')} · ${escapeHtml(issue.updatedAt || '')}</div>
         <p>${escapeHtml(issue.feedbackText || issue.phenomenonText || '')}</p>
         ${collabFilesHtml(issue.files)}
@@ -3452,7 +3558,7 @@ ${userText}
     function collabIssueLogHtml(issue) {
       const timeline = Array.isArray(issue.timeline) ? issue.timeline : [];
       return `<div class="collab-card collab-item">
-        <div class="row between"><h3>${escapeHtml(issue.projectName)} / ${escapeHtml(issue.moduleName)}</h3><span class="collab-status">${escapeHtml(collabStatusText(issue.status))}</span></div>
+        <div class="row between"><h3>${escapeHtml(issue.projectName)} / ${escapeHtml(issue.moduleName)}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
         <div class="work-meta">${escapeHtml(issue.title)} · ${escapeHtml(issue.studentName || '')}</div>
         ${timeline.map(item => `<div class="collab-card" style="margin-top:8px;">
           <div class="work-meta">${escapeHtml(item.time || '')} · ${escapeHtml(item.actorName || '')} · ${escapeHtml(item.action || '')}</div>
@@ -3947,6 +4053,24 @@ ${userText}
       els.collabCloseIssueBtn.addEventListener('click', closeCollabIssue);
       els.collabCopyPromptBtn.addEventListener('click', copyCollabPrompt);
       els.collabMarkReadBtn.addEventListener('click', markCollabRead);
+      els.collabFilterStudent.addEventListener('change', () => {
+        state.collab.filterStudent = els.collabFilterStudent.value;
+        state.collab.selectedIssueId = '';
+        renderCollab();
+      });
+      els.collabFilterProject.addEventListener('change', () => {
+        state.collab.filterProject = els.collabFilterProject.value;
+        state.collab.selectedIssueId = '';
+        renderCollab();
+      });
+      els.collabFilterStatus.addEventListener('change', () => {
+        state.collab.filterStatus = els.collabFilterStatus.value;
+        state.collab.selectedIssueId = '';
+        renderCollab();
+      });
+      els.collabTeacherIssue.addEventListener('change', () => {
+        state.collab.selectedIssueId = els.collabTeacherIssue.value;
+      });
       els.collabFrontendFiles.addEventListener('change', () => {
         const files = Array.from(els.collabFrontendFiles.files || []);
         els.collabFrontendFilesText.textContent = files.length ? files.map(file => file.name).join('、') : '尚未选择文件';
