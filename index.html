@@ -1430,6 +1430,79 @@
       margin: 0;
     }
 
+    .collab-progress {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .collab-step {
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 10px;
+      padding: 9px 8px;
+      color: #94a3b8;
+      background: rgba(2, 6, 23, .26);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .collab-step.done {
+      border-color: rgba(52, 211, 153, .34);
+      color: #bbf7d0;
+      background: rgba(6, 78, 59, .24);
+    }
+
+    .collab-step.active {
+      border-color: rgba(56, 189, 248, .45);
+      color: #e0f2fe;
+      background: rgba(8, 47, 73, .46);
+      box-shadow: 0 10px 24px rgba(14, 165, 233, .12);
+    }
+
+    .collab-check-card {
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 12px 0;
+      background: rgba(2, 6, 23, .22);
+    }
+
+    .collab-check-card strong {
+      display: block;
+      margin-bottom: 10px;
+      color: #e0f2fe;
+      font-size: 13px;
+    }
+
+    .collab-check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 12px;
+    }
+
+    .collab-check-grid label {
+      color: #cbd5e1;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .collab-stage-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .collab-success-panel {
+      border: 1px solid rgba(52, 211, 153, .36);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+      background: linear-gradient(135deg, rgba(6, 78, 59, .36), rgba(15, 23, 42, .7));
+    }
+
     .collab-files {
       display: flex;
       gap: 8px;
@@ -1971,7 +2044,7 @@
     <div class="collab-head">
       <div>
         <strong>AI应用开发协作中心</strong>
-        <span>项目文件分块上传、问题处理、修复回传</span>
+        <span>想法、前端原型、云端部署、联调运行的全过程协作</span>
       </div>
       <div class="row">
         <button class="btn" id="collabRefreshBtn">刷新</button>
@@ -1984,26 +2057,34 @@
         <div class="collab-userbar" id="collabUserBar">当前用户：未登录</div>
         <div class="collab-tabs">
           <button class="btn-primary" id="collabProjectsTab">项目</button>
-          <button class="btn" id="collabSubmitTab">上传问题</button>
+          <button class="btn" id="collabSubmitTab">当前任务</button>
           <button class="btn" id="collabNoticeTab">新到文件</button>
           <button class="btn" id="collabLogTab">处理日志</button>
-          <button class="btn hidden" id="collabAdminTab">管理队列</button>
+          <button class="btn hidden" id="collabAdminTab">管理员工作台</button>
         </div>
 
         <div class="cloud-mode-note hidden" id="collabCloudNote">当前未配置云函数地址，协作中心无法跨设备同步。请配置 PLATFORM_API_URL 并部署新版云函数。</div>
 
         <div id="collabProjectsPanel">
-          <div class="collab-grid">
+          <div class="collab-grid collab-student-grid">
             <div class="collab-card collab-quiet-card">
               <h3>新建项目</h3>
-              <p class="upload-tip">学生先创建项目，再上传报错信息和项目文件。管理员端只处理队列，不提交问题。</p>
+              <p class="upload-tip">先把作品想法说清楚，再逐步完成前端、云函数、部署和联调。</p>
               <div class="field">
                 <label>项目名称</label>
                 <input id="collabProjectName" placeholder="例如：校园预约小程序" />
               </div>
               <div class="field">
                 <label>项目简介</label>
-                <textarea id="collabProjectSummary" rows="4" placeholder="简单说明项目用途、当前进度和主要问题。"></textarea>
+                <textarea id="collabProjectSummary" rows="3" placeholder="简单说明这个应用要做什么。"></textarea>
+              </div>
+              <div class="field">
+                <label>项目解决的问题</label>
+                <textarea id="collabProjectProblem" rows="3" placeholder="例如：帮助社团快速收集报名信息。"></textarea>
+              </div>
+              <div class="field">
+                <label>主要使用对象</label>
+                <input id="collabProjectAudience" placeholder="例如：学生、教师、社团管理员" />
               </div>
               <button class="btn-primary" id="collabCreateProjectBtn">创建项目</button>
             </div>
@@ -2011,7 +2092,7 @@
               <div class="row between" style="margin-bottom:12px;">
                 <div>
                   <strong>项目列表</strong>
-                  <div class="hint">选择项目后可继续上传前端、云函数包或其它材料。</div>
+                  <div class="hint">每个项目按“前端原型 → 云端部署 → 联调成功”推进。</div>
                 </div>
                 <span class="hint" id="collabProjectCount">项目：0</span>
               </div>
@@ -2024,37 +2105,136 @@
           <div class="collab-card collab-submit-card">
             <div class="collab-section-head">
               <div>
-                <h3>上传项目问题</h3>
-                <p>粘贴报错信息，再按文件类型上传材料。不会直接运行上传文件，管理员只通过下载处理。</p>
+                <h3>当前任务</h3>
+                <p>选择项目和阶段，只提交当前阶段需要的信息。系统不自动诊断，管理员下载材料后处理。</p>
               </div>
             </div>
+            <div id="collabProgress" class="collab-progress"></div>
             <div class="collab-form-grid">
               <div class="field">
                 <label>选择项目</label>
                 <select id="collabIssueProject"></select>
               </div>
               <div class="field">
-                <label>问题标题</label>
-                <input id="collabIssueTitle" placeholder="例如：管理员看不到上传作品，控制台提示 400" />
+                <label>当前阶段</label>
+                <select id="collabTaskStage">
+                  <option value="frontend_dev">前端开发</option>
+                  <option value="frontend_review">前端验收</option>
+                  <option value="cloud_request">云函数申请</option>
+                  <option value="cloud_deploy">云函数部署</option>
+                  <option value="integration">前后端联调</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>开发工具</label>
+                <select id="collabDevTool">
+                  <option value="TRAE">TRAE</option>
+                  <option value="ChatGPT">ChatGPT</option>
+                  <option value="DeepSeek">DeepSeek</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>阶段结果</label>
+                <select id="collabStageResult">
+                  <option value="前端开发中">前端开发中</option>
+                  <option value="已完成前端">已完成前端</option>
+                  <option value="提交前端验收">提交前端验收</option>
+                  <option value="申请生成云函数">申请生成云函数</option>
+                  <option value="云函数测试成功">云函数测试成功</option>
+                  <option value="云函数测试失败">云函数测试失败</option>
+                  <option value="前端运行成功">前端运行成功</option>
+                  <option value="前端调用失败">前端调用失败</option>
+                </select>
+              </div>
+            </div>
+            <div class="collab-check-card">
+              <strong>前端验收清单</strong>
+              <div class="collab-check-grid">
+                <label><input type="checkbox" class="collab-check" value="页面可以正常打开"> 页面可以正常打开</label>
+                <label><input type="checkbox" class="collab-check" value="页面布局完整"> 页面布局完整</label>
+                <label><input type="checkbox" class="collab-check" value="导航清晰"> 导航清晰</label>
+                <label><input type="checkbox" class="collab-check" value="按钮位置合理"> 按钮位置合理</label>
+                <label><input type="checkbox" class="collab-check" value="新增功能正常"> 新增功能正常</label>
+                <label><input type="checkbox" class="collab-check" value="查询功能正常"> 查询功能正常</label>
+                <label><input type="checkbox" class="collab-check" value="上传功能模拟正常"> 上传功能模拟正常</label>
+                <label><input type="checkbox" class="collab-check" value="数据展示正常"> 数据展示正常</label>
+                <label><input type="checkbox" class="collab-check" value="用户操作流程明确"> 用户操作流程明确</label>
+                <label><input type="checkbox" class="collab-check" value="主要功能已经确定"> 主要功能已经确定</label>
+              </div>
+            </div>
+            <div class="collab-form-grid">
+              <div class="field">
+                <label>云函数平台</label>
+                <select id="collabCloudPlatform">
+                  <option value="百度CFC">百度CFC</option>
+                  <option value="腾讯SCF">腾讯SCF</option>
+                  <option value="阿里函数计算">阿里函数计算</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>对象存储</label>
+                <select id="collabStoragePlatform">
+                  <option value="百度BOS">百度BOS</option>
+                  <option value="腾讯COS">腾讯COS</option>
+                  <option value="阿里OSS">阿里OSS</option>
+                  <option value="不需要">不需要</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>大模型</label>
+                <select id="collabModelPlatform">
+                  <option value="不使用">不使用</option>
+                  <option value="DeepSeek">DeepSeek</option>
+                  <option value="OpenAI">OpenAI</option>
+                  <option value="百度千帆">百度千帆</option>
+                  <option value="腾讯混元">腾讯混元</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>数据存储</label>
+                <select id="collabDataStore">
+                  <option value="JSON文件">JSON文件</option>
+                  <option value="MySQL">MySQL</option>
+                  <option value="SQLite">SQLite</option>
+                  <option value="云数据库">云数据库</option>
+                  <option value="不需要">不需要</option>
+                </select>
+              </div>
+            </div>
+            <div class="collab-check-card">
+              <strong>需要功能</strong>
+              <div class="collab-check-grid">
+                <label><input type="checkbox" class="collab-feature" value="数据新增"> 数据新增</label>
+                <label><input type="checkbox" class="collab-feature" value="数据读取"> 数据读取</label>
+                <label><input type="checkbox" class="collab-feature" value="数据修改"> 数据修改</label>
+                <label><input type="checkbox" class="collab-feature" value="数据删除"> 数据删除</label>
+                <label><input type="checkbox" class="collab-feature" value="图片上传"> 图片上传</label>
+                <label><input type="checkbox" class="collab-feature" value="文件上传"> 文件上传</label>
+                <label><input type="checkbox" class="collab-feature" value="用户登录"> 用户登录</label>
+                <label><input type="checkbox" class="collab-feature" value="AI调用"> AI调用</label>
+                <label><input type="checkbox" class="collab-feature" value="数据分析"> 数据分析</label>
               </div>
             </div>
             <div class="field">
-              <label>报错信息</label>
-              <textarea id="collabErrorText" rows="8" placeholder="直接粘贴浏览器控制台、云函数日志、DeepSeek 报错、部署失败提示等内容。"></textarea>
+              <label>说明 / 报错信息 / 测试结果</label>
+              <textarea id="collabErrorText" rows="7" placeholder="按当前阶段填写：前端说明、验收意见、云函数需求、云函数日志、Console错误、Network信息、Response内容等。"></textarea>
             </div>
             <div class="collab-upload-grid">
               <div class="collab-upload-box">
                 <strong>前端文件</strong>
-                <p>HTML、JS、CSS、JSON、截图、TXT</p>
-                <input id="collabFrontendFiles" type="file" multiple accept=".html,.htm,.js,.css,.json,.txt,.png,.jpg,.jpeg,.pdf" />
+                <p>HTML、ZIP前端项目、图片资源、测试数据</p>
+                <input id="collabFrontendFiles" type="file" multiple accept=".html,.htm,.js,.css,.json,.txt,.zip,.png,.jpg,.jpeg,.pdf,.csv,.xlsx" />
                 <label class="btn" for="collabFrontendFiles">上传前端</label>
                 <div class="hint" id="collabFrontendFilesText">尚未选择文件</div>
               </div>
               <div class="collab-upload-box">
-                <strong>云函数包</strong>
-                <p>推荐上传 ZIP，也可附 JS、JSON、TXT</p>
-                <input id="collabFunctionFiles" type="file" multiple accept=".zip,.js,.json,.txt,.png,.jpg,.jpeg,.pdf" />
-                <label class="btn" for="collabFunctionFiles">上传云函数包</label>
+                <strong>部署/日志</strong>
+                <p>云函数日志、运行环境截图、部署失败提示</p>
+                <input id="collabFunctionFiles" type="file" multiple accept=".zip,.js,.json,.txt,.log,.png,.jpg,.jpeg,.pdf" />
+                <label class="btn" for="collabFunctionFiles">上传日志</label>
                 <div class="hint" id="collabFunctionFilesText">尚未选择文件</div>
               </div>
               <div class="collab-upload-box">
@@ -2065,7 +2245,7 @@
                 <div class="hint" id="collabOtherFilesText">尚未选择文件</div>
               </div>
             </div>
-            <button class="btn-primary" id="collabSubmitIssueBtn">提交给管理员</button>
+            <button class="btn-primary" id="collabSubmitIssueBtn">提交当前任务</button>
             <div class="collab-submit-status hidden" id="collabSubmitStatus"></div>
           </div>
         </div>
@@ -2074,7 +2254,7 @@
           <div class="row between" style="margin-bottom:12px;">
             <div>
               <strong>新到文件</strong>
-              <div class="hint">管理员回传修复文件后会显示在这里，文件统一使用下载按钮。</div>
+              <div class="hint">管理员上传新版本、部署说明或回复后会显示在这里。</div>
             </div>
             <button class="btn" id="collabMarkReadBtn">全部标记已读</button>
           </div>
@@ -2085,7 +2265,7 @@
           <div class="row between" style="margin-bottom:12px;">
             <div>
               <strong>处理日志</strong>
-              <div class="hint">记录学生提交、管理员回传、复测反馈和关闭问题。</div>
+              <div class="hint">记录创建项目、前端验收、云函数申请、部署测试、联调反馈和版本回传。</div>
             </div>
             <span class="hint" id="collabIssueCount">问题：0</span>
           </div>
@@ -2097,8 +2277,8 @@
             <div>
               <div class="row between" style="margin-bottom:12px;">
                 <div>
-                  <strong>管理队列</strong>
-                  <div class="hint">下载学生文件，修复后回传文件和处理提醒。</div>
+                  <strong>管理员工作台</strong>
+                  <div class="hint">查看项目、技术配置、前端文件和测试反馈，使用 Codex 生成或修复云端工程文件。</div>
                 </div>
                 <span class="hint" id="collabPendingCount">待处理：0</span>
               </div>
@@ -2115,38 +2295,47 @@
                   <label>状态</label>
                   <select id="collabFilterStatus">
                     <option value="">全部状态</option>
-                    <option value="new">新提交</option>
-                    <option value="teacher_replied">已回传</option>
-                    <option value="student_feedback">学生复测</option>
-                    <option value="closed">已关闭</option>
+                    <option value="frontend_dev">前端开发中</option>
+                    <option value="frontend_review">前端验收中</option>
+                    <option value="frontend_confirmed">前端已确认</option>
+                    <option value="cloud_request">等待生成云函数</option>
+                    <option value="cloud_deploy">学生部署云函数</option>
+                    <option value="cloud_failed">云函数测试失败</option>
+                    <option value="cloud_success">云函数测试成功</option>
+                    <option value="integration">前后端联调中</option>
+                    <option value="integration_failed">前端调用失败</option>
+                    <option value="success">运行成功</option>
                   </select>
                 </div>
               </div>
               <div class="collab-list" id="collabAdminIssueList"></div>
             </div>
             <div class="collab-card collab-quiet-card">
-              <h3>回传修复</h3>
+              <h3>版本回传</h3>
               <div class="field">
-                <label>选择问题</label>
+                <label>选择项目任务</label>
                 <select id="collabTeacherIssue"></select>
               </div>
               <div class="field">
-                <label>修复类型</label>
+                <label>回传类型</label>
                 <select id="collabFixType">
+                  <option value="云函数ZIP压缩包">云函数ZIP压缩包</option>
+                  <option value="ENV环境变量清单">ENV环境变量清单</option>
+                  <option value="部署说明">部署说明</option>
                   <option value="前端文件已修复">前端文件已修复</option>
                   <option value="云函数包已修复">云函数包已修复</option>
-                  <option value="环境配置已调整">环境配置已调整</option>
                   <option value="需要学生补充材料">需要学生补充材料</option>
                   <option value="无">无</option>
                 </select>
               </div>
               <div class="field">
-                <label>部署提醒</label>
+                <label>下一步提醒</label>
                 <select id="collabDeployAdvice">
-                  <option value="替换前端文件后重新上传 GitHub">替换前端文件后重新上传 GitHub</option>
                   <option value="上传新版云函数 zip 并重新部署">上传新版云函数 zip 并重新部署</option>
                   <option value="检查云函数环境变量">检查云函数环境变量</option>
-                  <option value="检查 BOS 跨域或权限配置">检查 BOS 跨域或权限配置</option>
+                  <option value="复制HTTP触发器URL并写入前端">复制HTTP触发器URL并写入前端</option>
+                  <option value="替换前端文件后重新上传 GitHub">替换前端文件后重新上传 GitHub</option>
+                  <option value="检查对象存储跨域或权限配置">检查对象存储跨域或权限配置</option>
                   <option value="清理浏览器缓存后重试">清理浏览器缓存后重试</option>
                   <option value="无">无</option>
                 </select>
@@ -2154,11 +2343,11 @@
               <div class="field">
                 <label>测试建议</label>
                 <select id="collabTestAdvice">
-                  <option value="重新登录后测试">重新登录后测试</option>
-                  <option value="换浏览器或换电脑测试">换浏览器或换电脑测试</option>
+                  <option value="按部署说明重新测试云函数">按部署说明重新测试云函数</option>
                   <option value="打开控制台查看是否还有报错">打开控制台查看是否还有报错</option>
-                  <option value="检查管理员端是否能看到数据">检查管理员端是否能看到数据</option>
-                  <option value="上传测试文件验证 BOS">上传测试文件验证 BOS</option>
+                  <option value="查看Network和Response内容">查看Network和Response内容</option>
+                  <option value="换浏览器或换电脑测试">换浏览器或换电脑测试</option>
+                  <option value="测试通过后进入作品模块展示">测试通过后进入作品模块展示</option>
                   <option value="无">无</option>
                 </select>
               </div>
@@ -2167,15 +2356,15 @@
                 <textarea id="collabFixNote" rows="4" placeholder="可选：写给学生的额外说明。"></textarea>
               </div>
               <div class="field">
-                <label>修复文件</label>
-                <input id="collabFixFiles" type="file" multiple accept=".html,.htm,.js,.css,.json,.txt,.zip,.png,.jpg,.jpeg,.pdf" />
-                <label class="btn" for="collabFixFiles">选择修复文件</label>
+                <label>版本文件</label>
+                <input id="collabFixFiles" type="file" multiple accept=".html,.htm,.js,.css,.json,.txt,.zip,.env,.md,.png,.jpg,.jpeg,.pdf" />
+                <label class="btn" for="collabFixFiles">选择版本文件</label>
                 <div class="hint" id="collabFixFilesText">尚未选择文件</div>
               </div>
               <div class="row">
-                <button class="btn-primary" id="collabSubmitFixBtn">上传修复</button>
+                <button class="btn-primary" id="collabSubmitFixBtn">上传新版本</button>
                 <button class="btn" id="collabCopyPromptBtn">复制任务说明</button>
-                <button class="btn-danger" id="collabCloseIssueBtn">关闭问题</button>
+                <button class="btn-danger" id="collabCloseIssueBtn">标记运行成功</button>
               </div>
             </div>
           </div>
@@ -2464,10 +2653,20 @@
       collabCloudNote: $('collabCloudNote'),
       collabProjectName: $('collabProjectName'),
       collabProjectSummary: $('collabProjectSummary'),
+      collabProjectProblem: $('collabProjectProblem'),
+      collabProjectAudience: $('collabProjectAudience'),
       collabCreateProjectBtn: $('collabCreateProjectBtn'),
       collabProjectList: $('collabProjectList'),
       collabProjectCount: $('collabProjectCount'),
+      collabProgress: $('collabProgress'),
       collabIssueProject: $('collabIssueProject'),
+      collabTaskStage: $('collabTaskStage'),
+      collabDevTool: $('collabDevTool'),
+      collabStageResult: $('collabStageResult'),
+      collabCloudPlatform: $('collabCloudPlatform'),
+      collabStoragePlatform: $('collabStoragePlatform'),
+      collabModelPlatform: $('collabModelPlatform'),
+      collabDataStore: $('collabDataStore'),
       collabIssueTitle: $('collabIssueTitle'),
       collabErrorText: $('collabErrorText'),
       collabFrontendFiles: $('collabFrontendFiles'),
@@ -4347,12 +4546,67 @@ ${userText}
 
     function collabStatusText(status) {
       const map = {
+        created: '创建项目',
+        frontend_dev: '前端开发中',
+        frontend_review: '前端验收中',
+        frontend_confirmed: '前端已确认',
+        cloud_request: '等待生成云函数',
+        cloud_deploy: '学生部署云函数',
+        cloud_failed: '云函数测试失败',
+        admin_fixing: '等待管理员修改',
+        cloud_success: '云函数测试成功',
+        integration: '前后端联调中',
+        integration_failed: '前端调用失败',
+        success: '运行成功',
         new: '新提交',
         teacher_replied: '已回传',
         student_feedback: '学生复测',
         closed: '已关闭'
       };
       return map[status] || status || '处理中';
+    }
+
+    const COLLAB_STAGES = [
+      { key: 'created', label: '创建项目' },
+      { key: 'frontend_dev', label: '前端开发' },
+      { key: 'frontend_review', label: '前端验收' },
+      { key: 'cloud_request', label: '云函数部署' },
+      { key: 'integration', label: '前后端联调' },
+      { key: 'success', label: '运行成功' }
+    ];
+
+    function collabStageIndex(status) {
+      if (status === 'frontend_confirmed') return 2;
+      if (status === 'cloud_deploy' || status === 'cloud_failed' || status === 'admin_fixing' || status === 'cloud_success') return 3;
+      if (status === 'integration_failed') return 4;
+      const found = COLLAB_STAGES.findIndex(stage => stage.key === status);
+      return found < 0 ? 0 : found;
+    }
+
+    function collabProgressHtml(status) {
+      const activeIndex = collabStageIndex(status);
+      return COLLAB_STAGES.map((stage, index) => {
+        const cls = index < activeIndex ? 'done' : index === activeIndex ? 'active' : '';
+        return `<div class="collab-step ${cls}">${escapeHtml(stage.label)}</div>`;
+      }).join('');
+    }
+
+    function selectedCollabProject() {
+      const projects = state.collab.projects || [];
+      return projects.find(project => project.id === state.collab.selectedProjectId)
+        || projects.find(project => project.id === els.collabIssueProject?.value)
+        || projects[0]
+        || null;
+    }
+
+    function projectIssues(projectId) {
+      return (state.collab.issues || []).filter(issue => issue.projectId === projectId);
+    }
+
+    function collabCheckedValues(selector) {
+      return Array.from(document.querySelectorAll(selector))
+        .filter(input => input.checked)
+        .map(input => input.value);
     }
 
     function collabStatusClass(status) {
@@ -4458,18 +4712,20 @@ ${userText}
       const issues = state.collab.issues || [];
       const notices = state.collab.notifications || [];
       const isAdmin = state.currentUser?.role === 'admin';
+      if (!state.collab.selectedProjectId && projects.length) state.collab.selectedProjectId = projects[0].id;
+      const selectedProject = selectedCollabProject();
 
       els.collabUserBar.textContent = state.currentUser
-        ? `当前用户：${state.currentUser.name} ｜ ${isAdmin ? '管理员端' : '学生端'} ｜ ${isAdmin ? '处理学生队列、下载文件、回传修复' : '上传项目问题、查看新到文件、下载修复文件'}`
+        ? `当前用户：${state.currentUser.name} ｜ ${isAdmin ? '管理员端' : '学生端'} ｜ ${isAdmin ? '生成云端工程文件、回传版本、管理进度' : '提交需求、上传前端、部署测试、联调反馈'}`
         : '当前用户：未登录';
       els.collabSubmitTab.classList.toggle('hidden', isAdmin);
       els.collabAdminTab.classList.toggle('hidden', !isAdmin);
       els.collabCreateProjectBtn.closest('.collab-card')?.classList.toggle('hidden', isAdmin);
       els.collabProjectCount.textContent = `项目：${projects.length}`;
-      els.collabIssueCount.textContent = `问题：${issues.length}`;
-      const pendingIssues = issues.filter(issue => issue.status !== 'closed');
-      const visibleAdminIssues = filterCollabIssues(issues, state.collab.filterStatus === 'closed');
-      const actionableIssues = filterCollabIssues(issues, false);
+      els.collabIssueCount.textContent = `记录：${issues.length}`;
+      const pendingIssues = issues.filter(issue => !['success', 'closed'].includes(issue.status));
+      const visibleAdminIssues = filterCollabIssues(issues, true);
+      const actionableIssues = filterCollabIssues(issues, true);
       els.collabPendingCount.textContent = `待处理：${pendingIssues.length} ｜ 当前显示：${visibleAdminIssues.length}`;
 
       const studentOptions = uniqueOptions(issues, issue => issue.studentPhone, issue => `${issue.studentName || '学生'}（${issue.studentPhone}）`);
@@ -4482,19 +4738,26 @@ ${userText}
 
       els.collabProjectList.innerHTML = projects.map(project => {
         const count = issues.filter(issue => issue.projectId === project.id).length;
+        const latestIssue = issues.find(issue => issue.projectId === project.id);
+        const active = project.id === state.collab.selectedProjectId ? 'collab-notice' : '';
+        const progress = Math.round((collabStageIndex(project.status || 'created') + 1) / COLLAB_STAGES.length * 100);
         return `<div class="collab-card collab-item">
-          <h3>${escapeHtml(project.name)}</h3>
-          <div class="work-meta">${escapeHtml(project.ownerName || '')} · 问题 ${count} · ${escapeHtml(project.updatedAt || project.createdAt || '')}</div>
-          <p>${escapeHtml(project.summary || '')}</p>
-          ${isAdmin ? '' : `<button class="btn" data-collab-project="${escapeHtml(project.id)}">选中上传问题</button>`}
+          <div class="${active}">
+            <div class="row between"><h3>${escapeHtml(project.name)}</h3><span class="${collabStatusClass(project.status)}">${escapeHtml(collabStatusText(project.status))}</span></div>
+            <div class="work-meta">${escapeHtml(project.ownerName || '')} · 进度 ${progress}% · 最新版本 V${escapeHtml(project.version || '1')} · ${escapeHtml(project.updatedAt || project.createdAt || '')}</div>
+            <p>${escapeHtml(project.summary || '')}</p>
+            ${latestIssue?.teacherReturns?.length ? '<div class="hint">有管理员新回复，请到“新到文件”查看。</div>' : ''}
+            ${isAdmin ? '' : `<button class="btn" data-collab-project="${escapeHtml(project.id)}">进入当前任务</button>`}
+          </div>
         </div>`;
-      }).join('') || `<div class="collab-card"><p class="upload-tip">还没有项目。先在左侧创建项目，再提交问题。</p></div>`;
+      }).join('') || `<div class="collab-card"><p class="upload-tip">还没有项目。先创建项目，再按阶段推进。</p></div>`;
 
       const projectOptions = projects.map(project => `<option value="${escapeHtml(project.id)}">${escapeHtml(project.name)}</option>`).join('');
       els.collabIssueProject.innerHTML = projectOptions || '<option value="">请先创建项目</option>';
       if (state.collab.selectedProjectId) els.collabIssueProject.value = state.collab.selectedProjectId;
+      els.collabProgress.innerHTML = collabProgressHtml(selectedProject?.status || 'created');
 
-      const issueOptions = actionableIssues.map(issue => `<option value="${escapeHtml(issue.id)}">${escapeHtml(issue.projectName || '未命名项目')} / ${escapeHtml(issue.title || '未命名问题')} / ${escapeHtml(issue.studentName || '学生')}</option>`).join('');
+      const issueOptions = actionableIssues.map(issue => `<option value="${escapeHtml(issue.id)}">${escapeHtml(issue.projectName || '未命名项目')} / ${escapeHtml(collabStatusText(issue.status))} / ${escapeHtml(issue.studentName || '学生')}</option>`).join('');
       els.collabTeacherIssue.innerHTML = issueOptions || '<option value="">暂无待处理问题</option>';
       if (state.collab.selectedIssueId && actionableIssues.some(issue => issue.id === state.collab.selectedIssueId)) {
         els.collabTeacherIssue.value = state.collab.selectedIssueId;
@@ -4517,7 +4780,7 @@ ${userText}
         || `<div class="collab-card"><p class="upload-tip">暂无协作日志。</p></div>`;
 
       els.collabAdminIssueList.innerHTML = visibleAdminIssues.map(issue => collabIssueCardHtml(issue, true)).join('')
-        || `<div class="collab-card"><p class="upload-tip">当前筛选条件下暂无问题。</p></div>`;
+        || `<div class="collab-card"><p class="upload-tip">当前筛选条件下暂无项目任务。</p></div>`;
 
       els.collabProjectList.querySelectorAll('[data-collab-project]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -4535,25 +4798,42 @@ ${userText}
       document.querySelectorAll('[data-collab-test]').forEach(btn => {
         btn.addEventListener('click', () => submitCollabTestResult(btn.dataset.collabTest));
       });
+      document.querySelectorAll('[data-open-works-upload]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          closeCollabApp();
+          openWorksApp();
+          switchWorksPanel('upload');
+        });
+      });
     }
 
     function collabIssueCardHtml(issue, adminMode) {
       const issueText = collabIssueText(issue);
       const fileCount = Array.isArray(issue.files) ? issue.files.length : 0;
+      const config = issue.techConfig || {};
+      const features = Array.isArray(issue.features) ? issue.features.join('、') : '';
       return `<div class="collab-card collab-item">
-        <div class="row between"><h3>${escapeHtml(issue.title || '未命名问题')}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
+        <div class="row between"><h3>${escapeHtml(issue.projectName || '未命名项目')}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
+        <div class="collab-progress">${collabProgressHtml(issue.status)}</div>
         <div class="collab-meta-grid">
           <div class="collab-meta-pill"><b>项目</b>${escapeHtml(issue.projectName || issue.projectId || '未命名项目')}</div>
           <div class="collab-meta-pill"><b>提交人</b>${escapeHtml(issue.studentName || '学生')} ${escapeHtml(issue.studentPhone || '')}</div>
-          <div class="collab-meta-pill"><b>材料类型</b>${escapeHtml(issue.moduleName || '未分类')}</div>
+          <div class="collab-meta-pill"><b>阶段</b>${escapeHtml(issue.moduleName || collabStatusText(issue.status))}</div>
           <div class="collab-meta-pill"><b>更新时间</b>${escapeHtml(issue.updatedAt || issue.createdAt || '')}</div>
         </div>
+        <div class="collab-meta-grid">
+          <div class="collab-meta-pill"><b>云函数平台</b>${escapeHtml(config.cloudPlatform || '未填写')}</div>
+          <div class="collab-meta-pill"><b>对象存储</b>${escapeHtml(config.storagePlatform || '未填写')}</div>
+          <div class="collab-meta-pill"><b>大模型</b>${escapeHtml(config.modelPlatform || '未填写')}</div>
+          <div class="collab-meta-pill"><b>数据存储</b>${escapeHtml(config.dataStore || '未填写')}</div>
+        </div>
+        ${features ? `<div class="collab-detail-block"><strong>需要功能</strong><pre>${escapeHtml(features)}</pre></div>` : ''}
         <div class="collab-detail-block">
-          <strong>报错信息</strong>
-          <pre>${escapeHtml(issueText || '学生未填写报错信息')}</pre>
+          <strong>说明 / 报错信息 / 测试结果</strong>
+          <pre>${escapeHtml(issueText || '学生未填写说明')}</pre>
         </div>
         <div class="collab-detail-block">
-          <strong>学生上传文件（${fileCount}）</strong>
+          <strong>学生上传材料（${fileCount}）</strong>
           ${collabFilesHtml(issue.files, '暂无上传文件')}
         </div>
         ${collabIssueReturnHtml(issue, !adminMode)}
@@ -4565,25 +4845,25 @@ ${userText}
       const returns = Array.isArray(issue.teacherReturns) ? issue.teacherReturns : [];
       if (!returns.length) return '';
       return returns.map((item, index) => `<div class="collab-card" style="margin-top:10px;">
-        <div class="work-meta">管理员回传 · ${escapeHtml(item.time || '')}</div>
+        <div class="work-meta">管理员回传 · V${escapeHtml(item.version || index + 1)} · ${escapeHtml(item.time || '')}</div>
         <p>${escapeHtml(item.fixText || '')}</p>
         ${item.deployText ? `<p>${escapeHtml(item.deployText)}</p>` : ''}
         ${item.testText ? `<p>${escapeHtml(item.testText)}</p>` : ''}
         ${collabFilesHtml(item.files)}
-        ${withTest && index === 0 && issue.status !== 'closed' ? `<div class="field">
-          <label>复测结果</label>
+        ${withTest && index === 0 && !['success', 'closed'].includes(issue.status) ? `<div class="field">
+          <label>测试结果</label>
           <select id="testResult_${escapeHtml(issue.id)}">
-            <option value="完全解决">完全解决</option>
-            <option value="部分解决">部分解决</option>
-            <option value="未解决">未解决</option>
-            <option value="出现新问题">出现新问题</option>
+            <option value="云函数测试成功">云函数测试成功</option>
+            <option value="云函数测试失败">云函数测试失败</option>
+            <option value="前端运行成功">前端运行成功</option>
+            <option value="前端调用失败">前端调用失败</option>
           </select>
         </div>
         <div class="field">
-          <label>复测反馈</label>
-          <textarea id="testText_${escapeHtml(issue.id)}" rows="3" placeholder="下载测试后，把结果反馈给管理员。"></textarea>
+          <label>测试反馈</label>
+          <textarea id="testText_${escapeHtml(issue.id)}" rows="3" placeholder="下载新版本后，把部署结果、Console错误或Network信息反馈给管理员。"></textarea>
         </div>
-        <button class="btn-primary" data-collab-test="${escapeHtml(issue.id)}">提交复测反馈</button>` : ''}
+        <button class="btn-primary" data-collab-test="${escapeHtml(issue.id)}">提交测试反馈</button>` : ''}
       </div>`).join('');
     }
 
@@ -4593,9 +4873,14 @@ ${userText}
       return `<div class="collab-card collab-item">
         <div class="row between"><h3>${escapeHtml(issue.projectName || '未命名项目')} / ${escapeHtml(issue.moduleName || '未分类')}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
         <div class="work-meta">${escapeHtml(issue.title || '未命名问题')} · ${escapeHtml(issue.studentName || '')}</div>
+        ${issue.status === 'success' ? `<div class="collab-success-panel">
+          <strong>恭喜完成AI应用部署！</strong>
+          <p class="hint">云函数运行正常，前端调用成功。可以进入作品模块提交展示。</p>
+          <button class="btn-primary" data-open-works-upload="1">提交作品展示</button>
+        </div>` : ''}
         <div class="collab-detail-block">
-          <strong>报错信息</strong>
-          <pre>${escapeHtml(issueText || '学生未填写报错信息')}</pre>
+          <strong>说明 / 报错信息 / 测试结果</strong>
+          <pre>${escapeHtml(issueText || '学生未填写说明')}</pre>
         </div>
         ${timeline.map(item => `<div class="collab-card" style="margin-top:8px;">
           <div class="work-meta">${escapeHtml(item.time || '')} · ${escapeHtml(item.actorName || '')} · ${escapeHtml(item.action || '')}</div>
@@ -4649,17 +4934,24 @@ ${userText}
       if (state.currentUser.role === 'admin') return toast('管理员不需要创建学生项目');
       const projectName = els.collabProjectName.value.trim();
       const summary = els.collabProjectSummary.value.trim();
+      const problem = els.collabProjectProblem.value.trim();
+      const audience = els.collabProjectAudience.value.trim();
       if (!projectName) return toast('请填写项目名称');
+      if (!summary) return toast('请填写项目简介');
       try {
         await platformApi({
           action: 'createCollabProject',
           name: state.currentUser.name,
           phone: state.currentUser.phone,
           projectName,
-          summary
+          summary,
+          problem,
+          audience
         });
         els.collabProjectName.value = '';
         els.collabProjectSummary.value = '';
+        els.collabProjectProblem.value = '';
+        els.collabProjectAudience.value = '';
         toast('项目已创建');
         await loadCollab();
       } catch (err) {
@@ -4671,11 +4963,12 @@ ${userText}
       if (!state.currentUser) return openAuthModal();
       if (state.currentUser.role === 'admin') return toast('管理员不需要提交问题，请使用管理队列');
       const projectId = els.collabIssueProject.value;
-      const title = els.collabIssueTitle.value.trim();
+      const stage = els.collabTaskStage.value;
+      const stageLabel = collabStatusText(stage);
+      const result = els.collabStageResult.value;
       const errorText = els.collabErrorText.value.trim();
       if (!projectId) return toast('请先选择或创建项目');
-      if (!title) return toast('请填写问题标题');
-      if (!errorText) return toast('请粘贴报错信息');
+      if (!errorText && !collabCheckedValues('.collab-check').length && !collabCheckedValues('.collab-feature').length) return toast('请填写说明或勾选清单');
       const projectName = els.collabIssueProject.options[els.collabIssueProject.selectedIndex]?.textContent || '当前项目';
       els.collabSubmitIssueBtn.disabled = true;
       els.collabSubmitIssueBtn.textContent = '正在提交...';
@@ -4691,9 +4984,20 @@ ${userText}
           name: state.currentUser.name,
           phone: state.currentUser.phone,
           projectId,
-          moduleName: files.map(file => file.category).filter(Boolean).join('、') || '未分类',
-          title,
-          issueType: '',
+          moduleName: stageLabel,
+          title: `${stageLabel}：${result}`,
+          issueType: stage,
+          stage,
+          stageResult: result,
+          checklist: collabCheckedValues('.collab-check'),
+          features: collabCheckedValues('.collab-feature'),
+          techConfig: {
+            cloudPlatform: els.collabCloudPlatform.value,
+            storagePlatform: els.collabStoragePlatform.value,
+            modelPlatform: els.collabModelPlatform.value,
+            dataStore: els.collabDataStore.value,
+            devTool: els.collabDevTool.value
+          },
           feedbackText: errorText,
           errorText,
           operationText: '',
@@ -4701,7 +5005,6 @@ ${userText}
           consoleText: '',
           files
         });
-        els.collabIssueTitle.value = '';
         els.collabErrorText.value = '';
         els.collabFrontendFiles.value = '';
         els.collabFunctionFiles.value = '';
@@ -4709,16 +5012,17 @@ ${userText}
         els.collabFrontendFilesText.textContent = '尚未选择文件';
         els.collabFunctionFilesText.textContent = '尚未选择文件';
         els.collabOtherFilesText.textContent = '尚未选择文件';
-        setCollabSubmitStatus(`已提交给管理员：${projectName} / ${title}。上传文件 ${files.length} 个，状态：新提交。`, 'ok');
-        toast('问题已提交给管理员');
+        document.querySelectorAll('.collab-check,.collab-feature').forEach(input => { input.checked = false; });
+        setCollabSubmitStatus(`已提交：${projectName} / ${stageLabel}。上传文件 ${files.length} 个，管理员会在工作台处理。`, 'ok');
+        toast('当前任务已提交');
         await loadCollab();
-        recordPlatformAction('提交协作问题', title);
+        recordPlatformAction('提交协作任务', `${projectName} / ${stageLabel}`);
       } catch (err) {
         setCollabSubmitStatus(`提交失败：${err.message || '请确认网络、云函数和对象存储配置后重试。'}`, 'error');
-        toast('问题提交失败，请确认新版云函数已部署');
+        toast('任务提交失败，请确认新版云函数已部署');
       } finally {
         els.collabSubmitIssueBtn.disabled = false;
-        els.collabSubmitIssueBtn.textContent = '提交给管理员';
+        els.collabSubmitIssueBtn.textContent = '提交当前任务';
       }
     }
 
@@ -4838,9 +5142,9 @@ ${userText}
     }
 
     async function closeCollabIssue() {
-      if (state.currentUser?.role !== 'admin') return toast('仅管理员可关闭问题');
+      if (state.currentUser?.role !== 'admin') return toast('仅管理员可标记运行成功');
       const issueId = els.collabTeacherIssue.value;
-      if (!issueId) return toast('请选择问题');
+      if (!issueId) return toast('请选择项目任务');
       try {
         await platformApi({
           action: 'closeCollabIssue',
@@ -4848,10 +5152,10 @@ ${userText}
           phone: state.currentUser.phone,
           issueId
         });
-        toast('问题已关闭');
+        toast('已标记为运行成功');
         await loadCollab();
       } catch (err) {
-        toast('关闭失败');
+        toast('标记失败');
       }
     }
 
@@ -4873,17 +5177,19 @@ ${userText}
     async function copyCollabPrompt() {
       const issueId = els.collabTeacherIssue.value;
       const issue = state.collab.issues.find(item => item.id === issueId);
-      if (!issue) return toast('请选择问题');
+      if (!issue) return toast('请选择项目任务');
+      const config = issue.techConfig || {};
       const text = [
-        `请修复学生项目：${issue.projectName}`,
-        `模块：${issue.moduleName}`,
-        `问题标题：${issue.title}`,
-        `问题类型：${issue.issueType || ''}`,
-        `报错反馈：${issue.feedbackText || ''}`,
-        `操作过程：${issue.operationText || ''}`,
-        `实际现象：${issue.phenomenonText || ''}`,
-        `控制台/日志：${issue.consoleText || ''}`,
-        '要求：保持原有登录和用户识别逻辑，不破坏现有功能，返回可替换的完整文件或函数包。'
+        `请处理学生AI应用项目：${issue.projectName}`,
+        `当前阶段：${issue.moduleName}`,
+        `当前状态：${collabStatusText(issue.status)}`,
+        `云函数平台：${config.cloudPlatform || '未填写'}`,
+        `对象存储：${config.storagePlatform || '未填写'}`,
+        `大模型：${config.modelPlatform || '未填写'}`,
+        `数据存储：${config.dataStore || '未填写'}`,
+        `需要功能：${(issue.features || []).join('、') || '未填写'}`,
+        `学生说明/报错/测试结果：${collabIssueText(issue) || ''}`,
+        '要求：不改变登录体系；不把API Key、AK、SK写入前端；由管理员使用Codex生成或修复云函数ZIP、ENV环境变量清单、部署说明、修改说明，并返回可替换的完整文件。'
       ].join('\n\n');
       await navigator.clipboard.writeText(text);
       toast('已复制 Codex 任务说明');
@@ -5126,6 +5432,10 @@ ${userText}
       });
       els.collabTeacherIssue.addEventListener('change', () => {
         state.collab.selectedIssueId = els.collabTeacherIssue.value;
+      });
+      els.collabIssueProject.addEventListener('change', () => {
+        state.collab.selectedProjectId = els.collabIssueProject.value;
+        renderCollab();
       });
       els.collabFrontendFiles.addEventListener('change', () => {
         const files = Array.from(els.collabFrontendFiles.files || []);
