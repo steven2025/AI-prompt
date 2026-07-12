@@ -1447,6 +1447,80 @@
       background: rgba(30, 64, 175, .22);
     }
 
+    .collab-empty-files,
+    .collab-submit-status,
+    .collab-detail-block {
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-radius: 10px;
+      background: rgba(2, 6, 23, .24);
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    .collab-submit-status {
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .collab-submit-status.ok {
+      border-color: rgba(34, 197, 94, .36);
+      color: #bbf7d0;
+      background: rgba(6, 78, 59, .24);
+    }
+
+    .collab-submit-status.warn {
+      border-color: rgba(251, 191, 36, .38);
+      color: #fde68a;
+      background: rgba(92, 58, 12, .26);
+    }
+
+    .collab-submit-status.error {
+      border-color: rgba(248, 113, 113, .38);
+      color: #fecaca;
+      background: rgba(127, 29, 29, .24);
+    }
+
+    .collab-detail-block strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #e0f2fe;
+      font-size: 13px;
+    }
+
+    .collab-detail-block pre {
+      margin: 0;
+      color: #dbeafe;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .collab-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .collab-meta-pill {
+      border: 1px solid rgba(148, 163, 184, .14);
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, .38);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .collab-meta-pill b {
+      display: block;
+      color: #93c5fd;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
     .collab-notice {
       border-color: rgba(251, 191, 36, .38);
       background: linear-gradient(135deg, rgba(92, 58, 12, .48), rgba(15, 23, 42, .72));
@@ -1535,6 +1609,7 @@
       .works-grid,
       .collab-grid { grid-template-columns: 1fr; }
       .collab-form-grid,
+      .collab-meta-grid,
       .collab-upload-grid,
       .collab-filterbar { grid-template-columns: 1fr; }
     }
@@ -1991,6 +2066,7 @@
               </div>
             </div>
             <button class="btn-primary" id="collabSubmitIssueBtn">提交给管理员</button>
+            <div class="collab-submit-status hidden" id="collabSubmitStatus"></div>
           </div>
         </div>
 
@@ -2401,6 +2477,7 @@
       collabOtherFiles: $('collabOtherFiles'),
       collabOtherFilesText: $('collabOtherFilesText'),
       collabSubmitIssueBtn: $('collabSubmitIssueBtn'),
+      collabSubmitStatus: $('collabSubmitStatus'),
       collabMarkReadBtn: $('collabMarkReadBtn'),
       collabNoticeList: $('collabNoticeList'),
       collabIssueCount: $('collabIssueCount'),
@@ -4140,6 +4217,15 @@ ${userText}
       });
     }
 
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || '').split(',')[1] || '');
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     async function submitWork() {
       if (!state.currentUser) {
         toast('请先登录后上传作品');
@@ -4174,7 +4260,8 @@ ${userText}
         if (!file) return toast('请选择 HTML 文件');
         if (!/\.html?$/i.test(file.name)) return toast('只能上传 .html 或 .htm 文件');
         payload.fileName = file.name;
-        payload.fileContent = await readFileAsText(file);
+        payload.fileBase64 = await readFileAsBase64(file);
+        payload.fileSize = file.size;
       }
 
       try {
@@ -4301,9 +4388,19 @@ ${userText}
       return `${(num / 1024 / 1024).toFixed(1)}MB`;
     }
 
-    function collabFilesHtml(files) {
+    function collabIssueText(issue) {
+      return issue.feedbackText || issue.errorText || issue.phenomenonText || issue.consoleText || issue.operationText || '';
+    }
+
+    function setCollabSubmitStatus(text, type = 'ok') {
+      if (!els.collabSubmitStatus) return;
+      els.collabSubmitStatus.textContent = text || '';
+      els.collabSubmitStatus.className = `collab-submit-status ${text ? type : 'hidden'}`;
+    }
+
+    function collabFilesHtml(files, emptyText = '') {
       const list = Array.isArray(files) ? files : [];
-      if (!list.length) return '';
+      if (!list.length) return emptyText ? `<div class="collab-empty-files hint">${escapeHtml(emptyText)}</div>` : '';
       return `<div class="collab-files">${list.map(file => {
         const label = [file.category, file.name || '文件', formatFileSize(file.size)].filter(Boolean).join(' · ');
         return `<button type="button" class="collab-file" data-collab-download-key="${escapeHtml(file.objectKey || '')}" data-collab-download-name="${escapeHtml(file.name || 'file')}">下载 ${escapeHtml(label)}</button>`;
@@ -4397,7 +4494,7 @@ ${userText}
       els.collabIssueProject.innerHTML = projectOptions || '<option value="">请先创建项目</option>';
       if (state.collab.selectedProjectId) els.collabIssueProject.value = state.collab.selectedProjectId;
 
-      const issueOptions = actionableIssues.map(issue => `<option value="${escapeHtml(issue.id)}">${escapeHtml(issue.studentName || '')} / ${escapeHtml(issue.projectName)} / ${escapeHtml(issue.title)}</option>`).join('');
+      const issueOptions = actionableIssues.map(issue => `<option value="${escapeHtml(issue.id)}">${escapeHtml(issue.projectName || '未命名项目')} / ${escapeHtml(issue.title || '未命名问题')} / ${escapeHtml(issue.studentName || '学生')}</option>`).join('');
       els.collabTeacherIssue.innerHTML = issueOptions || '<option value="">暂无待处理问题</option>';
       if (state.collab.selectedIssueId && actionableIssues.some(issue => issue.id === state.collab.selectedIssueId)) {
         els.collabTeacherIssue.value = state.collab.selectedIssueId;
@@ -4441,11 +4538,24 @@ ${userText}
     }
 
     function collabIssueCardHtml(issue, adminMode) {
+      const issueText = collabIssueText(issue);
+      const fileCount = Array.isArray(issue.files) ? issue.files.length : 0;
       return `<div class="collab-card collab-item">
-        <div class="row between"><h3>${escapeHtml(issue.title)}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
-        <div class="work-meta">${escapeHtml(issue.projectName)} · ${escapeHtml(issue.moduleName)} · ${escapeHtml(issue.studentName || '')} · ${escapeHtml(issue.updatedAt || '')}</div>
-        <p>${escapeHtml(issue.feedbackText || issue.phenomenonText || '')}</p>
-        ${collabFilesHtml(issue.files)}
+        <div class="row between"><h3>${escapeHtml(issue.title || '未命名问题')}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
+        <div class="collab-meta-grid">
+          <div class="collab-meta-pill"><b>项目</b>${escapeHtml(issue.projectName || issue.projectId || '未命名项目')}</div>
+          <div class="collab-meta-pill"><b>提交人</b>${escapeHtml(issue.studentName || '学生')} ${escapeHtml(issue.studentPhone || '')}</div>
+          <div class="collab-meta-pill"><b>材料类型</b>${escapeHtml(issue.moduleName || '未分类')}</div>
+          <div class="collab-meta-pill"><b>更新时间</b>${escapeHtml(issue.updatedAt || issue.createdAt || '')}</div>
+        </div>
+        <div class="collab-detail-block">
+          <strong>报错信息</strong>
+          <pre>${escapeHtml(issueText || '学生未填写报错信息')}</pre>
+        </div>
+        <div class="collab-detail-block">
+          <strong>学生上传文件（${fileCount}）</strong>
+          ${collabFilesHtml(issue.files, '暂无上传文件')}
+        </div>
         ${collabIssueReturnHtml(issue, !adminMode)}
         ${adminMode ? `<button class="btn" data-collab-issue="${escapeHtml(issue.id)}">选择回传</button>` : ''}
       </div>`;
@@ -4479,9 +4589,14 @@ ${userText}
 
     function collabIssueLogHtml(issue) {
       const timeline = Array.isArray(issue.timeline) ? issue.timeline : [];
+      const issueText = collabIssueText(issue);
       return `<div class="collab-card collab-item">
-        <div class="row between"><h3>${escapeHtml(issue.projectName)} / ${escapeHtml(issue.moduleName)}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
-        <div class="work-meta">${escapeHtml(issue.title)} · ${escapeHtml(issue.studentName || '')}</div>
+        <div class="row between"><h3>${escapeHtml(issue.projectName || '未命名项目')} / ${escapeHtml(issue.moduleName || '未分类')}</h3><span class="${collabStatusClass(issue.status)}">${escapeHtml(collabStatusText(issue.status))}</span></div>
+        <div class="work-meta">${escapeHtml(issue.title || '未命名问题')} · ${escapeHtml(issue.studentName || '')}</div>
+        <div class="collab-detail-block">
+          <strong>报错信息</strong>
+          <pre>${escapeHtml(issueText || '学生未填写报错信息')}</pre>
+        </div>
         ${timeline.map(item => `<div class="collab-card" style="margin-top:8px;">
           <div class="work-meta">${escapeHtml(item.time || '')} · ${escapeHtml(item.actorName || '')} · ${escapeHtml(item.action || '')}</div>
           <p>${escapeHtml(item.text || '')}</p>
@@ -4561,12 +4676,16 @@ ${userText}
       if (!projectId) return toast('请先选择或创建项目');
       if (!title) return toast('请填写问题标题');
       if (!errorText) return toast('请粘贴报错信息');
-      const files = [
-        ...(await categorizedFilesToPayload(els.collabFrontendFiles.files, '前端')),
-        ...(await categorizedFilesToPayload(els.collabFunctionFiles.files, '云函数包')),
-        ...(await categorizedFilesToPayload(els.collabOtherFiles.files, '其它'))
-      ];
+      const projectName = els.collabIssueProject.options[els.collabIssueProject.selectedIndex]?.textContent || '当前项目';
+      els.collabSubmitIssueBtn.disabled = true;
+      els.collabSubmitIssueBtn.textContent = '正在提交...';
+      setCollabSubmitStatus('正在提交给管理员，请稍候。文件较多时会稍慢一些。', 'warn');
       try {
+        const files = [
+          ...(await categorizedFilesToPayload(els.collabFrontendFiles.files, '前端')),
+          ...(await categorizedFilesToPayload(els.collabFunctionFiles.files, '云函数包')),
+          ...(await categorizedFilesToPayload(els.collabOtherFiles.files, '其它'))
+        ];
         await platformApi({
           action: 'createCollabIssue',
           name: state.currentUser.name,
@@ -4576,6 +4695,7 @@ ${userText}
           title,
           issueType: '',
           feedbackText: errorText,
+          errorText,
           operationText: '',
           phenomenonText: '',
           consoleText: '',
@@ -4589,12 +4709,16 @@ ${userText}
         els.collabFrontendFilesText.textContent = '尚未选择文件';
         els.collabFunctionFilesText.textContent = '尚未选择文件';
         els.collabOtherFilesText.textContent = '尚未选择文件';
+        setCollabSubmitStatus(`已提交给管理员：${projectName} / ${title}。上传文件 ${files.length} 个，状态：新提交。`, 'ok');
         toast('问题已提交给管理员');
         await loadCollab();
-        switchCollabPanel('log');
         recordPlatformAction('提交协作问题', title);
       } catch (err) {
+        setCollabSubmitStatus(`提交失败：${err.message || '请确认网络、云函数和对象存储配置后重试。'}`, 'error');
         toast('问题提交失败，请确认新版云函数已部署');
+      } finally {
+        els.collabSubmitIssueBtn.disabled = false;
+        els.collabSubmitIssueBtn.textContent = '提交给管理员';
       }
     }
 
