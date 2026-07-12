@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v36-collab-workflow';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v37-collab-stages';
 const APP_SHELL = [
   './',
   './index.html',

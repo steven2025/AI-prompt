@@ -2056,8 +2056,8 @@
       <div class="collab-shell">
         <div class="collab-userbar" id="collabUserBar">当前用户：未登录</div>
         <div class="collab-tabs">
-          <button class="btn-primary" id="collabProjectsTab">项目</button>
-          <button class="btn" id="collabSubmitTab">当前任务</button>
+          <button class="btn-primary hidden" id="collabProjectsTab">项目</button>
+          <button class="btn" id="collabSubmitTab">开发流程</button>
           <button class="btn" id="collabNoticeTab">新到文件</button>
           <button class="btn" id="collabLogTab">处理日志</button>
           <button class="btn hidden" id="collabAdminTab">管理员工作台</button>
@@ -2105,27 +2105,27 @@
           <div class="collab-card collab-submit-card">
             <div class="collab-section-head">
               <div>
-                <h3>当前任务</h3>
-                <p>选择项目和阶段，只提交当前阶段需要的信息。系统不自动诊断，管理员下载材料后处理。</p>
+                <h3>项目开发流程</h3>
+                <p>按阶段完成当前操作。页面只显示本阶段需要提交的材料，提交后请留意“新到文件”。</p>
               </div>
             </div>
             <div id="collabProgress" class="collab-progress"></div>
             <div class="collab-form-grid">
-              <div class="field">
+              <div class="field hidden">
                 <label>选择项目</label>
                 <select id="collabIssueProject"></select>
               </div>
               <div class="field">
                 <label>当前阶段</label>
                 <select id="collabTaskStage">
-                  <option value="frontend_dev">前端开发</option>
-                  <option value="frontend_review">前端验收</option>
-                  <option value="cloud_request">云函数申请</option>
-                  <option value="cloud_deploy">云函数部署</option>
+                  <option value="frontend_review">前端上传审核</option>
+                  <option value="cloud_request">云函数初次申请</option>
+                  <option value="cloud_deploy">云函数部署及执行/测试</option>
+                  <option value="trigger_guide">触发器/URL获取并写入前端</option>
                   <option value="integration">前后端联调</option>
                 </select>
               </div>
-              <div class="field">
+              <div class="field hidden">
                 <label>开发工具</label>
                 <select id="collabDevTool">
                   <option value="TRAE">TRAE</option>
@@ -2134,7 +2134,7 @@
                   <option value="其他">其他</option>
                 </select>
               </div>
-              <div class="field">
+              <div class="field hidden">
                 <label>阶段结果</label>
                 <select id="collabStageResult">
                   <option value="前端开发中">前端开发中</option>
@@ -2148,7 +2148,8 @@
                 </select>
               </div>
             </div>
-            <div class="collab-check-card">
+            <div class="collab-notice" id="collabStageGuide"></div>
+            <div class="collab-check-card" id="collabFrontendChecklist">
               <strong>前端验收清单</strong>
               <div class="collab-check-grid">
                 <label><input type="checkbox" class="collab-check" value="页面可以正常打开"> 页面可以正常打开</label>
@@ -2163,7 +2164,7 @@
                 <label><input type="checkbox" class="collab-check" value="主要功能已经确定"> 主要功能已经确定</label>
               </div>
             </div>
-            <div class="collab-form-grid">
+            <div class="collab-form-grid" id="collabTechConfig">
               <div class="field">
                 <label>云函数平台</label>
                 <select id="collabCloudPlatform">
@@ -2204,7 +2205,7 @@
                 </select>
               </div>
             </div>
-            <div class="collab-check-card">
+            <div class="collab-check-card" id="collabFeatureChecklist">
               <strong>需要功能</strong>
               <div class="collab-check-grid">
                 <label><input type="checkbox" class="collab-feature" value="数据新增"> 数据新增</label>
@@ -2218,26 +2219,26 @@
                 <label><input type="checkbox" class="collab-feature" value="数据分析"> 数据分析</label>
               </div>
             </div>
-            <div class="field">
-              <label>说明 / 报错信息 / 测试结果</label>
+            <div class="field" id="collabTextField">
+              <label id="collabTextLabel">说明 / 报错信息 / 测试结果</label>
               <textarea id="collabErrorText" rows="7" placeholder="按当前阶段填写：前端说明、验收意见、云函数需求、云函数日志、Console错误、Network信息、Response内容等。"></textarea>
             </div>
-            <div class="collab-upload-grid">
-              <div class="collab-upload-box">
+            <div class="collab-upload-grid" id="collabUploadGrid">
+              <div class="collab-upload-box" id="collabFrontendUploadBox">
                 <strong>前端文件</strong>
                 <p>HTML、ZIP前端项目、图片资源、测试数据</p>
                 <input id="collabFrontendFiles" type="file" multiple accept=".html,.htm,.js,.css,.json,.txt,.zip,.png,.jpg,.jpeg,.pdf,.csv,.xlsx" />
                 <label class="btn" for="collabFrontendFiles">上传前端</label>
                 <div class="hint" id="collabFrontendFilesText">尚未选择文件</div>
               </div>
-              <div class="collab-upload-box">
+              <div class="collab-upload-box" id="collabLogUploadBox">
                 <strong>部署/日志</strong>
                 <p>云函数日志、运行环境截图、部署失败提示</p>
                 <input id="collabFunctionFiles" type="file" multiple accept=".zip,.js,.json,.txt,.log,.png,.jpg,.jpeg,.pdf" />
                 <label class="btn" for="collabFunctionFiles">上传日志</label>
                 <div class="hint" id="collabFunctionFilesText">尚未选择文件</div>
               </div>
-              <div class="collab-upload-box">
+              <div class="collab-upload-box" id="collabOtherUploadBox">
                 <strong>其它文件</strong>
                 <p>环境配置表、说明、截图、PDF、TXT</p>
                 <input id="collabOtherFiles" type="file" multiple accept=".html,.htm,.js,.css,.json,.txt,.zip,.png,.jpg,.jpeg,.pdf" />
@@ -2659,6 +2660,16 @@
       collabProjectList: $('collabProjectList'),
       collabProjectCount: $('collabProjectCount'),
       collabProgress: $('collabProgress'),
+      collabStageGuide: $('collabStageGuide'),
+      collabFrontendChecklist: $('collabFrontendChecklist'),
+      collabTechConfig: $('collabTechConfig'),
+      collabFeatureChecklist: $('collabFeatureChecklist'),
+      collabTextField: $('collabTextField'),
+      collabTextLabel: $('collabTextLabel'),
+      collabUploadGrid: $('collabUploadGrid'),
+      collabFrontendUploadBox: $('collabFrontendUploadBox'),
+      collabLogUploadBox: $('collabLogUploadBox'),
+      collabOtherUploadBox: $('collabOtherUploadBox'),
       collabIssueProject: $('collabIssueProject'),
       collabTaskStage: $('collabTaskStage'),
       collabDevTool: $('collabDevTool'),
@@ -4546,15 +4557,16 @@ ${userText}
 
     function collabStatusText(status) {
       const map = {
-        created: '创建项目',
-        frontend_dev: '前端开发中',
-        frontend_review: '前端验收中',
-        frontend_confirmed: '前端已确认',
-        cloud_request: '等待生成云函数',
-        cloud_deploy: '学生部署云函数',
+        created: '等待前端上传',
+        frontend_dev: '等待前端上传',
+        frontend_review: '前端上传审核',
+        frontend_confirmed: '前端审核完成',
+        cloud_request: '云函数初次申请',
+        cloud_deploy: '云函数部署及测试',
         cloud_failed: '云函数测试失败',
         admin_fixing: '等待管理员修改',
         cloud_success: '云函数测试成功',
+        trigger_guide: '触发器/URL配置',
         integration: '前后端联调中',
         integration_failed: '前端调用失败',
         success: '运行成功',
@@ -4567,17 +4579,19 @@ ${userText}
     }
 
     const COLLAB_STAGES = [
-      { key: 'created', label: '创建项目' },
-      { key: 'frontend_dev', label: '前端开发' },
-      { key: 'frontend_review', label: '前端验收' },
-      { key: 'cloud_request', label: '云函数部署' },
+      { key: 'frontend_review', label: '前端上传审核' },
+      { key: 'cloud_request', label: '云函数初次申请' },
+      { key: 'cloud_deploy', label: '部署及测试' },
+      { key: 'trigger_guide', label: '触发器/URL' },
       { key: 'integration', label: '前后端联调' },
       { key: 'success', label: '运行成功' }
     ];
 
     function collabStageIndex(status) {
-      if (status === 'frontend_confirmed') return 2;
-      if (status === 'cloud_deploy' || status === 'cloud_failed' || status === 'admin_fixing' || status === 'cloud_success') return 3;
+      if (status === 'created' || status === 'frontend_dev' || status === 'frontend_review') return 0;
+      if (status === 'frontend_confirmed' || status === 'cloud_request') return 1;
+      if (status === 'cloud_deploy' || status === 'cloud_failed' || status === 'admin_fixing') return 2;
+      if (status === 'cloud_success' || status === 'trigger_guide') return 3;
       if (status === 'integration_failed') return 4;
       const found = COLLAB_STAGES.findIndex(stage => stage.key === status);
       return found < 0 ? 0 : found;
@@ -4589,6 +4603,14 @@ ${userText}
         const cls = index < activeIndex ? 'done' : index === activeIndex ? 'active' : '';
         return `<div class="collab-step ${cls}">${escapeHtml(stage.label)}</div>`;
       }).join('');
+    }
+
+    function recommendedCollabStage(status) {
+      if (status === 'frontend_confirmed' || status === 'cloud_request') return 'cloud_request';
+      if (['cloud_deploy', 'cloud_failed', 'admin_fixing'].includes(status)) return 'cloud_deploy';
+      if (status === 'cloud_success' || status === 'trigger_guide') return 'trigger_guide';
+      if (['integration', 'integration_failed', 'success'].includes(status)) return 'integration';
+      return 'frontend_review';
     }
 
     function selectedCollabProject() {
@@ -4607,6 +4629,52 @@ ${userText}
       return Array.from(document.querySelectorAll(selector))
         .filter(input => input.checked)
         .map(input => input.value);
+    }
+
+    const COLLAB_STAGE_UI = {
+      frontend_review: {
+        guide: '上传当前最新版前端，主要功能可按实际情况勾选，也可以不勾选。管理员复核后会返回修改完善的前端文件；收到回传后，本阶段默认暂时通过。',
+        label: '补充说明（可不填写）', placeholder: '可说明希望管理员重点检查的页面或功能。', button: '提交前端审核',
+        checklist: true, tech: false, features: false, text: true, frontend: true, log: false, other: false
+      },
+      cloud_request: {
+        guide: '请先下载管理员审核后的前端。你可以继续修改，再上传最新版前端；选择项目使用的对象存储和大模型。管理员将只返回云函数ZIP和环境变量配置清单TXT。',
+        label: '', placeholder: '', button: '申请初次云函数',
+        checklist: false, tech: true, features: true, text: false, frontend: true, log: false, other: false
+      },
+      cloud_deploy: {
+        guide: '部署云函数并配置环境变量后，请执行或测试云函数。无论成功或失败，都要把完整结果粘贴到下方再提交。管理员会返回新版云函数ZIP及下一步操作提醒。此阶段可以反复提交。',
+        label: '执行/测试结果（必填）', placeholder: '请粘贴成功响应、失败报错、执行日志或测试结果。不要只填写“失败”。', button: '提交执行/测试结果',
+        checklist: false, tech: false, features: false, text: true, frontend: false, log: true, other: false
+      },
+      trigger_guide: {
+        guide: '<strong>本阶段无需提交。</strong><br>1. 在云函数控制台创建 HTTP/API 网关触发器，并允许网页需要的请求方法。<br>2. 配置跨域来源、请求头和鉴权；初学测试时可使用平台允许的公开访问方式，正式项目应增加身份验证。<br>3. 复制生成的 HTTPS 访问 URL，不要复制控制台内部地址。<br>4. 将 URL、请求方法、参数格式告诉 AI，要求它写入管理员审核后的最新版前端，并明确禁止把 AK、SK、API Key 写入前端。<br>5. 保存前端后通过 HTTP/HTTPS 地址运行，再进入“前后端联调”。',
+        label: '', placeholder: '', button: '',
+        checklist: false, tech: false, features: false, text: false, frontend: false, log: false, other: false
+      },
+      integration: {
+        guide: '通过 GitHub Pages、本地服务器或其它 HTTP/HTTPS 地址运行最新版前端。按 F12 打开开发者工具，在 Console 中复制完整报错信息并粘贴到下方；必要时同时上传最新版前端、截图或TXT日志。此阶段可以反复提交。',
+        label: 'F12 Console信息 / 联调结果（必填）', placeholder: '请完整粘贴 Console 报错，包括报错文件、行号、请求URL和错误正文。', button: '提交联调信息',
+        checklist: false, tech: false, features: false, text: true, frontend: true, log: true, other: true
+      }
+    };
+
+    function configureCollabStage() {
+      const stage = els.collabTaskStage.value || 'frontend_review';
+      const ui = COLLAB_STAGE_UI[stage] || COLLAB_STAGE_UI.frontend_review;
+      els.collabStageGuide.innerHTML = ui.guide;
+      els.collabFrontendChecklist.classList.toggle('hidden', !ui.checklist);
+      els.collabTechConfig.classList.toggle('hidden', !ui.tech);
+      els.collabFeatureChecklist.classList.toggle('hidden', !ui.features);
+      els.collabTextField.classList.toggle('hidden', !ui.text);
+      els.collabTextLabel.textContent = ui.label;
+      els.collabErrorText.placeholder = ui.placeholder;
+      els.collabFrontendUploadBox.classList.toggle('hidden', !ui.frontend);
+      els.collabLogUploadBox.classList.toggle('hidden', !ui.log);
+      els.collabOtherUploadBox.classList.toggle('hidden', !ui.other);
+      els.collabUploadGrid.classList.toggle('hidden', !ui.frontend && !ui.log && !ui.other);
+      els.collabSubmitIssueBtn.classList.toggle('hidden', !ui.button);
+      els.collabSubmitIssueBtn.textContent = ui.button || '';
     }
 
     function collabStatusClass(status) {
@@ -4718,6 +4786,7 @@ ${userText}
       els.collabUserBar.textContent = state.currentUser
         ? `当前用户：${state.currentUser.name} ｜ ${isAdmin ? '管理员端' : '学生端'} ｜ ${isAdmin ? '生成云端工程文件、回传版本、管理进度' : '提交需求、上传前端、部署测试、联调反馈'}`
         : '当前用户：未登录';
+      els.collabProjectsTab.classList.add('hidden');
       els.collabSubmitTab.classList.toggle('hidden', isAdmin);
       els.collabAdminTab.classList.toggle('hidden', !isAdmin);
       els.collabCreateProjectBtn.closest('.collab-card')?.classList.toggle('hidden', isAdmin);
@@ -4756,6 +4825,8 @@ ${userText}
       els.collabIssueProject.innerHTML = projectOptions || '<option value="">请先创建项目</option>';
       if (state.collab.selectedProjectId) els.collabIssueProject.value = state.collab.selectedProjectId;
       els.collabProgress.innerHTML = collabProgressHtml(selectedProject?.status || 'created');
+      if (!isAdmin && selectedProject) els.collabTaskStage.value = recommendedCollabStage(selectedProject.status);
+      configureCollabStage();
 
       const issueOptions = actionableIssues.map(issue => `<option value="${escapeHtml(issue.id)}">${escapeHtml(issue.projectName || '未命名项目')} / ${escapeHtml(collabStatusText(issue.status))} / ${escapeHtml(issue.studentName || '学生')}</option>`).join('');
       els.collabTeacherIssue.innerHTML = issueOptions || '<option value="">暂无待处理问题</option>';
@@ -4765,6 +4836,7 @@ ${userText}
         state.collab.selectedIssueId = actionableIssues[0]?.id || '';
         els.collabTeacherIssue.value = state.collab.selectedIssueId;
       }
+      configureAdminCollabReturn();
 
       els.collabNoticeList.innerHTML = notices.map(notice => {
         const issue = issues.find(item => item.id === notice.issueId);
@@ -4793,6 +4865,7 @@ ${userText}
         btn.addEventListener('click', () => {
           state.collab.selectedIssueId = btn.dataset.collabIssue;
           els.collabTeacherIssue.value = state.collab.selectedIssueId;
+          configureAdminCollabReturn();
         });
       });
       document.querySelectorAll('[data-collab-test]').forEach(btn => {
@@ -4850,7 +4923,7 @@ ${userText}
         ${item.deployText ? `<p>${escapeHtml(item.deployText)}</p>` : ''}
         ${item.testText ? `<p>${escapeHtml(item.testText)}</p>` : ''}
         ${collabFilesHtml(item.files)}
-        ${withTest && index === 0 && !['success', 'closed'].includes(issue.status) ? `<div class="field">
+        ${false && withTest && index === 0 && !['success', 'closed'].includes(issue.status) ? `<div class="field">
           <label>测试结果</label>
           <select id="testResult_${escapeHtml(issue.id)}">
             <option value="云函数测试成功">云函数测试成功</option>
@@ -4890,6 +4963,33 @@ ${userText}
       </div>`;
     }
 
+    function configureAdminCollabReturn() {
+      if (state.currentUser?.role !== 'admin') return;
+      const issue = (state.collab.issues || []).find(item => item.id === els.collabTeacherIssue.value);
+      const stage = issue?.stage || '';
+      const options = stage === 'frontend_review' ? {
+        types: ['修改完善后的前端文件'],
+        actions: ['下载并替换原前端文件', '检查页面功能后进入云函数初次申请', '继续修改前端后再次提交审核', '无'],
+        tests: ['确认前端页面可以正常打开', '逐项检查主要功能', '无']
+      } : stage === 'cloud_request' ? {
+        types: ['云函数ZIP压缩包 + 环境变量清单TXT'],
+        actions: ['部署云函数ZIP并配置环境变量', '先阅读环境变量清单再部署', '无'],
+        tests: ['部署后必须执行或测试并提交结果', '无']
+      } : stage === 'cloud_deploy' ? {
+        types: ['修复后的云函数ZIP压缩包'],
+        actions: ['重新部署云函数', '修改环境变量后重新执行', '重新安装依赖后执行', '提供更完整的执行日志', '进入触发器/URL阶段', '无'],
+        tests: ['再次执行并提交成功或失败结果', '无']
+      } : {
+        types: ['修改后的前端文件', '修复后的云函数ZIP压缩包', '新前端 + 新云函数ZIP'],
+        actions: ['替换前端后重新运行', '重新部署云函数后再联调', '同时替换前端和云函数', '提供完整Console和Network信息', '无'],
+        tests: ['按F12检查Console后再次提交', '确认前端调用成功', '无']
+      };
+      const fill = (select, values) => { select.innerHTML = values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join(''); };
+      fill(els.collabFixType, options.types);
+      fill(els.collabDeployAdvice, options.actions);
+      fill(els.collabTestAdvice, options.tests);
+    }
+
     function switchCollabPanel(panel) {
       if (state.currentUser?.role === 'admin' && panel === 'submit') panel = 'admin';
       els.collabProjectsPanel.classList.toggle('hidden', panel !== 'projects');
@@ -4903,6 +5003,7 @@ ${userText}
       els.collabLogTab.className = panel === 'log' ? 'btn-primary' : 'btn';
       els.collabAdminTab.className = panel === 'admin' ? 'btn-primary' : 'btn';
       els.collabSubmitTab.classList.toggle('hidden', state.currentUser?.role === 'admin');
+      els.collabProjectsTab.classList.add('hidden');
       els.collabAdminTab.classList.toggle('hidden', state.currentUser?.role !== 'admin');
     }
 
@@ -4913,7 +5014,7 @@ ${userText}
         return;
       }
       els.collabOverlay.classList.add('open');
-      switchCollabPanel(state.currentUser.role === 'admin' ? 'admin' : 'projects');
+      switchCollabPanel(state.currentUser.role === 'admin' ? 'admin' : 'submit');
       loadCollab();
       recordPlatformAction('打开协作中心', 'AI应用开发协作中心');
     }
@@ -4965,10 +5066,17 @@ ${userText}
       const projectId = els.collabIssueProject.value;
       const stage = els.collabTaskStage.value;
       const stageLabel = collabStatusText(stage);
-      const result = els.collabStageResult.value;
+      if (stage === 'trigger_guide') return toast('本阶段是操作指导，无需提交');
+      const result = stage === 'frontend_review' ? '提交前端上传审核'
+        : stage === 'cloud_request' ? '申请初次云函数'
+        : stage === 'cloud_deploy' ? '提交云函数执行测试'
+        : '提交前后端联调';
       const errorText = els.collabErrorText.value.trim();
-      if (!projectId) return toast('请先选择或创建项目');
-      if (!errorText && !collabCheckedValues('.collab-check').length && !collabCheckedValues('.collab-feature').length) return toast('请填写说明或勾选清单');
+      if (!projectId) return toast('项目正在初始化，请刷新后重试');
+      if (stage === 'frontend_review' && !els.collabFrontendFiles.files.length) return toast('请上传需要审核的前端文件');
+      if (stage === 'cloud_request' && !els.collabFrontendFiles.files.length) return toast('请上传当前最新版前端文件');
+      if (stage === 'cloud_deploy' && !errorText) return toast('成功或失败都需要粘贴执行/测试结果');
+      if (stage === 'integration' && !errorText) return toast('请粘贴F12 Console信息或联调结果');
       const projectName = els.collabIssueProject.options[els.collabIssueProject.selectedIndex]?.textContent || '当前项目';
       els.collabSubmitIssueBtn.disabled = true;
       els.collabSubmitIssueBtn.textContent = '正在提交...';
@@ -4989,8 +5097,8 @@ ${userText}
           issueType: stage,
           stage,
           stageResult: result,
-          checklist: collabCheckedValues('.collab-check'),
-          features: collabCheckedValues('.collab-feature'),
+          checklist: stage === 'frontend_review' ? collabCheckedValues('.collab-check') : [],
+          features: stage === 'cloud_request' ? collabCheckedValues('.collab-feature') : [],
           techConfig: {
             cloudPlatform: els.collabCloudPlatform.value,
             storagePlatform: els.collabStoragePlatform.value,
@@ -5022,7 +5130,7 @@ ${userText}
         toast('任务提交失败，请确认新版云函数已部署');
       } finally {
         els.collabSubmitIssueBtn.disabled = false;
-        els.collabSubmitIssueBtn.textContent = '提交当前任务';
+        configureCollabStage();
       }
     }
 
@@ -5030,7 +5138,13 @@ ${userText}
       if (state.currentUser?.role !== 'admin') return toast('仅管理员可回传修复文件');
       const issueId = els.collabTeacherIssue.value;
       if (!issueId) return toast('请选择问题');
+      const issue = state.collab.issues.find(item => item.id === issueId);
       const files = await filesToPayload(els.collabFixFiles.files);
+      const names = files.map(file => file.name.toLowerCase());
+      if (issue?.stage === 'frontend_review' && !names.some(name => /\.(html?|zip)$/.test(name))) return toast('前端审核阶段请上传修改后的HTML或前端ZIP');
+      if (issue?.stage === 'cloud_request' && (!names.some(name => name.endsWith('.zip')) || !names.some(name => name.endsWith('.txt')))) return toast('初次申请阶段需要同时上传云函数ZIP和环境变量清单TXT');
+      if (issue?.stage === 'cloud_deploy' && !names.some(name => name.endsWith('.zip'))) return toast('部署测试阶段请上传修复后的云函数ZIP');
+      if (issue?.stage === 'integration' && !files.length) return toast('联调阶段请上传新的前端文件或云函数ZIP');
       const fixType = els.collabFixType.value;
       const deployAdvice = els.collabDeployAdvice.value;
       const testAdvice = els.collabTestAdvice.value;
@@ -5432,10 +5546,15 @@ ${userText}
       });
       els.collabTeacherIssue.addEventListener('change', () => {
         state.collab.selectedIssueId = els.collabTeacherIssue.value;
+        configureAdminCollabReturn();
       });
       els.collabIssueProject.addEventListener('change', () => {
         state.collab.selectedProjectId = els.collabIssueProject.value;
         renderCollab();
+      });
+      els.collabTaskStage.addEventListener('change', () => {
+        setCollabSubmitStatus('', 'hidden');
+        configureCollabStage();
       });
       els.collabFrontendFiles.addEventListener('change', () => {
         const files = Array.from(els.collabFrontendFiles.files || []);
