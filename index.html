@@ -273,7 +273,7 @@
 
     .ide-assistant {
       display: grid;
-      grid-template-rows: auto minmax(120px, 1fr) auto;
+      grid-template-rows: auto auto minmax(120px, 1fr) auto;
       min-height: 0;
     }
 
@@ -311,19 +311,54 @@
     }
 
     .module-guide {
-      margin: 10px 12px 0;
-      padding: 12px;
+      position: fixed;
+      left: 532px;
+      top: 108px;
+      width: min(520px, calc(100vw - 40px));
+      height: min(560px, calc(100vh - 150px));
+      min-width: 320px;
+      min-height: 260px;
+      padding: 0;
       border: 1px solid rgba(34, 211, 238, .18);
       border-radius: 14px;
-      background: rgba(8, 47, 73, .22);
+      background: rgba(5, 9, 20, .96);
+      box-shadow: 0 24px 72px rgba(0, 0, 0, .42), 0 0 34px rgba(34, 211, 238, .08);
+      backdrop-filter: blur(18px);
+      resize: both;
+      overflow: auto;
       display: grid;
-      gap: 9px;
+      grid-template-rows: auto 1fr;
+      z-index: 45;
+    }
+
+    .module-guide.hidden {
+      display: none;
+    }
+
+    .module-guide-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, .16);
+      background: rgba(15, 23, 42, .72);
+      cursor: move;
+      user-select: none;
     }
 
     .module-guide h3 {
       margin: 0;
       color: #e0f2fe;
       font-size: 14px;
+    }
+
+    .module-guide-body {
+      display: grid;
+      gap: 9px;
+      padding: 12px;
+      overflow: auto;
+      min-height: 0;
     }
 
     .module-guide-block {
@@ -2398,17 +2433,67 @@
     function renderModuleGuide(moduleKey = 'frontend') {
       const mod = ideModules[moduleKey] || ideModules.frontend;
       if (!els.moduleGuide) return;
+      els.moduleGuide.classList.remove('hidden');
       els.moduleGuide.innerHTML = `
-        <h3>${escapeHtml(mod.title)}</h3>
-        <div class="module-guide-block"><b>这是什么？</b><span>${escapeHtml(mod.what)}</span></div>
-        <div class="module-guide-block"><b>有什么作用？</b><span>${escapeHtml(mod.role)}</span></div>
-        <div class="module-guide-block"><b>编程提示词</b><span>${escapeHtml(mod.build)}</span></div>
-        <div class="module-guide-block"><b>修改提示词</b><span>${escapeHtml(mod.modify)}</span></div>
-        <div class="module-guide-actions">
-          <button class="btn-primary" type="button" data-use-module-prompt="build" data-module-key="${escapeHtml(moduleKey)}">使用编程提示词</button>
-          <button class="btn" type="button" data-use-module-prompt="modify" data-module-key="${escapeHtml(moduleKey)}">使用修改提示词</button>
+        <div class="module-guide-head" data-module-drag-handle>
+          <h3>${escapeHtml(mod.title)}</h3>
+          <button class="icon-btn" type="button" data-close-module-guide title="关闭说明">×</button>
+        </div>
+        <div class="module-guide-body">
+          <div class="module-guide-block"><b>这是什么？</b><span>${escapeHtml(mod.what)}</span></div>
+          <div class="module-guide-block"><b>有什么作用？</b><span>${escapeHtml(mod.role)}</span></div>
+          <div class="module-guide-block"><b>编程提示词</b><span>${escapeHtml(mod.build)}</span></div>
+          <div class="module-guide-block"><b>修改提示词</b><span>${escapeHtml(mod.modify)}</span></div>
+          <div class="module-guide-actions">
+            <button class="btn-primary" type="button" data-use-module-prompt="build" data-module-key="${escapeHtml(moduleKey)}">使用编程提示词</button>
+            <button class="btn" type="button" data-use-module-prompt="modify" data-module-key="${escapeHtml(moduleKey)}">使用修改提示词</button>
+          </div>
         </div>
       `;
+    }
+
+    function closeModuleGuide() {
+      if (els.moduleGuide) els.moduleGuide.classList.add('hidden');
+    }
+
+    function keepModuleGuideInViewport() {
+      const box = els.moduleGuide;
+      if (!box || box.classList.contains('hidden')) return;
+      const rect = box.getBoundingClientRect();
+      const left = Math.max(12, Math.min(rect.left, window.innerWidth - Math.min(rect.width, window.innerWidth - 24) - 12));
+      const top = Math.max(72, Math.min(rect.top, window.innerHeight - Math.min(rect.height, window.innerHeight - 84) - 12));
+      box.style.left = `${left}px`;
+      box.style.top = `${top}px`;
+    }
+
+    function startModuleGuideDrag(e) {
+      const handle = e.target.closest('[data-module-drag-handle]');
+      if (!handle || e.target.closest('[data-close-module-guide]')) return;
+      const box = els.moduleGuide;
+      if (!box) return;
+      e.preventDefault();
+      const rect = box.getBoundingClientRect();
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startLeft = rect.left;
+      const startTop = rect.top;
+
+      function move(ev) {
+        const width = box.offsetWidth;
+        const height = box.offsetHeight;
+        const nextLeft = Math.max(12, Math.min(startLeft + ev.clientX - startX, window.innerWidth - width - 12));
+        const nextTop = Math.max(72, Math.min(startTop + ev.clientY - startY, window.innerHeight - height - 12));
+        box.style.left = `${nextLeft}px`;
+        box.style.top = `${nextTop}px`;
+      }
+
+      function stop() {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', stop);
+      }
+
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', stop);
     }
 
     function putPromptToInput(promptText) {
@@ -4575,12 +4660,18 @@ ${userText}
         });
       });
       els.moduleGuide.addEventListener('click', e => {
+        if (e.target.closest('[data-close-module-guide]')) {
+          closeModuleGuide();
+          return;
+        }
         const btn = e.target.closest('[data-use-module-prompt]');
         if (!btn) return;
         const mod = ideModules[btn.dataset.moduleKey] || ideModules.frontend;
         const promptType = btn.dataset.useModulePrompt === 'build' ? 'build' : 'modify';
         putPromptToInput(mod[promptType]);
       });
+      els.moduleGuide.addEventListener('mousedown', startModuleGuideDrag);
+      window.addEventListener('resize', keepModuleGuideInViewport);
 
       els.fileList.addEventListener('click', e => {
         const item = e.target.closest('.file-item');
