@@ -303,6 +303,48 @@
       background: rgba(8, 47, 73, .38);
     }
 
+    .ide-action.active {
+      color: #03111d;
+      font-weight: 900;
+      border-color: rgba(34, 211, 238, .56);
+      background: linear-gradient(135deg, var(--brand), #c4b5fd);
+    }
+
+    .module-guide {
+      margin: 10px 12px 0;
+      padding: 12px;
+      border: 1px solid rgba(34, 211, 238, .18);
+      border-radius: 14px;
+      background: rgba(8, 47, 73, .22);
+      display: grid;
+      gap: 9px;
+    }
+
+    .module-guide h3 {
+      margin: 0;
+      color: #e0f2fe;
+      font-size: 14px;
+    }
+
+    .module-guide-block {
+      display: grid;
+      gap: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .module-guide-block b {
+      color: #bfdbfe;
+      font-size: 11.5px;
+    }
+
+    .module-guide-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
     .ide-center-title {
       display: flex;
       align-items: center;
@@ -1497,14 +1539,17 @@
         </div>
 
         <div class="ide-actions">
-          <button class="ide-action" data-ide-prompt="请解释当前文件的结构、主要功能和可能的风险点。">解释文件</button>
-          <button class="ide-action" data-ide-prompt="请检查当前文件是否存在明显错误、兼容性问题或部署风险，并按严重程度列出。">检查错误</button>
-          <button class="ide-action" data-ide-prompt="请根据我粘贴的浏览器控制台、页面报错或云函数日志，定位最可能的问题文件和修改位置。">报错定位</button>
-          <button class="ide-action" data-ide-prompt="请检查当前项目的对象存储上传、读取、跨域、权限和云函数调用配置是否合理。如果用户已指定云平台，请按指定平台分析；否则默认按百度云 BOS 分析。">检查对象存储</button>
-          <button class="ide-action" data-ide-prompt="请检查当前云函数包结构、index.js、package.json、依赖包位置和环境变量配置是否合理。">检查云函数</button>
-          <button class="ide-action" data-ide-prompt="请根据当前最新版云函数包、前端调用方式和对象存储配置，整理一份部署云函数需要配置的环境变量清单。请用表格列出：变量名、用途、示例值、是否必填、在哪里获取、注意事项。如果用户已指定云平台，请按指定平台；否则默认按百度云函数和百度云 BOS。不要编造密钥，用占位符示例。">环境变量</button>
-          <button class="ide-action" data-ide-prompt="请根据当前前端项目、对象存储、云函数、大模型和 GitHub Pages 技术路径，整理一份简洁部署步骤。如果用户已指定云平台，请按指定平台；否则默认按百度云 BOS 和百度云函数。">GitHub发布</button>
+          <button class="ide-action active" data-ide-module="frontend">前端程序</button>
+          <button class="ide-action" data-ide-module="frontend-ai">前端接入大模型</button>
+          <button class="ide-action" data-ide-module="storage">对象存储</button>
+          <button class="ide-action" data-ide-module="function-storage">云函数+对象存储</button>
+          <button class="ide-action" data-ide-module="function-ai">云函数+大模型</button>
+          <button class="ide-action" data-ide-module="env">环境变量</button>
+          <button class="ide-action" data-ide-module="function-debug">云函数调试</button>
+          <button class="ide-action" data-ide-module="github">GitHub发布</button>
+          <button class="ide-action" data-ide-module="error">报错定位</button>
         </div>
+        <div class="module-guide" id="moduleGuide"></div>
 
         <div class="chat-body" id="chatBody">
           <div class="msg system">先导入项目文件，再让 AI 解释、检查或修改当前文件。需要从零开始时也可以直接输入需求。</div>
@@ -2048,9 +2093,9 @@
 
       <div class="help-section">
         <h3>推荐提示词</h3>
-        <p>请根据当前文件检查对象存储上传、读取、跨域和权限配置；未指定平台时默认按百度云 BOS。</p>
-        <p>请检查当前云函数包的 index.js、package.json、环境变量和依赖包位置；未指定平台时默认按百度云函数。</p>
-        <p>请根据当前最新版云函数包，列出部署需要配置的环境变量清单，不要编造真实密钥。</p>
+        <p>请检查当前前端程序的结构、样式、交互和移动端适配。</p>
+        <p>请检查前端接入大模型、对象存储、云函数接口和环境变量配置是否完整。</p>
+        <p>请根据当前云函数包生成环境变量清单，并说明 GitHub 发布注意事项。</p>
         <p>请根据我粘贴的报错定位问题文件，并给出可直接替换的修改片段。</p>
         <span class="help-tip">长时间连续修改后，可点击“整理上下文”再继续。</span>
       </div>
@@ -2131,6 +2176,7 @@
       helpCloseBtn: $('helpCloseBtn'),
       chatBody: $('chatBody'),
       userInput: $('userInput'),
+      moduleGuide: $('moduleGuide'),
       apiStatus: $('apiStatus'),
       summarizeBtn: $('summarizeBtn'),
       clearBtn: $('clearBtn'),
@@ -2264,6 +2310,72 @@
       }
     };
 
+    const ideModules = {
+      frontend: {
+        title: '前端程序',
+        what: '用户看见和操作的页面，通常由 HTML、CSS、JavaScript、图片和配置文件组成。',
+        role: '让项目先能看、能点、能输入、能展示结果，是所有应用的第一层。',
+        build: '请为我的项目创建一个前端程序，包含清晰的页面结构、主要按钮、输入框、结果展示区、基础样式和移动端适配。要求文件结构适合后续接入大模型、对象存储和云函数。',
+        modify: '请检查并优化当前前端程序，包括页面结构、样式、交互、移动端适配、文件引用路径和可维护性。请按问题优先级列出修改建议，并给出可直接替换的局部代码。'
+      },
+      'frontend-ai': {
+        title: '前端接入大模型',
+        what: '前端页面直接调用大模型接口，完成问答、总结、评分、生成文本等演示能力。',
+        role: '适合做学习演示和轻量原型，但要提醒 API Key 暴露风险，正式项目通常应改为云函数代理。',
+        build: '请为当前前端程序增加大模型调用功能，包括 API 设置、Base URL、模型选择、提示词输入、请求按钮、结果展示、加载状态和错误提示。未指定平台时默认 DeepSeek 兼容接口。',
+        modify: '请检查当前前端接入大模型的方式，包括 API 设置、Base URL、模型选择、提示词、请求参数、返回展示、错误提示和前端暴露密钥风险，并给出修改建议。'
+      },
+      storage: {
+        title: '对象存储',
+        what: '对象存储是云端保存文件的空间，用来存图片、HTML、附件、评分数据、作品文件等。',
+        role: '让项目可以跨电脑保存和读取文件，不再只依赖浏览器本地缓存。',
+        build: '请为当前项目设计对象存储模块，支持文件上传、读取列表、下载文件、生成访问链接、处理跨域和权限。用户指定云平台时按指定平台；未指定时默认百度云 BOS。',
+        modify: '请检查当前项目的对象存储上传、读取、下载、文件路径、访问链接、跨域和权限配置。如果用户已指定云平台，请按指定平台分析；否则默认按百度云 BOS 分析。'
+      },
+      'function-storage': {
+        title: '云函数+对象存储',
+        what: '用云函数替前端安全操作对象存储，例如上传、读取列表、下载和删除文件。',
+        role: '避免把存储密钥写在前端，同时统一处理权限、文件命名、跨域和数据记录。',
+        build: '请为当前项目设计“云函数 + 对象存储”的完整流程，包括前端调用、云函数 action、上传接口、读取列表、下载接口、权限校验、文件命名和对象存储配置。用户指定平台时按指定平台；否则默认百度云函数 + 百度云 BOS。',
+        modify: '请检查当前云函数与对象存储的协作流程，包括上传接口、读取列表、下载接口、权限校验、跨域、文件命名、Bucket/Endpoint/Region 配置和前端调用方式，并指出需要修改的文件和位置。'
+      },
+      'function-ai': {
+        title: '云函数+大模型',
+        what: '用云函数作为前端和大模型之间的服务端代理。',
+        role: '把 API Key 放在云端环境变量中，避免暴露在前端，并统一处理超时、错误和返回格式。',
+        build: '请为当前项目设计“云函数 + 大模型”的调用流程，包括前端请求、云函数接口、API Key 环境变量、模型请求、错误处理、超时处理和返回展示。用户指定模型平台时按指定平台；否则默认 DeepSeek 兼容接口。',
+        modify: '请检查当前云函数与大模型的协作流程，包括服务端代理、API Key 环境变量、模型接口调用、请求超时、错误处理、流式/普通返回、前端调用和密钥安全，并给出修改建议。'
+      },
+      env: {
+        title: '环境变量',
+        what: '环境变量是部署在云端的配置项，用来保存密钥、Bucket 名称、Region、Endpoint、模型 Key 等。',
+        role: '让敏感信息不出现在前端代码里，也方便部署时按不同项目修改配置。',
+        build: '请根据当前云函数包、前端调用方式、对象存储和大模型配置，生成部署云函数需要配置的环境变量清单。请用表格列出变量名、用途、示例值、是否必填、在哪里获取、注意事项。不要编造真实密钥，用占位符示例。',
+        modify: '请检查当前云函数包是否正确读取环境变量，是否存在变量名不一致、缺少必填变量、前端写死密钥或部署说明不完整的问题，并给出修复建议。'
+      },
+      'function-debug': {
+        title: '云函数调试',
+        what: '云函数调试是排查部署后接口不能访问、返回 400/500、跨域失败、环境变量错误等问题。',
+        role: '帮助学生把“报错看不懂”变成可执行的排查步骤。',
+        build: '请为当前云函数设计调试方案，包括本地文件检查、部署检查、HTTP 触发器测试、跨域检查、环境变量检查、日志定位和最小测试请求。',
+        modify: '请根据当前云函数包和我粘贴的日志/报错，定位最可能的问题原因，按优先级给出排查步骤、测试请求和需要修改的文件位置。'
+      },
+      github: {
+        title: 'GitHub发布',
+        what: 'GitHub 发布是把前端静态页面部署成可访问的网址，常用 GitHub Pages。',
+        role: '让项目可以通过链接访问，也方便学生提交、分享和测试。',
+        build: '请根据当前前端项目、对象存储、云函数、大模型和 GitHub Pages 技术路径，整理 GitHub 静态页发布步骤、目录结构、路径注意事项、PWA 缓存刷新和上线测试清单。',
+        modify: '请检查当前项目是否适合发布到 GitHub Pages，包括相对路径、资源文件、manifest、service-worker、API 地址、PWA 缓存和移动端访问问题，并给出修改建议。'
+      },
+      error: {
+        title: '报错定位',
+        what: '报错定位是把浏览器控制台、页面提示、云函数日志或部署失败信息，对应到具体文件和代码位置。',
+        role: '帮助学生先弄清楚错在哪里，再决定改前端、云函数、对象存储配置还是部署设置。',
+        build: '请告诉我排查项目报错时应该收集哪些信息，包括浏览器控制台、Network 请求、云函数日志、环境变量、对象存储权限和 GitHub Pages 地址。',
+        modify: '请根据我粘贴的浏览器控制台、页面报错、云函数日志或部署失败提示，定位最可能的问题文件、问题原因和修改位置，并按优先级给出修复步骤。'
+      }
+    };
+
     function toast(text) {
       els.toast.textContent = text;
       els.toast.classList.add('show');
@@ -2281,6 +2393,31 @@
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+    }
+
+    function renderModuleGuide(moduleKey = 'frontend') {
+      const mod = ideModules[moduleKey] || ideModules.frontend;
+      if (!els.moduleGuide) return;
+      els.moduleGuide.innerHTML = `
+        <h3>${escapeHtml(mod.title)}</h3>
+        <div class="module-guide-block"><b>这是什么？</b><span>${escapeHtml(mod.what)}</span></div>
+        <div class="module-guide-block"><b>有什么作用？</b><span>${escapeHtml(mod.role)}</span></div>
+        <div class="module-guide-block"><b>编程提示词</b><span>${escapeHtml(mod.build)}</span></div>
+        <div class="module-guide-block"><b>修改提示词</b><span>${escapeHtml(mod.modify)}</span></div>
+        <div class="module-guide-actions">
+          <button class="btn-primary" type="button" data-use-module-prompt="build" data-module-key="${escapeHtml(moduleKey)}">使用编程提示词</button>
+          <button class="btn" type="button" data-use-module-prompt="modify" data-module-key="${escapeHtml(moduleKey)}">使用修改提示词</button>
+        </div>
+      `;
+    }
+
+    function putPromptToInput(promptText) {
+      const text = String(promptText || '').trim();
+      if (!text) return;
+      els.userInput.value = els.userInput.value.trim()
+        ? `${els.userInput.value.trim()}\n\n${text}`
+        : text;
+      els.userInput.focus();
     }
 
     function nowText() {
@@ -4430,14 +4567,19 @@ ${userText}
       document.querySelectorAll('.tab').forEach(btn => {
         btn.addEventListener('click', () => switchView(btn.dataset.view));
       });
-      document.querySelectorAll('[data-ide-prompt]').forEach(btn => {
+      document.querySelectorAll('[data-ide-module]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const prompt = btn.dataset.idePrompt || '';
-          els.userInput.value = els.userInput.value.trim()
-            ? `${els.userInput.value.trim()}\n\n${prompt}`
-            : prompt;
-          els.userInput.focus();
+          const moduleKey = btn.dataset.ideModule || 'frontend';
+          document.querySelectorAll('[data-ide-module]').forEach(item => item.classList.toggle('active', item === btn));
+          renderModuleGuide(moduleKey);
         });
+      });
+      els.moduleGuide.addEventListener('click', e => {
+        const btn = e.target.closest('[data-use-module-prompt]');
+        if (!btn) return;
+        const mod = ideModules[btn.dataset.moduleKey] || ideModules.frontend;
+        const promptType = btn.dataset.useModulePrompt === 'build' ? 'build' : 'modify';
+        putPromptToInput(mod[promptType]);
       });
 
       els.fileList.addEventListener('click', e => {
@@ -4495,6 +4637,7 @@ ${userText}
     loadWorks();
     showFirstUseGuide();
     bind();
+    renderModuleGuide('frontend');
     if (!els.memoryText.value) {
       els.memoryText.value = `项目目标：
 已完成功能：
