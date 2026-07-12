@@ -38,6 +38,88 @@
         linear-gradient(135deg, #020617 0%, #08111f 54%, #020617 100%);
     }
 
+    body.learn-mode {
+      --bg: #f5f8ff;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel2: rgba(248, 250, 252, 0.92);
+      --line: rgba(100, 116, 139, 0.20);
+      --line2: rgba(100, 116, 139, 0.30);
+      --text: #0f172a;
+      --muted: #475569;
+      --muted2: #64748b;
+      --brand: #0284c7;
+      --brand2: #7c3aed;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(14, 165, 233, .18), transparent 30rem),
+        radial-gradient(circle at 92% 8%, rgba(124, 58, 237, .12), transparent 28rem),
+        linear-gradient(135deg, #f8fbff 0%, #eef6ff 56%, #f8fafc 100%);
+    }
+
+    body.learn-mode .topbar,
+    body.learn-mode .statusbar {
+      background: rgba(255, 255, 255, .80);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+    }
+
+    body.learn-mode .panel,
+    body.learn-mode .api-panel,
+    body.learn-mode .module-guide {
+      background: rgba(255, 255, 255, .90);
+      box-shadow: 0 18px 48px rgba(15, 23, 42, .10);
+    }
+
+    body.learn-mode .teacher b,
+    body.learn-mode .chat-head h2,
+    body.learn-mode .ide-title h2,
+    body.learn-mode .ide-center-title strong,
+    body.learn-mode .empty h2,
+    body.learn-mode .module-guide h3,
+    body.learn-mode .file-item strong {
+      color: #0f172a;
+    }
+
+    body.learn-mode .btn,
+    body.learn-mode .icon-btn,
+    body.learn-mode input,
+    body.learn-mode textarea,
+    body.learn-mode select,
+    body.learn-mode .file-item,
+    body.learn-mode .ide-action {
+      background: rgba(248, 250, 252, .88);
+      color: #0f172a;
+    }
+
+    body.learn-mode .chat-body,
+    body.learn-mode .preview,
+    body.learn-mode .answer,
+    body.learn-mode .memory textarea,
+    body.learn-mode .composer,
+    body.learn-mode .ide-actions,
+    body.learn-mode .ide-toolbar,
+    body.learn-mode .ide-files {
+      background: rgba(248, 250, 252, .54);
+    }
+
+    body.learn-mode .code-editor {
+      background:
+        linear-gradient(rgba(2, 132, 199, .035) 50%, transparent 50%) 0 0 / 100% 44px,
+        #fbfdff;
+      color: #0f172a;
+    }
+
+    body.learn-mode .module-guide-head {
+      background: rgba(239, 246, 255, .92);
+    }
+
+    body.learn-mode .msg.ai,
+    body.learn-mode .msg.system {
+      background: rgba(241, 245, 249, .88);
+    }
+
+    body.workbench-mode {
+      color-scheme: dark;
+    }
+
     button, input, textarea, select { font-family: inherit; }
     button { cursor: pointer; }
 
@@ -107,6 +189,18 @@
       justify-content: flex-end;
       gap: 9px;
       position: relative;
+    }
+
+    .mode-toggle {
+      white-space: nowrap;
+    }
+
+    .lang-select {
+      width: auto;
+      min-width: 76px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      font-size: 12px;
     }
 
     .btn, .btn-primary, .btn-danger, .icon-btn {
@@ -1490,6 +1584,11 @@
       <div class="top-actions">
         <button class="btn" id="authBtn">登录</button>
         <button class="btn hidden" id="adminBtn">系统管理</button>
+        <button class="btn mode-toggle" id="modeToggleBtn">学习模式</button>
+        <select class="lang-select" id="langSelect" title="语言">
+          <option value="zh">中文</option>
+          <option value="en">EN</option>
+        </select>
         <button class="btn" id="helpBtn">帮助</button>
         <button class="icon-btn" id="apiBtn" title="API设置">⚙</button>
         <input id="openFiles" type="file" multiple accept=".html,.htm,.js,.css,.json,.txt,.md,.py,.yml,.yaml,.env" />
@@ -2187,6 +2286,8 @@
       loginPhone: $('loginPhone'),
       loginBtn: $('loginBtn'),
       logoutBtn: $('logoutBtn'),
+      modeToggleBtn: $('modeToggleBtn'),
+      langSelect: $('langSelect'),
       apiBtn: $('apiBtn'),
       apiPanel: $('apiPanel'),
       closeApiBtn: $('closeApiBtn'),
@@ -2346,7 +2447,8 @@
       }
     };
 
-    const ideModules = {
+    const ideModulesByLang = {
+      zh: {
       frontend: {
         title: '前端程序',
         what: '用户看见和操作的页面，通常由 HTML、CSS、JavaScript、图片和配置文件组成。',
@@ -2410,7 +2512,192 @@
         build: '请告诉我排查项目报错时应该收集哪些信息，包括浏览器控制台、Network 请求、云函数日志、环境变量、对象存储权限和 GitHub Pages 地址。',
         modify: '请根据我粘贴的浏览器控制台、页面报错、云函数日志或部署失败提示，定位最可能的问题文件、问题原因和修改位置，并按优先级给出修复步骤。'
       }
+      },
+      en: {
+        frontend: {
+          title: 'Frontend App',
+          what: 'The visible and interactive part of an app, usually built with HTML, CSS, JavaScript, images, and config files.',
+          role: 'It makes the project visible, clickable, editable, and able to show results. It is the first layer of every app.',
+          build: 'Create a frontend app for my project, including page structure, main buttons, inputs, result area, basic styling, and mobile adaptation. Keep the file structure suitable for later AI model, object storage, and cloud function integration.',
+          modify: 'Review and improve the current frontend app, including page structure, styling, interactions, mobile layout, file paths, and maintainability. List issues by priority and provide directly replaceable code snippets.'
+        },
+        'frontend-ai': {
+          title: 'Frontend AI Integration',
+          what: 'The frontend directly calls an AI model API to provide chat, summary, scoring, text generation, or demo features.',
+          role: 'Useful for learning demos and quick prototypes, but API key exposure must be explained. Production projects should usually use a cloud function proxy.',
+          build: 'Add AI model calling to the current frontend, including API settings, Base URL, model selection, prompt input, request button, result display, loading state, and error messages. If no platform is specified, use a DeepSeek-compatible API.',
+          modify: 'Review the current frontend AI integration, including API settings, Base URL, model selection, prompts, request parameters, response display, error handling, and frontend API key exposure risk. Provide improvement suggestions.'
+        },
+        storage: {
+          title: 'Object Storage',
+          what: 'A cloud file storage space for images, HTML files, attachments, scoring data, submitted works, and other files.',
+          role: 'It lets the project save and read files across devices instead of relying only on browser local cache.',
+          build: 'Design an object storage module for the current project, supporting upload, list reading, file download, access URLs, CORS, and permissions. Use the user-specified cloud platform if provided; otherwise default to Baidu BOS.',
+          modify: 'Review the current object storage upload, read, download, file path, access URL, CORS, and permission configuration. Use the specified cloud platform if provided; otherwise analyze as Baidu BOS.'
+        },
+        'function-storage': {
+          title: 'Cloud Function + Object Storage',
+          what: 'Use a cloud function to safely operate object storage for upload, listing, download, and deletion.',
+          role: 'Avoids putting storage credentials in frontend code and centralizes permissions, naming, CORS, and data records.',
+          build: 'Design a complete cloud function + object storage flow for the current project, including frontend calls, cloud function actions, upload API, list API, download API, permission checks, file naming, and storage configuration. Use the specified platform if provided; otherwise default to Baidu Cloud Function + Baidu BOS.',
+          modify: 'Review the current cloud function and object storage workflow, including upload API, list reading, download API, permission checks, CORS, file naming, Bucket/Endpoint/Region configuration, and frontend calls. Point out files and locations that need changes.'
+        },
+        'function-ai': {
+          title: 'Cloud Function + AI Model',
+          what: 'Use a cloud function as a server-side proxy between the frontend and the AI model.',
+          role: 'Keeps API keys in cloud environment variables and centralizes timeout, error handling, and response formatting.',
+          build: 'Design a cloud function + AI model calling flow for the current project, including frontend request, cloud function API, API key environment variable, model request, error handling, timeout handling, and response display. Use the specified model platform if provided; otherwise default to a DeepSeek-compatible API.',
+          modify: 'Review the current cloud function + AI workflow, including server-side proxy, API key environment variable, model API call, timeout, error handling, streaming/normal response, frontend call, and key security. Provide improvement suggestions.'
+        },
+        env: {
+          title: 'Environment Variables',
+          what: 'Cloud-side configuration values used to store secrets, bucket names, regions, endpoints, model keys, and similar settings.',
+          role: 'Keeps sensitive information out of frontend code and makes deployment configuration easier to change per project.',
+          build: 'Generate the environment variable checklist required to deploy the cloud function based on the current cloud function package, frontend calls, object storage, and AI model configuration. Use a table with variable name, purpose, example value, required or optional, where to get it, and notes. Do not invent real secrets; use placeholders.',
+          modify: 'Check whether the current cloud function package correctly reads environment variables, whether names are inconsistent, required variables are missing, secrets are hard-coded in frontend code, or deployment docs are incomplete. Provide fixes.'
+        },
+        'function-debug': {
+          title: 'Cloud Function Debugging',
+          what: 'Debugging deployment and runtime issues such as unreachable APIs, 400/500 responses, CORS failures, and environment variable errors.',
+          role: 'Turns unclear errors into executable troubleshooting steps for students.',
+          build: 'Design a debugging plan for the current cloud function, including local file checks, deployment checks, HTTP trigger testing, CORS checks, environment variable checks, log analysis, and a minimal test request.',
+          modify: 'Based on the current cloud function package and pasted logs/errors, locate the most likely cause and provide prioritized troubleshooting steps, test requests, and file locations to modify.'
+        },
+        github: {
+          title: 'GitHub Publishing',
+          what: 'Publishing the frontend static site to an accessible URL, usually through GitHub Pages.',
+          role: 'Allows the project to be accessed by link and makes it easier for students to submit, share, and test.',
+          build: 'Based on the current frontend project, object storage, cloud function, AI model, and GitHub Pages path, prepare publishing steps, folder structure, path notes, PWA cache refresh steps, and a launch test checklist.',
+          modify: 'Check whether the current project is ready for GitHub Pages, including relative paths, asset files, manifest, service worker, API URLs, PWA cache, and mobile access issues. Provide improvement suggestions.'
+        },
+        error: {
+          title: 'Error Diagnosis',
+          what: 'Map browser console messages, page errors, cloud function logs, or deployment failures to specific files and code locations.',
+          role: 'Helps students identify whether the problem belongs to frontend code, cloud function code, object storage settings, or deployment configuration.',
+          build: 'Tell me what information I should collect when diagnosing project errors, including browser console, Network requests, cloud function logs, environment variables, object storage permissions, and GitHub Pages URL.',
+          modify: 'Based on the browser console, page error, cloud function log, or deployment failure message I paste, locate the most likely file, cause, and modification point, then give prioritized repair steps.'
+        }
+      }
     };
+    let ideModules = ideModulesByLang.zh;
+
+    const uiText = {
+      zh: {
+        brandSub: '轻量 IDE 工作台 · 项目文件协作修改',
+        teacher: 'AI 应用开发训练工具',
+        login: '登录',
+        admin: '系统管理',
+        help: '帮助',
+        apiTitle: 'DeepSeek API 设置',
+        apiHint: '学生使用自己的 API Key。静态网页不会上传 Key 到 GitHub；Key 只在本机浏览器中使用。',
+        saveSettings: '保存设置',
+        testConnection: '测试连接',
+        clear: '清除',
+        projectTitle: '项目文件',
+        projectDesc: '导入或生成的文件会在这里显示。点击文件后，在中间编辑区查看和修改。',
+        openFrontend: '打开前端项目',
+        openFunction: '打开云函数包',
+        importFiles: '导入零散文件',
+        newFrontend: '新建前端文件',
+        newFunction: '新建云函数文件',
+        downloadAll: '下载全部',
+        downloadMain: '下载主文件',
+        cacheMode: '当前为浏览器缓存模式。若浏览器支持，可打开项目文件夹后自动写回原文件。',
+        assistantTitle: 'AI 助手',
+        assistantSub: '围绕当前文件协作',
+        systemMsg: '先导入项目文件，再让 AI 解释、检查或修改当前文件。需要从零开始时也可以直接输入需求。',
+        taskLabel: '任务指令',
+        taskPlaceholder: '输入修改需求、报错信息或新功能说明。例：请检查当前 HTML 为什么按钮点击无反应，并给出修改后的文件。',
+        summarize: '整理上下文',
+        send: '发送',
+        workspace: '开发工作区',
+        preview: '预览',
+        code: '代码',
+        aiAnswer: 'AI回答',
+        context: '上下文',
+        previewHtml: '预览HTML',
+        copyFile: '复制当前文件',
+        saveEdit: '保存修改',
+        previewTitle: '网页预览',
+        previewDesc: '导入或生成 HTML 后，这里会直接预览效果。编辑代码后点击“保存修改”再预览。',
+        editorPlaceholder: '当前文件内容会显示在这里。',
+        answerPlaceholder: 'AI 原始回答会显示在这里。',
+        contextTitle: '项目上下文',
+        contextDesc: '用于连续修改项目。系统会发送“上下文 + 当前文件 + 最近对话”。',
+        saveMemory: '保存记忆',
+        memoryPlaceholder: '关键信息会保存在这里，用于后续连续对话。',
+        statusReady: '准备就绪',
+        fileCount: '文件：0',
+        mainFile: '主文件：无',
+        modeLearn: '学习模式',
+        modeWorkbench: '工作台模式',
+        what: '这是什么？',
+        role: '有什么作用？',
+        buildPrompt: '编程提示词',
+        modifyPrompt: '修改提示词',
+        useBuild: '使用编程提示词',
+        useModify: '使用修改提示词',
+        closeGuide: '关闭说明'
+      },
+      en: {
+        brandSub: 'Lightweight IDE · Project file collaboration',
+        teacher: 'AI App Development Trainer',
+        login: 'Login',
+        admin: 'Admin',
+        help: 'Help',
+        apiTitle: 'DeepSeek API Settings',
+        apiHint: 'Students use their own API keys. This static page will not upload keys to GitHub; keys are used only in this browser.',
+        saveSettings: 'Save',
+        testConnection: 'Test',
+        clear: 'Clear',
+        projectTitle: 'Project Files',
+        projectDesc: 'Imported or generated files appear here. Click a file to view and edit it in the workspace.',
+        openFrontend: 'Open Frontend',
+        openFunction: 'Open Cloud Function',
+        importFiles: 'Import Files',
+        newFrontend: 'New Frontend File',
+        newFunction: 'New Function File',
+        downloadAll: 'Download All',
+        downloadMain: 'Download Main',
+        cacheMode: 'Browser cache mode. If supported, open a project folder to auto-save back to original files.',
+        assistantTitle: 'AI Assistant',
+        assistantSub: 'Work with the current file',
+        systemMsg: 'Import project files first, then ask AI to explain, inspect, or modify the current file. You can also start from a new request.',
+        taskLabel: 'Task',
+        taskPlaceholder: 'Enter a change request, error message, or feature idea. Example: check why the current HTML button does not respond and provide a fix.',
+        summarize: 'Summarize',
+        send: 'Send',
+        workspace: 'Workspace',
+        preview: 'Preview',
+        code: 'Code',
+        aiAnswer: 'AI Answer',
+        context: 'Context',
+        previewHtml: 'Preview HTML',
+        copyFile: 'Copy File',
+        saveEdit: 'Save',
+        previewTitle: 'Web Preview',
+        previewDesc: 'After importing or generating HTML, preview appears here. Edit code, save, then preview again.',
+        editorPlaceholder: 'Current file content appears here.',
+        answerPlaceholder: 'Raw AI response appears here.',
+        contextTitle: 'Project Context',
+        contextDesc: 'Used for continuous project edits. The system sends context + current file + recent chat.',
+        saveMemory: 'Save Context',
+        memoryPlaceholder: 'Key information is stored here for later continuous editing.',
+        statusReady: 'Ready',
+        fileCount: 'Files: 0',
+        mainFile: 'Main file: none',
+        modeLearn: 'Learning Mode',
+        modeWorkbench: 'Workbench Mode',
+        what: 'What is this?',
+        role: 'What does it do?',
+        buildPrompt: 'Build Prompt',
+        modifyPrompt: 'Modify Prompt',
+        useBuild: 'Use Build Prompt',
+        useModify: 'Use Modify Prompt',
+        closeGuide: 'Close'
+      }
+    };
+    let currentLang = 'zh';
 
     function toast(text) {
       els.toast.textContent = text;
@@ -2420,6 +2707,103 @@
 
     function setStatus(text, busy=false) {
       els.statusText.innerHTML = busy ? '<span class="dot"></span>' + escapeHtml(text) : escapeHtml(text);
+    }
+
+    function applyUiMode(mode) {
+      const nextMode = mode === 'workbench' ? 'workbench' : 'learn';
+      document.body.classList.toggle('learn-mode', nextMode === 'learn');
+      document.body.classList.toggle('workbench-mode', nextMode === 'workbench');
+      const text = uiText[currentLang] || uiText.zh;
+      if (els.modeToggleBtn) {
+        els.modeToggleBtn.textContent = nextMode === 'learn' ? text.modeLearn : text.modeWorkbench;
+        els.modeToggleBtn.title = nextMode === 'learn' ? text.modeLearn : text.modeWorkbench;
+      }
+      localStorage.setItem('simple_ds_ui_mode', nextMode);
+    }
+
+    function toggleUiMode() {
+      const isLearn = document.body.classList.contains('learn-mode');
+      applyUiMode(isLearn ? 'workbench' : 'learn');
+    }
+
+    function setText(selector, value) {
+      const el = document.querySelector(selector);
+      if (el) el.textContent = value;
+    }
+
+    function applyLanguage(lang) {
+      currentLang = lang === 'en' ? 'en' : 'zh';
+      const text = uiText[currentLang];
+      ideModules = ideModulesByLang[currentLang] || ideModulesByLang.zh;
+      document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-CN';
+      if (els.langSelect) els.langSelect.value = currentLang;
+      localStorage.setItem('simple_ds_lang', currentLang);
+
+      setText('.brand span', text.brandSub);
+      setText('.teacher b', text.teacher);
+      if (!state.currentUser) els.authBtn.textContent = text.login;
+      els.adminBtn.textContent = text.admin;
+      els.helpBtn.textContent = text.help;
+      setText('#apiPanel .panel-title span', text.apiTitle);
+      setText('#apiSettingsForm .field:nth-of-type(1) .hint', text.apiHint);
+      els.saveApiBtn.textContent = text.saveSettings;
+      els.testApiBtn.textContent = text.testConnection;
+      els.clearApiBtn.textContent = text.clear;
+
+      setText('.ide-title h2', text.projectTitle);
+      setText('.ide-title p', text.projectDesc);
+      els.openFrontendDirBtn.textContent = text.openFrontend;
+      els.openFunctionDirBtn.textContent = text.openFunction;
+      document.querySelector('label[for="openFiles"]').textContent = text.importFiles;
+      els.newFrontendFileBtn.textContent = text.newFrontend;
+      els.newFunctionFileBtn.textContent = text.newFunction;
+      els.downloadAllBtn.textContent = text.downloadAll;
+      els.downloadMainBtn.textContent = text.downloadMain;
+      if (els.ideSaveState && els.ideSaveState.classList.contains('warn')) els.ideSaveState.textContent = text.cacheMode;
+
+      const assistantHead = document.querySelector('.chat-head h2');
+      if (assistantHead) assistantHead.innerHTML = `${escapeHtml(text.assistantTitle)} <span class="compact-tip">${escapeHtml(text.assistantSub)}</span>`;
+      const systemMsg = document.querySelector('#chatBody .msg.system');
+      if (systemMsg) systemMsg.textContent = text.systemMsg;
+      const taskLabel = document.querySelector('.composer .field label');
+      if (taskLabel) taskLabel.textContent = text.taskLabel;
+      els.userInput.placeholder = text.taskPlaceholder;
+      els.summarizeBtn.textContent = text.summarize;
+      els.clearBtn.textContent = text.clear;
+      els.sendBtn.textContent = text.send;
+
+      setText('.ide-center-title strong', text.workspace);
+      const tabs = document.querySelectorAll('.tabs .tab');
+      if (tabs[0]) tabs[0].textContent = text.preview;
+      if (tabs[1]) tabs[1].textContent = text.code;
+      if (tabs[2]) tabs[2].textContent = text.aiAnswer;
+      if (tabs[3]) tabs[3].textContent = text.context;
+      els.previewBtn.textContent = text.previewHtml;
+      els.copyBtn.textContent = text.copyFile;
+      els.saveFileBtn.textContent = text.saveEdit;
+      setText('#previewBox .empty h2', text.previewTitle);
+      setText('#previewBox .empty p', text.previewDesc);
+      els.fileEditor.placeholder = text.editorPlaceholder;
+      if (!state.lastAnswer) els.answerBox.textContent = text.answerPlaceholder;
+      setText('.memory-top strong', text.contextTitle);
+      setText('.memory-top .hint', text.contextDesc);
+      els.saveMemoryBtn.textContent = text.saveMemory;
+      els.memoryText.placeholder = text.memoryPlaceholder;
+
+      document.querySelectorAll('[data-ide-module]').forEach(btn => {
+        const mod = ideModules[btn.dataset.ideModule];
+        if (mod) btn.textContent = mod.title;
+      });
+      if (!Object.keys(state.files).length) {
+        els.fileCount.textContent = text.fileCount;
+        els.mainFile.textContent = text.mainFile;
+      }
+      if (!els.moduleGuide.classList.contains('hidden')) {
+        const active = document.querySelector('[data-ide-module].active');
+        renderModuleGuide(active?.dataset.ideModule || 'frontend');
+      }
+      applyUiMode(localStorage.getItem('simple_ds_ui_mode') || 'learn');
+      updateApiStatus();
     }
 
     function escapeHtml(str) {
@@ -2433,21 +2817,22 @@
 
     function renderModuleGuide(moduleKey = 'frontend') {
       const mod = ideModules[moduleKey] || ideModules.frontend;
+      const text = uiText[currentLang] || uiText.zh;
       if (!els.moduleGuide) return;
       els.moduleGuide.classList.remove('hidden');
       els.moduleGuide.innerHTML = `
         <div class="module-guide-head" data-module-drag-handle>
           <h3>${escapeHtml(mod.title)}</h3>
-          <button class="icon-btn" type="button" data-close-module-guide title="关闭说明">×</button>
+          <button class="icon-btn" type="button" data-close-module-guide title="${escapeHtml(text.closeGuide)}">×</button>
         </div>
         <div class="module-guide-body">
-          <div class="module-guide-block"><b>这是什么？</b><span>${escapeHtml(mod.what)}</span></div>
-          <div class="module-guide-block"><b>有什么作用？</b><span>${escapeHtml(mod.role)}</span></div>
-          <div class="module-guide-block"><b>编程提示词</b><span>${escapeHtml(mod.build)}</span></div>
-          <div class="module-guide-block"><b>修改提示词</b><span>${escapeHtml(mod.modify)}</span></div>
+          <div class="module-guide-block"><b>${escapeHtml(text.what)}</b><span>${escapeHtml(mod.what)}</span></div>
+          <div class="module-guide-block"><b>${escapeHtml(text.role)}</b><span>${escapeHtml(mod.role)}</span></div>
+          <div class="module-guide-block"><b>${escapeHtml(text.buildPrompt)}</b><span>${escapeHtml(mod.build)}</span></div>
+          <div class="module-guide-block"><b>${escapeHtml(text.modifyPrompt)}</b><span>${escapeHtml(mod.modify)}</span></div>
           <div class="module-guide-actions">
-            <button class="btn-primary" type="button" data-use-module-prompt="build" data-module-key="${escapeHtml(moduleKey)}">使用编程提示词</button>
-            <button class="btn" type="button" data-use-module-prompt="modify" data-module-key="${escapeHtml(moduleKey)}">使用修改提示词</button>
+            <button class="btn-primary" type="button" data-use-module-prompt="build" data-module-key="${escapeHtml(moduleKey)}">${escapeHtml(text.useBuild)}</button>
+            <button class="btn" type="button" data-use-module-prompt="modify" data-module-key="${escapeHtml(moduleKey)}">${escapeHtml(text.useModify)}</button>
           </div>
         </div>
       `;
@@ -2595,8 +2980,10 @@
         els.worksAdminTab.classList.toggle('hidden', user.role !== 'admin');
         els.collabAdminTab.classList.toggle('hidden', user.role !== 'admin');
       } else {
-        els.authBtn.textContent = '登录';
-        els.authStatus.textContent = '当前未登录。登录后可以上传作品，管理员可审核作品并查看记录。';
+        els.authBtn.textContent = currentLang === 'en' ? 'Login' : '登录';
+        els.authStatus.textContent = currentLang === 'en'
+          ? 'Not logged in. After login, users can upload works and admins can review works and records.'
+          : '当前未登录。登录后可以上传作品，管理员可审核作品并查看记录。';
         els.adminBtn.classList.add('hidden');
         els.worksAdminTab.classList.add('hidden');
         els.collabAdminTab.classList.add('hidden');
@@ -2815,7 +3202,9 @@
 
     function updateApiStatus() {
       const ok = !!getApiKey();
-      els.apiStatus.textContent = ok ? 'API 已设置' : 'API 未设置';
+      els.apiStatus.textContent = ok
+        ? (currentLang === 'en' ? 'API configured' : 'API 已设置')
+        : (currentLang === 'en' ? 'API not set' : 'API 未设置');
       els.apiStatus.className = ok ? 'hint ok' : 'hint warn';
     }
 
@@ -3351,7 +3740,7 @@ ${userText}
       els.mainFile.textContent = '主文件：' + (state.mainFile || '无');
 
       if (!names.length) {
-        els.fileList.innerHTML = '<div class="hint">暂无文件。AI 生成文件或导入文件后会显示在这里。</div>';
+        els.fileList.innerHTML = `<div class="hint">${currentLang === 'en' ? 'No files yet. Generated or imported files will appear here.' : '暂无文件。AI 生成文件或导入文件后会显示在这里。'}</div>`;
         els.fileEditor.value = '';
         return;
       }
@@ -3375,7 +3764,7 @@ ${userText}
         : Object.keys(state.files).find(n => /\.html?$/i.test(n));
 
       if (!htmlName) {
-        els.previewBox.innerHTML = `<div class="empty"><div><h2>暂无 HTML 预览</h2><p>当前没有 HTML 文件。如果生成的是云函数或 JS 文件，请到“文件”页查看和下载。</p></div></div>`;
+        els.previewBox.innerHTML = `<div class="empty"><div><h2>${currentLang === 'en' ? 'No HTML Preview' : '暂无 HTML 预览'}</h2><p>${currentLang === 'en' ? 'There is no HTML file yet. For cloud functions or JS files, view and download them in the Code tab.' : '当前没有 HTML 文件。如果生成的是云函数或 JS 文件，请到“文件”页查看和下载。'}</p></div></div>`;
         return;
       }
 
@@ -3488,7 +3877,7 @@ ${userText}
 关键规则：
 当前文件：
 待解决问题：`;
-        els.answerBox.textContent = state.lastAnswer || 'AI 原始回答会显示在这里。';
+        els.answerBox.textContent = state.lastAnswer || (uiText[currentLang] || uiText.zh).answerPlaceholder;
 
         state.messages.forEach(m => addMessage(m.role, m.content));
         renderFiles();
@@ -4505,6 +4894,8 @@ ${userText}
       els.adminModal.addEventListener('click', (e) => { if (e.target === els.adminModal) closeAdminModal(); });
       els.loginBtn.addEventListener('click', loginPlatform);
       els.logoutBtn.addEventListener('click', logoutPlatform);
+      els.modeToggleBtn.addEventListener('click', toggleUiMode);
+      els.langSelect.addEventListener('change', () => applyLanguage(els.langSelect.value));
 
       els.helpBtn.addEventListener('click', openHelpModal);
       els.helpCloseBtn.addEventListener('click', closeHelpModal);
@@ -4729,6 +5120,7 @@ ${userText}
     loadWorks();
     showFirstUseGuide();
     bind();
+    applyLanguage(localStorage.getItem('simple_ds_lang') || 'zh');
     if (!els.memoryText.value) {
       els.memoryText.value = `项目目标：
 已完成功能：
