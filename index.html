@@ -328,7 +328,7 @@
       overflow: auto;
       display: grid;
       grid-template-rows: auto 1fr;
-      z-index: 45;
+      z-index: 240;
     }
 
     .module-guide.hidden {
@@ -1500,6 +1500,7 @@
             <button class="icon-btn" id="closeApiBtn">×</button>
           </div>
           <form id="apiSettingsForm" autocomplete="off" onsubmit="return false;">
+          <input type="text" name="username" autocomplete="username" value="deepseek-api-user" aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
           <div class="field">
             <label>API Key</label>
             <input id="apiKey" type="password" placeholder="sk-..." autocomplete="new-password" />
@@ -1584,8 +1585,6 @@
           <button class="ide-action" data-ide-module="github">GitHub发布</button>
           <button class="ide-action" data-ide-module="error">报错定位</button>
         </div>
-        <div class="module-guide" id="moduleGuide"></div>
-
         <div class="chat-body" id="chatBody">
           <div class="msg system">先导入项目文件，再让 AI 解释、检查或修改当前文件。需要从零开始时也可以直接输入需求。</div>
         </div>
@@ -1661,6 +1660,8 @@
         </div>
       </section>
     </main>
+
+    <div class="module-guide hidden" id="moduleGuide"></div>
 
     <footer class="statusbar">
       <div id="statusText"><span class="dot"></span>准备就绪</div>
@@ -4728,7 +4729,6 @@ ${userText}
     loadWorks();
     showFirstUseGuide();
     bind();
-    renderModuleGuide('frontend');
     if (!els.memoryText.value) {
       els.memoryText.value = `项目目标：
 已完成功能：
