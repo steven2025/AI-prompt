@@ -200,10 +200,120 @@
     .layout {
       min-height: 0;
       display: grid;
-      grid-template-columns: 400px 1fr;
+      grid-template-columns: 260px 360px minmax(0, 1fr);
       gap: 10px;
       padding: 10px;
       overflow: hidden;
+    }
+
+    .ide-explorer {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      min-height: 0;
+    }
+
+    .ide-title {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(2, 6, 23, .22);
+    }
+
+    .ide-title h2 {
+      margin: 0 0 4px;
+      color: #e0f2fe;
+      font-size: 14px;
+    }
+
+    .ide-title p {
+      margin: 0;
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .ide-toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(15, 23, 42, .32);
+    }
+
+    .ide-toolbar .btn,
+    .ide-toolbar .btn-primary {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .ide-save-state {
+      border: 1px solid rgba(52, 211, 153, .20);
+      border-radius: 12px;
+      padding: 8px 9px;
+      background: rgba(6, 78, 59, .18);
+      color: #bbf7d0;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .ide-save-state.warn {
+      border-color: rgba(251, 191, 36, .22);
+      background: rgba(120, 53, 15, .18);
+      color: #fde68a;
+    }
+
+    .ide-files {
+      min-height: 0;
+      overflow: auto;
+      padding: 10px;
+      background:
+        linear-gradient(180deg, rgba(34, 211, 238, .045), transparent 180px),
+        rgba(2, 6, 23, .24);
+    }
+
+    .ide-assistant {
+      display: grid;
+      grid-template-rows: auto minmax(120px, 1fr) auto;
+      min-height: 0;
+    }
+
+    .ide-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(2, 6, 23, .24);
+    }
+
+    .ide-action {
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, .58);
+      color: var(--muted);
+      padding: 8px 9px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: .16s;
+    }
+
+    .ide-action:hover {
+      color: #e0f2fe;
+      border-color: rgba(34, 211, 238, .38);
+      background: rgba(8, 47, 73, .38);
+    }
+
+    .ide-center-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .ide-center-title strong {
+      color: #e0f2fe;
+      font-size: 13px;
+      white-space: nowrap;
     }
 
     .panel {
@@ -329,7 +439,7 @@
     }
 
     .prompt-box {
-      min-height: 220px;
+      min-height: 180px;
       max-height: 360px;
     }
 
@@ -393,7 +503,11 @@
       display: none;
     }
 
-    .view.active { display: block; }
+    .view.active {
+      display: block;
+      height: 100%;
+      min-height: 0;
+    }
 
     .preview {
       height: 100%;
@@ -442,9 +556,6 @@
     .files {
       min-height: 0;
       overflow: auto;
-      border-right: 1px solid var(--line);
-      padding: 12px;
-      background: rgba(2, 6, 23, .28);
     }
 
     .file-item {
@@ -475,6 +586,13 @@
     .file-item span {
       color: var(--muted);
       font-size: 11px;
+    }
+
+    .file-item small {
+      display: inline-block;
+      margin-top: 5px;
+      color: #7dd3fc;
+      font-size: 10.5px;
     }
 
     .code-editor {
@@ -759,7 +877,7 @@
 
     @media (min-height: 850px) {
       .prompt-box {
-        min-height: 280px;
+        min-height: 220px;
       }
     }
 
@@ -1262,7 +1380,7 @@
         height: auto;
         overflow: visible;
       }
-      .chat-panel, .main-panel { min-height: 620px; }
+      .chat-panel, .main-panel, .ide-explorer { min-height: 520px; }
       .statusbar { min-height: 48px; grid-template-columns: 1fr; padding: 8px 14px; }
       .api-panel { width: min(92vw, 420px); right: 0; }
       .file-list { grid-template-columns: 1fr; }
@@ -1286,7 +1404,7 @@
         <div class="logo">DS</div>
         <div>
           <strong>DeepSeek 增强助手</strong>
-          <span>长对话不断档 · 修改返回完整文件</span>
+          <span>轻量 IDE 工作台 · 项目文件协作修改</span>
         </div>
       </div>
 
@@ -1295,9 +1413,6 @@
       <div class="top-actions">
         <button class="btn" id="authBtn">登录</button>
         <button class="btn hidden" id="adminBtn">系统管理</button>
-        <label class="btn" for="openFiles">导入文件</label>
-        <button class="btn" id="downloadAllBtn">下载全部</button>
-        <button class="btn-primary" id="downloadMainBtn">下载主文件</button>
         <button class="btn" id="helpBtn">帮助</button>
         <button class="icon-btn" id="apiBtn" title="API设置">⚙</button>
         <input id="openFiles" type="file" multiple accept=".html,.htm,.js,.css,.json,.txt,.md,.py,.yml,.yaml,.env" />
@@ -1357,20 +1472,48 @@
     </header>
 
     <main class="layout">
-      <section class="panel chat-panel">
+      <section class="panel ide-explorer">
+        <div class="ide-title">
+          <h2>项目文件</h2>
+          <p>导入或生成的文件会在这里显示。点击文件后，在中间编辑区查看和修改。</p>
+        </div>
+        <div class="ide-toolbar">
+          <button class="btn-primary" id="openFrontendDirBtn">打开前端项目</button>
+          <button class="btn" id="openFunctionDirBtn">打开云函数包</button>
+          <label class="btn" for="openFiles">导入零散文件</label>
+          <button class="btn" id="newFrontendFileBtn">新建前端文件</button>
+          <button class="btn" id="newFunctionFileBtn">新建云函数文件</button>
+          <button class="btn" id="downloadAllBtn">下载全部</button>
+          <button class="btn-primary" id="downloadMainBtn">下载主文件</button>
+          <div class="ide-save-state warn" id="ideSaveState">当前为浏览器缓存模式。若浏览器支持，可打开项目文件夹后自动写回原文件。</div>
+        </div>
+        <div class="files ide-files" id="fileList"></div>
+      </section>
+
+      <section class="panel chat-panel ide-assistant">
         <div class="chat-head">
-          <h2>对话 <span class="compact-tip">编程时自动要求返回完整文件</span></h2>
+          <h2>AI 助手 <span class="compact-tip">围绕当前文件协作</span></h2>
           <p></p>
         </div>
 
+        <div class="ide-actions">
+          <button class="ide-action" data-ide-prompt="请解释当前文件的结构、主要功能和可能的风险点。">解释文件</button>
+          <button class="ide-action" data-ide-prompt="请检查当前文件是否存在明显错误、兼容性问题或部署风险，并按严重程度列出。">检查错误</button>
+          <button class="ide-action" data-ide-prompt="请根据我粘贴的浏览器控制台、页面报错或云函数日志，定位最可能的问题文件和修改位置。">报错定位</button>
+          <button class="ide-action" data-ide-prompt="请检查当前项目的对象存储上传、读取、跨域、权限和云函数调用配置是否合理。如果用户已指定云平台，请按指定平台分析；否则默认按百度云 BOS 分析。">检查对象存储</button>
+          <button class="ide-action" data-ide-prompt="请检查当前云函数包结构、index.js、package.json、依赖包位置和环境变量配置是否合理。">检查云函数</button>
+          <button class="ide-action" data-ide-prompt="请根据当前最新版云函数包、前端调用方式和对象存储配置，整理一份部署云函数需要配置的环境变量清单。请用表格列出：变量名、用途、示例值、是否必填、在哪里获取、注意事项。如果用户已指定云平台，请按指定平台；否则默认按百度云函数和百度云 BOS。不要编造密钥，用占位符示例。">环境变量</button>
+          <button class="ide-action" data-ide-prompt="请根据当前前端项目、对象存储、云函数、大模型和 GitHub Pages 技术路径，整理一份简洁部署步骤。如果用户已指定云平台，请按指定平台；否则默认按百度云 BOS 和百度云函数。">GitHub发布</button>
+        </div>
+
         <div class="chat-body" id="chatBody">
-          <div class="msg system">直接输入需求；修改已有程序时先导入文件。</div>
+          <div class="msg system">先导入项目文件，再让 AI 解释、检查或修改当前文件。需要从零开始时也可以直接输入需求。</div>
         </div>
 
         <div class="composer">
           <div class="field">
-            <label>输入</label>
-            <textarea id="userInput" class="prompt-box" placeholder="直接输入问题或修改需求。例：请根据当前 HTML 美化界面，并返回完整 HTML。"></textarea>
+            <label>任务指令</label>
+            <textarea id="userInput" class="prompt-box" placeholder="输入修改需求、报错信息或新功能说明。例：请检查当前 HTML 为什么按钮点击无反应，并给出修改后的文件。"></textarea>
           </div>
 
           <div class="row between">
@@ -1386,17 +1529,20 @@
 
       <section class="panel main-panel">
         <div class="main-head">
-          <div class="tabs">
-            <button class="tab active" data-view="preview">主显示区</button>
-            <button class="tab" data-view="files">文件</button>
-            <button class="tab" data-view="answer">AI回答</button>
-            <button class="tab" data-view="memory">上下文</button>
+          <div class="ide-center-title">
+            <strong>开发工作区</strong>
+            <div class="tabs">
+              <button class="tab active" data-view="preview">预览</button>
+              <button class="tab" data-view="files">代码</button>
+              <button class="tab" data-view="answer">AI回答</button>
+              <button class="tab" data-view="memory">上下文</button>
+            </div>
           </div>
 
           <div class="row">
             <button class="btn" id="previewBtn">预览HTML</button>
             <button class="btn" id="copyBtn">复制当前文件</button>
-            <button class="btn" id="saveFileBtn">保存当前修改</button>
+            <button class="btn" id="saveFileBtn">保存修改</button>
           </div>
         </div>
 
@@ -1404,18 +1550,15 @@
           <div class="preview" id="previewBox">
             <div class="empty">
               <div>
-                <h2>主显示区</h2>
-                <p>AI 生成或修改 HTML 后，这里会直接预览效果。若生成的是云函数、JS、JSON 等文件，可在“文件”页查看和下载。</p>
+                <h2>网页预览</h2>
+                <p>导入或生成 HTML 后，这里会直接预览效果。编辑代码后点击“保存修改”再预览。</p>
               </div>
             </div>
           </div>
         </div>
 
         <div class="view" id="filesView">
-          <div class="file-list">
-            <div class="files" id="fileList"></div>
-            <textarea class="code-editor" id="fileEditor" spellcheck="false" placeholder="当前文件内容会显示在这里。"></textarea>
-          </div>
+          <textarea class="code-editor" id="fileEditor" spellcheck="false" placeholder="当前文件内容会显示在这里。"></textarea>
         </div>
 
         <div class="view" id="answerView">
@@ -1427,8 +1570,8 @@
             <div class="memory-top">
               <div class="row between">
                 <div>
-                  <strong>上下文 / 上下文整理</strong>
-                  <div class="hint">为避免普通 DeepSeek 长对话中断，本工具默认只发送“上下文 + 当前文件 + 最近几轮对话”。</div>
+                  <strong>项目上下文</strong>
+                  <div class="hint">用于连续修改项目。系统会发送“上下文 + 当前文件 + 最近对话”。</div>
                 </div>
                 <button class="btn" id="saveMemoryBtn">保存记忆</button>
               </div>
@@ -1456,7 +1599,7 @@
     <div class="training-head">
       <div>
         <strong>AI开发培训小程序</strong>
-        <span>已嵌入：AI应用开发提示词术语训练平台</span>
+        <span>已嵌入：AI应用开发培训平台</span>
       </div>
       <div class="row">
         <button class="btn" id="trainingFullscreenBtn">全屏</button>
@@ -1469,7 +1612,7 @@
       <div class="training-placeholder" id="trainingPlaceholder">
         <h2>AI开发培训小程序</h2>
         <p>AI开发培训小程序已接入。点击右侧“培训”按钮即可在全屏层中打开。</p>
-        <p>建议用途：放置 AI 应用开发课程导航、提示词模板、云函数部署教程、对象存储教程、学生作品案例等。</p>
+        <p>建议用途：放置 AI 应用开发课程导航、提示词模板、云函数部署教程、百度云 BOS 对象存储教程、学生作品案例等。</p>
         <button class="btn-primary" id="trainingPlaceholderBtn">已接入培训小程序</button>
       </div>
     </div>
@@ -1512,7 +1655,7 @@
             <div class="works-card">
               <h3>上传说明</h3>
               <p class="upload-tip">请先登录。提交后作品进入“待审核”，管理员审核通过后才会公开展示。</p>
-              <p class="upload-tip"><b>HTML 上传：</b>适合单文件 HTML 应用。请选择一个 .html 或 .htm 文件，系统会上传到 COS 并生成可打开链接。</p>
+              <p class="upload-tip"><b>HTML 上传：</b>适合单文件 HTML 应用。请选择一个 .html 或 .htm 文件，系统会上传到百度云 BOS 并生成可打开链接。</p>
               <p class="upload-tip"><b>链接上传：</b>适合已经发布到 GitHub Pages、腾讯云静态网站或其他网页地址的应用。请填写完整 https:// 链接。</p>
               <p class="upload-tip">为了保护主程序，用户上传的 HTML 会通过独立链接或受限预览打开，不会直接获得主程序页面权限。</p>
             </div>
@@ -1747,7 +1890,7 @@
                   <option value="替换前端文件后重新上传 GitHub">替换前端文件后重新上传 GitHub</option>
                   <option value="上传新版云函数 zip 并重新部署">上传新版云函数 zip 并重新部署</option>
                   <option value="检查云函数环境变量">检查云函数环境变量</option>
-                  <option value="检查 COS 跨域或权限配置">检查 COS 跨域或权限配置</option>
+                  <option value="检查 BOS 跨域或权限配置">检查 BOS 跨域或权限配置</option>
                   <option value="清理浏览器缓存后重试">清理浏览器缓存后重试</option>
                   <option value="无">无</option>
                 </select>
@@ -1759,7 +1902,7 @@
                   <option value="换浏览器或换电脑测试">换浏览器或换电脑测试</option>
                   <option value="打开控制台查看是否还有报错">打开控制台查看是否还有报错</option>
                   <option value="检查管理员端是否能看到数据">检查管理员端是否能看到数据</option>
-                  <option value="上传测试文件验证 COS">上传测试文件验证 COS</option>
+                  <option value="上传测试文件验证 BOS">上传测试文件验证 BOS</option>
                   <option value="无">无</option>
                 </select>
               </div>
@@ -1810,7 +1953,7 @@
           <button class="btn-primary" id="loginBtn">登录</button>
           <button class="btn-danger" id="logoutBtn">退出登录</button>
         </div>
-        <div class="hint" style="margin-top:10px;">管理员身份沿用原培训模块配置。云函数地址配置后，登录和行为会写入 COS；未配置时仅保存在本机浏览器。</div>
+        <div class="hint" style="margin-top:10px;">管理员身份沿用原培训模块配置。云函数地址配置后，登录和行为会写入百度云 BOS；未配置时仅保存在本机浏览器。</div>
       </div>
     </div>
   </div>
@@ -1828,7 +1971,7 @@
     </div>
     <div class="admin-body">
       <div class="admin-shell">
-        <div class="cloud-mode-note hidden" id="adminCloudNote">当前未配置云函数地址，系统管理正在显示本机浏览器数据；换电脑或换浏览器将看不到。要读取 COS 数据，请在 index.html 中填写 PLATFORM_API_URL。</div>
+        <div class="cloud-mode-note hidden" id="adminCloudNote">当前未配置云函数地址，系统管理正在显示本机浏览器数据；换电脑或换浏览器将看不到。要读取百度云 BOS 数据，请在 index.html 中填写 PLATFORM_API_URL。</div>
         <div class="admin-summary" id="adminSummary"></div>
         <div class="admin-section-title">
           <strong>用户列表</strong>
@@ -1891,9 +2034,9 @@
       <div class="help-section">
         <h3>基本操作</h3>
         <ol>
-          <li><b>新建程序：</b>直接在左侧对话框输入需求。</li>
-          <li><b>修改程序：</b>先点“导入文件”，再说明想修改什么。</li>
-          <li><b>查看结果：</b>右侧“主显示区”可预览 HTML；“文件”页可查看 HTML / JS / 云函数文件。</li>
+          <li><b>打开项目：</b>优先使用“打开前端项目”和“打开云函数包”，浏览器授权后可自动写回原文件。</li>
+          <li><b>修改程序：</b>点击左侧文件树中的文件，在中间代码区编辑，右侧 AI 助手围绕当前文件对话。</li>
+          <li><b>查看结果：</b>中间“预览”可查看 HTML；“代码”可查看前端、配置和云函数文件。</li>
           <li><b>下载：</b>点击“下载主文件”或“下载全部”。</li>
         </ol>
       </div>
@@ -1905,9 +2048,10 @@
 
       <div class="help-section">
         <h3>推荐提示词</h3>
-        <p>请根据当前文件修改，严格保留原有业务逻辑，并返回完整 HTML，不要只给修改片段。</p>
-        <p>请生成完整的 index.html、index.js 和 package.json。</p>
-        <p>请修复当前报错，并返回修复后的完整文件。</p>
+        <p>请根据当前文件检查对象存储上传、读取、跨域和权限配置；未指定平台时默认按百度云 BOS。</p>
+        <p>请检查当前云函数包的 index.js、package.json、环境变量和依赖包位置；未指定平台时默认按百度云函数。</p>
+        <p>请根据当前最新版云函数包，列出部署需要配置的环境变量清单，不要编造真实密钥。</p>
+        <p>请根据我粘贴的报错定位问题文件，并给出可直接替换的修改片段。</p>
         <span class="help-tip">长时间连续修改后，可点击“整理上下文”再继续。</span>
       </div>
     </div>
@@ -1974,6 +2118,11 @@
       saveApiBtn: $('saveApiBtn'),
       testApiBtn: $('testApiBtn'),
       clearApiBtn: $('clearApiBtn'),
+      openFrontendDirBtn: $('openFrontendDirBtn'),
+      openFunctionDirBtn: $('openFunctionDirBtn'),
+      newFrontendFileBtn: $('newFrontendFileBtn'),
+      newFunctionFileBtn: $('newFunctionFileBtn'),
+      ideSaveState: $('ideSaveState'),
       openFiles: $('openFiles'),
       downloadAllBtn: $('downloadAllBtn'),
       downloadMainBtn: $('downloadMainBtn'),
@@ -2093,6 +2242,9 @@
     const state = {
       messages: [],
       files: {},
+      fileHandles: {},
+      fileKinds: {},
+      autoSaveTimer: null,
       currentFile: '',
       mainFile: '',
       lastAnswer: '',
@@ -2270,6 +2422,7 @@
 
     function logoutPlatform() {
       if (state.currentUser) recordPlatformAction('退出登录', '主程序');
+      localStorage.removeItem('ai-training-parent-user');
       setCurrentUser(null, '');
       toast('已退出登录');
     }
@@ -2606,29 +2759,33 @@
     }
 
     function systemPrompt() {
-      return `你是一个面向非计算机专业学生的 DeepSeek 编程助手，同时也可以回答普通问题。
+      return `你是一个面向非计算机专业学生的 DeepSeek 编程 IDE 助手，同时也可以回答普通问题。
 
 核心目标：
 1. 解决长对话中断：你会收到“上下文”、当前文件和最近几轮对话，请基于这些内容连续工作。
-2. 解决只给修改片段的问题：只要用户涉及编程、修改、修复、美化、部署、云函数、HTML、JS、CSS、API 等任务，必须尽量返回完整文件。
-3. 对不懂代码的人友好：不要让用户手工合并代码。
+2. 像 IDE 助手一样工作：优先围绕当前文件解释、检查、定位问题、提出修改方案。
+3. 对不懂代码的人友好：说明要清楚，必要时给出可直接替换的代码。
 
 编程输出规则：
-- 如果生成或修改 HTML，必须返回完整 HTML 文件。
-- 如果生成云函数，必须返回完整云函数文件，例如 index.js、package.json、README.md。
-- 如果涉及多个文件，请每个文件都用独立代码块输出。
-- 代码块前必须标明文件名，格式建议：
+- 云平台规则：如果用户明确指定对象存储或云函数平台，必须按用户指定平台生成和检查；如果用户未指定，默认按百度云 BOS 和百度云函数作为课堂推荐路径。
+- 不要把项目强行限定为百度云；对象存储和云函数应作为通用能力理解，百度云只是默认示例。
+- 当用户要求云函数环境变量配置时，应根据当前云函数包和前端调用方式整理清单，用表格列出变量名、用途、示例值、是否必填、获取位置和注意事项；不要编造真实密钥，示例值必须使用占位符。
+- 如果用户要求解释、检查、排错、部署说明，优先用文字说明，不要生成完整文件。
+- 如果是小范围修改，优先给“修改位置 + 替换片段/新增片段”，不要重写整个文件。
+- 如果用户明确要求完整文件、从零生成新文件、或修改范围较大导致片段不安全，再返回完整文件。
+- 如果返回代码块，代码块前必须标明文件名和用途，格式建议：
 文件：index.html
+用途：替换 xxx 函数
 \`\`\`html
-完整代码
+代码
 \`\`\`
 文件：index.js
+用途：新增/替换
 \`\`\`js
-完整代码
+代码
 \`\`\`
-- 不要只写“替换这一段”。
-- 不要写“其余代码保持不变”。
 - 如果当前已有文件，修改时要尽量保留原有业务逻辑、数据规则和核心功能。
+- 如果你只给片段，必须说清楚插入或替换到哪里。
 - 如果用户只是普通问答，可以正常回答，不必输出代码。`;
     }
 
@@ -2637,7 +2794,7 @@
 ${els.memoryText.value.trim() || '暂无。'}
 
 当前文件列表：
-${Object.keys(state.files).join(', ') || '暂无文件。'}
+${Object.keys(state.files).map(name => `${name}（${fileKindLabel(name)}）`).join(', ') || '暂无文件。'}
 
 当前主文件：${state.mainFile || '无'}
 
@@ -2650,7 +2807,7 @@ ${state.messages.slice(-6).map(m => (m.role === 'user' ? '用户：' : 'AI：') 
 用户本次输入：
 ${userText}
 
-请根据用户意图回答。若涉及编程或修改，请返回完整文件，不要只给修改片段。`;
+请根据用户意图回答。当前是轻量 IDE 模式：除非用户明确要求完整文件或确实必须完整替换，否则优先给检查结论、修改方案和可定位的局部代码。`;
     }
 
     function currentFileContext() {
@@ -2736,11 +2893,136 @@ ${userText}
         .trim();
     }
 
+    function normalizeProjectPath(path) {
+      return String(path || '')
+        .replace(/\\/g, '/')
+        .replace(/^\/+/, '')
+        .replace(/\/+/g, '/')
+        .trim();
+    }
+
+    function fileKindLabel(name) {
+      if (name.startsWith('frontend/')) return '前端';
+      if (name.startsWith('cloud-functions/')) return '云函数';
+      if (/\.(html?|css|js|json|md|txt|yml|yaml|env)$/i.test(name)) return '文本';
+      return '文件';
+    }
+
+    function isReadableProjectFile(name) {
+      const normalized = normalizeProjectPath(name);
+      if (!normalized) return false;
+      if (/(^|\/)(node_modules|\.git|dist|build|coverage|\.next|\.vite)(\/|$)/i.test(normalized)) return false;
+      if (/\.(png|jpe?g|gif|webp|ico|svg|zip|rar|7z|pdf|docx?|xlsx?|pptx?|mp3|mp4|woff2?|ttf)$/i.test(normalized)) return false;
+      return /\.(html?|css|js|mjs|cjs|json|md|txt|yml|yaml|env|xml|csv)$/i.test(normalized);
+    }
+
+    function canUseDirectoryPicker() {
+      return typeof window.showDirectoryPicker === 'function';
+    }
+
+    function updateIdeSaveState(text, isLive = false) {
+      if (!els.ideSaveState) return;
+      els.ideSaveState.textContent = text || (isLive ? '已连接项目文件夹，编辑会自动写回原文件。' : '当前为浏览器缓存模式。');
+      els.ideSaveState.classList.toggle('warn', !isLive);
+    }
+
+    async function readDirectoryFiles(dirHandle, prefix, kind) {
+      let count = 0;
+      async function walk(handle, base) {
+        for await (const [name, entry] of handle.entries()) {
+          const rel = normalizeProjectPath(base ? `${base}/${name}` : name);
+          if (entry.kind === 'directory') {
+            if (/(^|\/)(node_modules|\.git|dist|build|coverage|\.next|\.vite)$/i.test(rel)) continue;
+            await walk(entry, rel);
+            continue;
+          }
+          if (entry.kind !== 'file' || !isReadableProjectFile(rel)) continue;
+          const file = await entry.getFile();
+          const projectName = normalizeProjectPath(`${prefix}/${rel}`);
+          state.files[projectName] = await file.text();
+          state.fileHandles[projectName] = entry;
+          state.fileKinds[projectName] = kind;
+          if (!state.mainFile && /\.html?$/i.test(projectName)) state.mainFile = projectName;
+          count += 1;
+        }
+      }
+      await walk(dirHandle, '');
+      return count;
+    }
+
+    async function openProjectDirectory(kind) {
+      if (!canUseDirectoryPicker()) {
+        toast('当前浏览器不支持直接打开文件夹，请使用“导入零散文件”');
+        return;
+      }
+      const label = kind === 'function' ? '云函数包' : '前端项目';
+      const prefix = kind === 'function' ? 'cloud-functions' : 'frontend';
+      try {
+        const dir = await window.showDirectoryPicker({ mode: 'readwrite' });
+        const count = await readDirectoryFiles(dir, prefix, kind);
+        if (!state.currentFile) state.currentFile = state.mainFile || Object.keys(state.files)[0] || '';
+        renderFiles();
+        renderPreview();
+        saveLocal();
+        updateIdeSaveState(`已连接${label}文件夹，编辑会自动写回原文件。已读取 ${count} 个文本文件。`, true);
+        toast(`已打开${label}文件夹`);
+      } catch (err) {
+        if (err?.name !== 'AbortError') toast('打开文件夹失败：' + (err.message || err));
+      }
+    }
+
+    async function writeCurrentFileToDisk(silent = false) {
+      if (!state.currentFile) return false;
+      const handle = state.fileHandles[state.currentFile];
+      if (!handle) {
+        if (!silent) toast('当前文件来自浏览器缓存，未连接原文件夹');
+        return false;
+      }
+      const writable = await handle.createWritable();
+      await writable.write(els.fileEditor.value);
+      await writable.close();
+      updateIdeSaveState(`已自动保存：${state.currentFile}`, true);
+      return true;
+    }
+
+    function scheduleAutoSave() {
+      clearTimeout(state.autoSaveTimer);
+      state.autoSaveTimer = setTimeout(async () => {
+        if (!state.currentFile) return;
+        try {
+          await writeCurrentFileToDisk(true);
+          saveLocal();
+        } catch (err) {
+          updateIdeSaveState('自动保存失败，请检查浏览器文件夹权限。', false);
+        }
+      }, 700);
+    }
+
+    function createNewFile(kind) {
+      const defaultName = kind === 'function' ? 'cloud-functions/main/index.js' : 'frontend/index.html';
+      const name = normalizeProjectPath(prompt('请输入新文件路径：', defaultName) || '');
+      if (!name) return;
+      if (state.files[name] && !confirm('文件已存在，是否打开该文件？')) return;
+      if (!state.files[name]) {
+        state.files[name] = kind === 'function'
+          ? 'exports.main = async (event, context) => {\n  return { ok: true, message: "hello" };\n};\n'
+          : '<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n  <meta charset="UTF-8" />\n  <title>新页面</title>\n</head>\n<body>\n  <h1>新页面</h1>\n</body>\n</html>\n';
+        state.fileKinds[name] = kind;
+      }
+      state.currentFile = name;
+      if (!state.mainFile && /\.html?$/i.test(name)) state.mainFile = name;
+      renderFiles();
+      saveLocal();
+      switchView('files');
+    }
+
     function applyExtractedFiles(files) {
       if (!files.length) return false;
       files.forEach(f => {
-        state.files[f.name] = f.code;
-        if (!state.mainFile && /\.html?$/i.test(f.name)) state.mainFile = f.name;
+        const name = normalizeProjectPath(f.name);
+        state.files[name] = f.code;
+        if (!state.fileKinds[name]) state.fileKinds[name] = name.startsWith('cloud-functions/') ? 'function' : 'frontend';
+        if (!state.mainFile && /\.html?$/i.test(name)) state.mainFile = name;
       });
       if (!state.mainFile) {
         const htmlFile = Object.keys(state.files).find(n => /\.html?$/i.test(n));
@@ -2857,6 +3139,7 @@ ${userText}
         <div class="file-item ${name === state.currentFile ? 'active' : ''}" data-file="${escapeHtml(name)}">
           <strong>${escapeHtml(name)}</strong>
           <span>${Math.max(1, Math.round((state.files[name] || '').length / 1024))} KB</span>
+          <small>${escapeHtml(fileKindLabel(name))}${state.fileHandles[name] ? ' · 自动保存' : ' · 缓存'}</small>
         </div>
       `).join('');
 
@@ -2891,13 +3174,18 @@ ${userText}
       $('memoryView').classList.toggle('active', view === 'memory');
     }
 
-    function saveCurrentFile() {
+    async function saveCurrentFile() {
       if (!state.currentFile) return toast('当前没有文件');
       state.files[state.currentFile] = els.fileEditor.value;
       if (/\.html?$/i.test(state.currentFile)) renderPreview();
       renderFiles();
       saveLocal();
-      toast('当前文件已保存');
+      try {
+        const wrote = await writeCurrentFileToDisk(true);
+        toast(wrote ? '当前文件已写回原文件' : '当前文件已保存到浏览器缓存');
+      } catch (err) {
+        toast('保存到原文件失败，已保存到浏览器缓存');
+      }
     }
 
     function downloadFile(name, content) {
@@ -2954,6 +3242,7 @@ ${userText}
       const data = {
         messages: state.messages.slice(-30),
         files: state.files,
+        fileKinds: state.fileKinds,
         currentFile: state.currentFile,
         mainFile: state.mainFile,
         lastAnswer: state.lastAnswer,
@@ -2967,6 +3256,7 @@ ${userText}
         const data = JSON.parse(localStorage.getItem('simple_ds_project') || '{}');
         state.messages = Array.isArray(data.messages) ? data.messages : [];
         state.files = data.files || {};
+        state.fileKinds = data.fileKinds || {};
         state.currentFile = data.currentFile || '';
         state.mainFile = data.mainFile || '';
         state.lastAnswer = data.lastAnswer || '';
@@ -2986,8 +3276,11 @@ ${userText}
     async function openFiles(files) {
       for (const file of files) {
         const text = await file.text();
-        state.files[file.name] = text;
-        if (!state.mainFile && /\.html?$/i.test(file.name)) state.mainFile = file.name;
+        const name = normalizeProjectPath(file.webkitRelativePath || file.name);
+        if (!isReadableProjectFile(name)) continue;
+        state.files[name] = text;
+        state.fileKinds[name] = name.includes('cloud') || /package\.json|index\.js/i.test(name) ? 'function' : 'frontend';
+        if (!state.mainFile && /\.html?$/i.test(name)) state.mainFile = name;
       }
       if (!state.currentFile) state.currentFile = state.mainFile || Object.keys(state.files)[0] || '';
       renderFiles();
@@ -3001,6 +3294,8 @@ ${userText}
       if (!confirm('确定清空对话、文件和上下文吗？')) return;
       state.messages = [];
       state.files = {};
+      state.fileHandles = {};
+      state.fileKinds = {};
       state.currentFile = '';
       state.mainFile = '';
       state.lastAnswer = '';
@@ -3014,6 +3309,7 @@ ${userText}
       els.answerBox.textContent = 'AI 原始回答会显示在这里。';
       renderFiles();
       renderPreview();
+      updateIdeSaveState('当前为浏览器缓存模式。若浏览器支持，可打开项目文件夹后自动写回原文件。', false);
       saveLocal();
       toast('已清空');
     }
@@ -3035,6 +3331,18 @@ ${userText}
     }
 
 
+    function sendTrainingUser() {
+      if (!state.currentUser || !els.trainingFrame?.contentWindow) return;
+      const user = {
+        name: state.currentUser.name,
+        phone: state.currentUser.phone,
+        role: state.currentUser.role,
+        trainingSessionAt: Date.now()
+      };
+      localStorage.setItem('ai-training-parent-user', JSON.stringify(user));
+      els.trainingFrame.contentWindow.postMessage({ type: 'DS_PLATFORM_USER', user }, location.origin);
+    }
+
     function openTrainingApp() {
       if (!state.currentUser) {
         toast('请先登录后使用培训模块');
@@ -3050,9 +3358,11 @@ ${userText}
         return;
       }
       if (TRAINING_APP_URL) {
+        els.trainingFrame.onload = sendTrainingUser;
         els.trainingFrame.src = TRAINING_APP_URL;
         els.trainingFrame.style.display = 'block';
         els.trainingPlaceholder.style.display = 'none';
+        setTimeout(sendTrainingUser, 600);
       } else {
         els.trainingFrame.style.display = 'none';
         els.trainingPlaceholder.style.display = 'block';
@@ -3995,11 +4305,19 @@ ${userText}
         toast('API Key 已清除');
       });
 
+      els.openFrontendDirBtn.addEventListener('click', () => openProjectDirectory('frontend'));
+      els.openFunctionDirBtn.addEventListener('click', () => openProjectDirectory('function'));
+      els.newFrontendFileBtn.addEventListener('click', () => createNewFile('frontend'));
+      els.newFunctionFileBtn.addEventListener('click', () => createNewFile('function'));
+
       els.trainingBtn.addEventListener('click', openTrainingApp);
       els.trainingCloseBtn.addEventListener('click', closeTrainingApp);
       els.trainingFullscreenBtn.addEventListener('click', fullscreenTrainingApp);
       els.trainingOpenNewBtn.addEventListener('click', () => {
-        if (TRAINING_APP_URL) window.open(TRAINING_APP_URL, '_blank');
+        if (TRAINING_APP_URL) {
+          sendTrainingUser();
+          window.open(TRAINING_APP_URL, '_blank');
+        }
         else toast('培训小程序链接尚未设置');
       });
       els.trainingPlaceholderBtn.addEventListener('click', () => toast('占位入口已保留，后续可接入链接或程序'));
@@ -4112,6 +4430,15 @@ ${userText}
       document.querySelectorAll('.tab').forEach(btn => {
         btn.addEventListener('click', () => switchView(btn.dataset.view));
       });
+      document.querySelectorAll('[data-ide-prompt]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const prompt = btn.dataset.idePrompt || '';
+          els.userInput.value = els.userInput.value.trim()
+            ? `${els.userInput.value.trim()}\n\n${prompt}`
+            : prompt;
+          els.userInput.focus();
+        });
+      });
 
       els.fileList.addEventListener('click', e => {
         const item = e.target.closest('.file-item');
@@ -4127,13 +4454,14 @@ ${userText}
         if (state.currentFile) {
           state.files[state.currentFile] = els.fileEditor.value;
           saveLocal();
+          scheduleAutoSave();
         }
       });
 
       els.fileEditor.addEventListener('keydown', handleTab);
       els.saveFileBtn.addEventListener('click', saveCurrentFile);
-      els.previewBtn.addEventListener('click', () => {
-        saveCurrentFile();
+      els.previewBtn.addEventListener('click', async () => {
+        await saveCurrentFile();
         renderPreview();
         switchView('preview');
       });

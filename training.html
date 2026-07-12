@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI应用开发提示词术语训练平台</title>
+  <title>AI应用开发培训平台</title>
   <style>
     :root {
       --bg: #071328;
@@ -887,6 +887,118 @@
 
     .toast.show { transform: translateY(0); opacity: 1; }
 
+    .training-userbar {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border: 1px solid rgba(34, 211, 238, .22);
+      border-radius: 14px;
+      background: rgba(8, 47, 73, .32);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .case-step-card {
+      cursor: pointer;
+      min-height: 138px;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .case-step-card .step-no {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--stage-accent, var(--brand));
+      margin-bottom: 6px;
+      letter-spacing: .04em;
+    }
+
+    .case-step-card h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .case-step-card p {
+      font-size: 12px;
+      line-height: 1.55;
+      margin: 0 0 6px;
+    }
+
+    .case-step-card:hover {
+      transform: translateY(-3px);
+      border-color: color-mix(in srgb, var(--stage-accent, #22d3ee) 55%, transparent);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, .22), 0 0 22px color-mix(in srgb, var(--stage-accent, #22d3ee) 18%, transparent);
+    }
+
+    .case-step-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--stage-accent, #22d3ee) 18%, transparent), transparent 52%);
+      pointer-events: none;
+    }
+
+    .case-step-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .case-stage-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .stage-tone-0 { --stage-accent: #38bdf8; background: rgba(8, 47, 73, .42); }
+    .stage-tone-1 { --stage-accent: #a78bfa; background: rgba(46, 16, 101, .34); }
+    .stage-tone-2 { --stage-accent: #34d399; background: rgba(6, 78, 59, .32); }
+    .stage-tone-3 { --stage-accent: #f59e0b; background: rgba(120, 53, 15, .30); }
+    .stage-tone-4 { --stage-accent: #fb7185; background: rgba(136, 19, 55, .30); }
+
+    @media (max-width: 1180px) {
+      .case-stage-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .case-stage-grid { grid-template-columns: 1fr; }
+    }
+
+    .stage-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .stage-pill {
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 14px;
+      background: rgba(2, 6, 23, .22);
+      padding: 12px;
+      line-height: 1.7;
+    }
+
+    .qa-shell {
+      display: grid;
+      grid-template-columns: minmax(260px, 360px) 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .qa-answer {
+      min-height: 260px;
+      white-space: pre-wrap;
+      line-height: 1.8;
+    }
+
+    .qa-input {
+      min-height: 160px;
+      resize: vertical;
+    }
+
     @media (max-width: 1050px) {
       :root { --side-width: 188px; }
       .value-grid, .three-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -937,7 +1049,7 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <h1>AI应用开发提示词术语训练平台</h1>
+      <h1>AI应用开发培训平台</h1>
       <p>指导教师 <span class="teacher">/ 鄢清华</span> · 面向非计算机专业学生与企业人士的 AI 编程表达训练工具</p>
     </div>
     <div class="top-actions">
@@ -965,6 +1077,7 @@
       <section id="journey" class="view"></section>
       <section id="builder" class="view"></section>
       <section id="quiz" class="view"></section>
+      <section id="qa" class="view"></section>
       <section id="admin" class="view"></section>
       <section id="searchResults" class="view"></section>
     </main>
@@ -982,6 +1095,16 @@
       { id: "level4", label: "发布级：静态部署", icon: "5", access: "user" },
       { id: "quiz", label: "小测验", icon: "✓", access: "user" }
     ];
+
+    navItems.splice(0, navItems.length,
+      { id: "home", label: "案例路线", icon: "◆", access: "public" },
+      { id: "level0", label: "菜鸟级：前端原型", icon: "1", access: "user" },
+      { id: "level1", label: "入门级：前端大模型接入", icon: "2", access: "user" },
+      { id: "level2", label: "实战级：对象存储", icon: "3", access: "user" },
+      { id: "level3", label: "工程级：云函数协作", icon: "4", access: "user" },
+      { id: "level4", label: "发布级：静态发布/PWA", icon: "5", access: "user" },
+      { id: "qa", label: "编程问答智能体", icon: "?", access: "user" }
+    );
 
     const terms = [
       ["项目与文件结构类", "单文件 HTML", "把页面结构、样式和脚本都写在一个 HTML 文件中。", "像一个装好所有零件的演示文件，打开浏览器就能运行。", "请生成一个单文件 HTML 程序，CSS 和 JavaScript 全部内嵌。"],
@@ -2478,8 +2601,285 @@
       });
     }
 
+    const productCase = {
+      name: "AI学生作品展示与协作平台",
+      goal: "从一个本地前端原型，逐步扩展为支持AI问答、文件存储、云函数协作和静态发布的教学平台。",
+      stages: [
+        {
+          rank: "菜鸟级",
+          level: "前端原型",
+          title: "先做作品展示页面",
+          goal: "用单文件 HTML 做出本地可运行的作品展示原型。",
+          additions: ["作品卡片列表", "作品上传表单", "本地数组模拟数据", "详情查看和筛选", "响应式布局"],
+          logic: ["设计页面结构", "准备模拟作品数据", "渲染作品列表", "提交表单写入本地数组", "检查移动端布局"],
+          terms: ["单文件 HTML", "前端页面", "卡片式布局", "表单输入", "响应式布局"],
+          prompt: "请生成一个单文件 HTML 的“AI学生作品展示平台”前端原型。要求包含作品列表、作品上传表单、作品详情查看、分类筛选和响应式布局。所有数据先使用 JavaScript 数组模拟，不接后端、不接云函数、不写真实密钥。请返回完整可运行代码。",
+          problems: ["页面能打开但列表不显示", "表单提交后没有新增作品", "手机端卡片挤在一起"],
+          effect: "完成后，学生能理解一个应用最基本的界面、数据和交互流程。"
+        },
+        {
+          rank: "入门级",
+          level: "前端大模型接入",
+          title: "加入编程问答智能体",
+          goal: "在前端接入大模型，让系统能回答知识和技能问题。",
+          additions: ["API Key 输入", "Base URL 和模型选择", "知识问答窗口", "系统提示词限制", "回答格式约束"],
+          logic: ["填写 API Key", "输入知识问题", "前端调用大模型接口", "返回概念解释", "提醒项目报错去协作中心"],
+          terms: ["API Key", "前端大模型接入", "模型选择", "提示词模板", "结构化输出"],
+          prompt: "请在现有前端原型中增加“编程问答智能体”。它只回答AI应用开发相关知识和技能问题，例如前端、云函数、百度云 BOS、PWA、GitHub Pages、报错含义等。它不能生成完整代码、不能生成文件、不能替学生完成项目。请用前端方式调用大模型接口，并保留 API Key、Base URL、模型选择配置。",
+          problems: ["API Key 填错导致无法回答", "模型返回了完整代码", "学生把项目报错当成知识问题提问"],
+          effect: "完成后，学生能理解前端如何调用大模型，也能区分“知识问答”和“项目修复”。"
+        },
+        {
+          rank: "实战级",
+          level: "对象存储",
+          title: "加入文件上传与下载",
+          goal: "让平台能保存 HTML、ZIP、截图、TXT 等学习材料。",
+          additions: ["上传前端文件", "上传云函数包", "上传其它材料", "保存到对象存储", "文件下载按钮"],
+          logic: ["选择文件", "提交到上传接口", "对象存储保存文件", "返回文件记录", "用户或管理员下载"],
+          terms: ["对象存储", "Bucket", "Object", "文件上传", "权限策略"],
+          prompt: "请为平台增加百度云 BOS 对象存储文件模块，支持上传前端文件、云函数 zip 包、截图、TXT 和 PDF。文件保存到 BOS 后返回文件记录。界面只提供下载按钮，不直接打开 HTML 或文本文件，避免乱码和安全问题。",
+          problems: ["上传成功但换电脑看不到", "HTML 文件点开乱码", "BOS 权限或跨域配置不正确"],
+          effect: "完成后，学生能理解真实项目文件为什么要放到对象存储，并知道上传和下载不是同一件事。"
+        },
+        {
+          rank: "工程级",
+          level: "云函数协作",
+          title: "加入用户、审核和协作中心",
+          goal: "把关键数据和权限校验放到云端，支持多用户和管理员处理。",
+          additions: ["统一登录身份", "作品审核", "协作问题提交", "管理员回传修复文件", "用户行为日志"],
+          logic: ["前端发送 action", "云函数校验身份", "读写 BOS 数据文件", "按角色返回列表", "管理员处理队列"],
+          terms: ["云函数", "接口 action", "权限校验", "日志调试", "JSON 数据"],
+          prompt: "请为平台设计云函数接口，支持统一登录、作品提交审核、协作问题提交、管理员回传修复文件、用户行为日志。要求普通用户只能看到自己的数据，管理员可以查看全部队列。敏感密钥只放在云函数环境变量中，前端不能写死。",
+          problems: ["管理员看不到待审核数据", "A 用户看到了 B 用户文件", "云函数返回 400 或 500"],
+          effect: "完成后，系统具备多用户协作、管理员处理和云端记录能力。"
+        },
+        {
+          rank: "发布级",
+          level: "静态发布/PWA",
+          title: "发布成可访问、可安装的应用",
+          goal: "把平台部署到 GitHub Pages，并处理 PWA 缓存和版本更新。",
+          additions: ["GitHub Pages 静态发布", "manifest 图标", "service-worker 缓存", "桌面安装", "版本更新检查"],
+          logic: ["整理 index.html 和资源", "上传 GitHub", "开启 Pages", "访问静态链接", "安装桌面图标并测试更新"],
+          terms: ["GitHub Pages", "静态部署", "PWA", "Service Worker", "版本更新"],
+          prompt: "请将平台整理为可部署到 GitHub Pages 的静态网页项目，包含 index.html、manifest.json、service-worker.js 和图标资源。要求 PWA 可安装到桌面，并在更新版本后能主动刷新缓存，避免桌面图标打开旧页面。",
+          problems: ["GitHub 链接打开还是旧版本", "PWA 桌面图标缓存旧页面", "本地 file:// 打开导致 manifest 报 CORS"],
+          effect: "完成后，学生能把作品发布成真实可访问、可安装、可更新的网页应用。"
+        }
+      ]
+    };
+
+    function receiveParentUser(user) {
+      if (!user || !user.name || !user.phone) return;
+      currentUser = {
+        name: user.name,
+        phone: user.phone,
+        role: user.role === "admin" ? "admin" : "user",
+        firstLoginTime: user.firstLoginTime || "",
+        loginCount: user.loginCount || 0,
+        lastLoginTime: user.lastLoginTime || ""
+      };
+      sessionStorage.setItem("ai-training-parent-user", JSON.stringify(currentUser));
+      renderNav();
+      renderHome();
+      productCase.stages.forEach((_, index) => renderLevelPage(index));
+      renderQA();
+      renderAdmin();
+    }
+
+    function loadParentUser() {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem("ai-training-parent-user") || localStorage.getItem("ai-training-parent-user") || "null");
+        const isExpired = saved?.trainingSessionAt && Date.now() - saved.trainingSessionAt > 12 * 60 * 60 * 1000;
+        if (isExpired) {
+          sessionStorage.removeItem("ai-training-parent-user");
+          localStorage.removeItem("ai-training-parent-user");
+          return;
+        }
+        if (saved?.name && saved?.phone) currentUser = saved;
+      } catch (err) {}
+    }
+
+    window.addEventListener("message", event => {
+      if (event.data?.type === "DS_PLATFORM_USER") receiveParentUser(event.data.user);
+    });
+
+    function getCurrentCase() {
+      return productCase;
+    }
+
+    function getCurrentJourneyStages() {
+      return productCase.stages;
+    }
+
+    function renderCaseChooser() {
+      return `
+        <div class="training-userbar">
+          当前用户：${currentUser ? `${escapeHtml(currentUser.name)} · ${currentUser.role === "admin" ? "管理员" : "学生"}` : "等待主程序传入登录状态"}
+        </div>
+      `;
+    }
+
+    function renderHome() {
+      $("#home").innerHTML = `
+        ${renderCaseChooser()}
+        <div class="section-title" style="margin-top: 6px;">
+          <div><h2>${productCase.name}</h2><p class="muted">${productCase.goal}</p></div>
+        </div>
+        <div class="case-stage-grid">
+          ${productCase.stages.map((stage, index) => `
+            <div class="glass-card case-step-card stage-tone-${index}" data-home-level="${index}">
+              <div class="step-no">${index + 1}</div>
+              <h3>${stage.rank}：${stage.level}</h3>
+              <p class="muted">${stage.title}</p>
+            </div>
+          `).join("")}
+        </div>
+      `;
+      $$("#home [data-home-level]").forEach(card => card.addEventListener("click", () => switchView(`level${card.dataset.homeLevel}`)));
+    }
+
+    function stageListHtml(items) {
+      return `<div class="stage-summary">${items.map(item => `<div class="stage-pill">${escapeHtml(item)}</div>`).join("")}</div>`;
+    }
+
+    function renderLevelPage(index) {
+      const stage = productCase.stages[index];
+      const viewId = `level${index}`;
+      const activeTab = levelTabState[index] || "overview";
+      $(`#${viewId}`).innerHTML = `
+        ${index === 0 ? renderCaseChooser() : ""}
+        <div class="section-title">
+          <div><h2>${stage.rank}：${stage.level}</h2><p class="muted">${stage.title}</p></div>
+          <span class="chip">${productCase.name}</span>
+        </div>
+        <div class="subnav">
+          ${levelTabs.map(([id, label]) => `<button class="subnav-btn ${id === activeTab ? "active" : ""}" data-tab="${id}" data-level="${index}">${label}</button>`).join("")}
+        </div>
+        <div class="glass-card">${levelTabHtml(stage, activeTab, index)}</div>
+      `;
+      $$(`#${viewId} .subnav-btn`).forEach(btn => btn.addEventListener("click", () => {
+        levelTabState[index] = btn.dataset.tab;
+        renderLevelPage(index);
+      }));
+      $$(`#${viewId} [data-copy-stage-prompt]`).forEach(btn => btn.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(decodeURIComponent(btn.dataset.copyStagePrompt));
+        showToast("提示词已复制");
+      }));
+    }
+
+    function levelTabHtml(stage, tab, index) {
+      if (tab === "overview") {
+        return `
+          <h3>本级目标</h3>
+          <p class="muted">${stage.goal}</p>
+          <div class="process-flow" style="margin-top:16px;">
+            ${stage.logic.map((item, i) => `<span>${escapeHtml(item)}</span>${i < stage.logic.length - 1 ? `<b class="muted">→</b>` : ""}`).join("")}
+          </div>
+        `;
+      }
+      if (tab === "features") return `<h3>本级新增功能</h3>${stageListHtml(stage.additions)}`;
+      if (tab === "operate") return `<h3>用户操作流程</h3><div class="process-flow">${stage.logic.map((x, i, arr) => `<span>${escapeHtml(x)}</span>${i < arr.length - 1 ? `<b class="muted">→</b>` : ""}`).join("")}</div><p class="muted">${getOperationNote(index)}</p>`;
+      if (tab === "terms") return `<h3>本级关键术语</h3>${stageListHtml(stage.terms)}`;
+      if (tab === "prompt") return `
+        <h3>本级提示词模板</h3>
+        <p class="muted">${getPromptExplain(index)}</p>
+        <div class="prompt-box">${escapeHtml(stage.prompt)}</div>
+        <button class="gradient-btn" data-copy-stage-prompt="${encodeURIComponent(stage.prompt)}" style="margin-top:12px;">一键复制提示词</button>
+      `;
+      if (tab === "problems") return `<h3>常见问题</h3>${stageListHtml(stage.problems)}`;
+      return `
+        <h3>完成标准</h3>
+        <p class="muted">${stage.effect}</p>
+        <div class="grid two-grid" style="margin-top:16px;">
+          <div class="compare-card"><b>本级完成后</b><p class="muted">${stage.additions.join("、")}</p></div>
+          <div class="compare-card"><b>下一步</b><p class="muted">${productCase.stages[index + 1] ? `${productCase.stages[index + 1].rank}：${productCase.stages[index + 1].level}` : "提交作品并持续迭代"}</p></div>
+        </div>
+      `;
+    }
+
+    function getOperationNote(index) {
+      return [
+        "本级只做前端本地原型，目的是先让学生看见产品形态。",
+        "本级只做知识问答，不让智能体生成完整代码或文件。",
+        "本级重点理解文件保存、下载和权限，不直接打开用户上传的 HTML。",
+        "本级重点理解云函数负责权限、记录和跨设备数据共享。",
+        "本级重点理解静态发布、桌面安装和缓存更新。"
+      ][index] || "";
+    }
+
+    function getPromptExplain(index) {
+      return [
+        "提示词要说清页面、表单、列表、数据模拟和运行方式。",
+        "提示词要明确智能体边界：只答知识，不生成完整代码。",
+        "提示词要明确文件类别、存储位置、下载方式和权限。",
+        "提示词要明确云函数接口、action、角色权限和日志。",
+        "提示词要明确 GitHub Pages、PWA 文件和缓存版本。"
+      ][index] || "";
+    }
+
+    function renderQA() {
+      $("#qa").innerHTML = `
+        <div class="section-title">
+          <div><h2>编程问答智能体</h2><p class="muted">只回答知识和技能问题，不生成完整代码、不生成文件、不替学生修项目。</p></div>
+        </div>
+        ${renderCaseChooser()}
+        <div class="qa-shell">
+          <div class="glass-card">
+            <h3>提问</h3>
+            <p class="muted">可以问：什么是云函数？为什么 PWA 会缓存旧页面？BOS 为什么需要权限？</p>
+            <textarea id="qaQuestion" class="qa-input" placeholder="请输入 AI 应用开发相关知识问题"></textarea>
+            <button class="gradient-btn" id="qaAskBtn" style="margin-top:12px;">提问</button>
+          </div>
+          <div class="glass-card">
+            <h3>回答</h3>
+            <div id="qaAnswer" class="qa-answer muted">回答会显示在这里。项目报错、文件修复、代码生成，请去主平台“协作中心”。</div>
+          </div>
+        </div>
+      `;
+      $("#qaAskBtn").addEventListener("click", askTrainingQA);
+    }
+
+    function getTrainingAiSettings() {
+      const settings = JSON.parse(localStorage.getItem("simple_ds_settings") || "{}");
+      return {
+        key: sessionStorage.getItem("simple_ds_key") || localStorage.getItem("simple_ds_key") || "",
+        baseUrl: (settings.baseUrl || "https://api.deepseek.com").replace(/\/$/, ""),
+        model: settings.modelName || "deepseek-chat"
+      };
+    }
+
+    async function askTrainingQA() {
+      const question = $("#qaQuestion").value.trim();
+      if (!question) return showToast("请先输入问题");
+      const { key, baseUrl, model } = getTrainingAiSettings();
+      if (!key) {
+        $("#qaAnswer").textContent = "请先在主程序右上角 API 设置中填写并保存 API Key。这个问答智能体使用前端大模型接入，只回答知识和技能问题。";
+        return;
+      }
+      $("#qaAnswer").textContent = "正在思考...";
+      try {
+        const res = await fetch(`${baseUrl}/chat/completions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+          body: JSON.stringify({
+            model,
+            temperature: 0.3,
+            messages: [
+              { role: "system", content: "你是AI应用开发培训问答智能体。只回答知识、概念、技能和排错思路。不要生成完整代码，不要生成文件，不要替学生完成项目。回答格式：一句话解释、生活类比、操作建议、如涉及具体项目报错则提醒去协作中心提交材料。" },
+              { role: "user", content: question }
+            ]
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error?.message || "大模型请求失败");
+        $("#qaAnswer").textContent = data.choices?.[0]?.message?.content || "没有收到有效回答。";
+      } catch (err) {
+        $("#qaAnswer").textContent = `问答失败：${err.message || err}`;
+      }
+    }
+
     function init() {
-      loadCurrentUser();
+      loadParentUser();
       renderNav();
       renderHome();
       renderAuth();
@@ -2488,9 +2888,9 @@
       renderGraph();
       renderCases();
       renderJourney();
-      journeyStages.forEach((_, index) => renderLevelPage(index));
+      productCase.stages.forEach((_, index) => renderLevelPage(index));
       renderBuilder();
-      renderQuiz();
+      renderQA();
       renderAdmin();
       initTheme();
       initSearch();
