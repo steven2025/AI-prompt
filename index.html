@@ -4527,14 +4527,8 @@ ${userText}
         return;
       }
       if (!PLATFORM_API_URL) return toast('HTML作品需要配置云函数后才能打开');
-      if (work.status === 'approved') {
-        const url = new URL(PLATFORM_API_URL);
-        url.searchParams.set('action', 'openWork');
-        url.searchParams.set('workId', work.id);
-        window.open(url.toString(), '_blank', 'noopener,noreferrer');
-        return;
-      }
       const previewWindow = window.open('', '_blank');
+      if (previewWindow) previewWindow.opener = null;
       try {
         const data = await platformApi({
           action: 'getWorkHtml',

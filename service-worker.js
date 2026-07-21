@@ -1,8 +1,11 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v37-collab-stages';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v41-html-work-post-viewer';
 const APP_SHELL = [
   './',
   './index.html',
   './training.html',
+  './demand/index.html',
+  './demand/demand.css',
+  './demand/demand.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -37,6 +40,17 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  if (new URL(request.url).pathname.endsWith('/demand/config.js')) {
+    event.respondWith(
+      fetch(request).then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        return response;
+      }).catch(() => caches.match(request))
+    );
+    return;
+  }
+
   if (request.method !== 'GET') return;
 
   const acceptsHtml = request.headers.get('accept')?.includes('text/html');
@@ -48,7 +62,7 @@ self.addEventListener('fetch', event => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         return response;
-      }).catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
+      }).catch(() => caches.match(request).then(cached => cached || (new URL(request.url).pathname.includes('/demand/') ? caches.match('./demand/index.html') : caches.match('./index.html'))))
     );
     return;
   }
