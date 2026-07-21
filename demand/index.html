@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>真实需求对接</title>
+  <link rel="stylesheet" href="./demand.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="identity">
+        <strong>真实需求对接</strong>
+        <span>真实场景驱动的AI应用开发实践</span>
+      </div>
+      <div class="free-note">公益协作 · 永久免费</div>
+      <div class="user" id="userText">正在读取登录信息</div>
+    </header>
+
+    <div class="service-alert hidden" id="serviceAlert">
+      需求云函数尚未配置。请先部署新版需求云函数，并在 <b>demand/config.js</b> 中填写触发器URL。
+    </div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <button class="nav active" data-view="market">需求广场</button>
+        <button class="nav" data-view="publish">发布需求</button>
+        <button class="nav" data-view="mine">我的需求</button>
+        <button class="nav" data-view="participation">我的参与</button>
+        <button class="nav" data-view="notices">新到通知 <span class="badge hidden" id="noticeBadge">0</span></button>
+        <button class="nav admin-only hidden" data-view="admin">审核管理</button>
+        <div class="sidebar-foot">
+          <button class="secondary" id="profileBtn">个人资料</button>
+          <button class="secondary" id="teamApplyBtn">申请团队成员</button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="view" id="view-market">
+          <div class="view-head">
+            <div><h1>需求广场</h1><p>浏览经过审核的真实需求，认证团队成员可以申请参与。</p></div>
+            <div class="filters"><select id="marketType"><option value="">全部主体</option><option>企业</option><option>教师</option><option>学生</option><option>社会组织</option><option>其他</option></select><select id="marketDifficulty"><option value="">全部难度</option><option>菜鸟级</option><option>入门级</option><option>实战级</option><option>工程级</option><option>综合级</option></select></div>
+          </div>
+          <div class="system-tip">平台不收取需求发布费、开发费或服务费。项目用于学生AI应用开发实践，不承诺商业软件级交付时限或长期运维。</div>
+          <div class="list" id="marketList"></div>
+        </section>
+
+        <section class="view hidden" id="view-publish">
+          <div class="view-head"><div><h1>发布真实需求</h1><p>联系方式从统一账号资料读取，不会在需求广场公开。</p></div></div>
+          <form class="form-panel" id="demandForm">
+            <div class="profile-strip" id="publisherProfile">请先完善个人资料</div>
+            <div class="form-grid">
+              <label><span>需求名称 *</span><input id="demandTitle" maxlength="80" placeholder="例如：实验室设备预约小程序" required /></label>
+              <label><span>主要使用对象 *</span><input id="demandAudience" maxlength="120" placeholder="例如：教师和学生" required /></label>
+              <label class="wide"><span>应用场景</span><textarea id="demandScene" rows="3" maxlength="1000" placeholder="在什么工作或学习场景中使用？视频说明完整时可不填。"></textarea></label>
+              <label class="wide"><span>当前问题</span><textarea id="demandProblem" rows="3" maxlength="1200" placeholder="目前采用什么方式？最希望解决什么问题？"></textarea></label>
+              <label class="wide"><span>希望实现的主要功能</span><textarea id="demandFeatures" rows="4" maxlength="1800" placeholder="请按重要程度描述功能，也可以通过视频或附件说明。"></textarea></label>
+              <label><span>希望完成时间</span><input id="demandDeadline" type="date" /></label>
+              <label><span>单位显示方式</span><select id="demandVisibility"><option value="team">仅项目团队可见</option><option value="public">公开单位名称</option><option value="anonymous">完全匿名</option></select></label>
+              <label class="wide"><span>视频说明链接</span><input id="demandVideoUrl" type="url" placeholder="较大视频建议使用网盘或在线视频链接" /></label>
+              <label class="wide file-field"><span>辅助材料</span><input id="demandFiles" type="file" multiple accept=".txt,.pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.webm" /><small>支持图片、TXT、PDF、ZIP及小视频；单个文件不超过4MB，较大视频请填写链接。</small></label>
+            </div>
+            <div class="checks">
+              <label><input id="allowContact" type="checkbox" /> 我愿意配合学生进行需求沟通和试用反馈</label>
+              <label><input id="allowTeaching" type="checkbox" /> 同意将开发过程匿名用于教学案例</label>
+              <label><input id="allowShowcase" type="checkbox" /> 项目完成后可再次确认是否进入作品展示</label>
+            </div>
+            <button class="primary" type="submit" id="submitDemandBtn">提交管理员审核</button>
+            <div class="submit-state hidden" id="demandSubmitState"></div>
+          </form>
+        </section>
+
+        <section class="view hidden" id="view-mine"><div class="view-head"><div><h1>我的需求</h1><p>查看审核、招募、开发和试用进度。</p></div></div><div class="list" id="mineList"></div></section>
+        <section class="view hidden" id="view-participation"><div class="view-head"><div><h1>我的参与</h1><p>查看团队成员申请和已经加入的项目。</p></div></div><div class="list" id="participationList"></div></section>
+        <section class="view hidden" id="view-notices"><div class="view-head"><div><h1>新到通知</h1><p>审核、申请参与、团队确定和项目状态变化都会记录在这里。</p></div><button class="secondary" id="markReadBtn">全部标记已读</button></div><div class="list" id="noticeList"></div></section>
+        <section class="view hidden" id="view-admin"><div class="view-head"><div><h1>审核管理</h1><p>审核需求、认证团队成员并监督公益项目进度。</p></div><button class="secondary" id="refreshBtn">刷新</button></div><div class="admin-grid"><div><h2>待审核需求</h2><div class="list" id="reviewDemandList"></div></div><div><h2>团队成员申请</h2><div class="list" id="reviewTeamList"></div></div></div></section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="profileModal">
+    <form class="modal-card" id="profileForm">
+      <div class="modal-head"><div><strong>个人资料</strong><span>一次填写，全需求模块共用</span></div><button type="button" class="icon" id="profileCloseBtn" aria-label="关闭">×</button></div>
+      <div class="form-grid">
+        <label><span>身份类型 *</span><select id="profileType" required><option value="">请选择</option><option>企业</option><option>教师</option><option>学生</option><option>社会组织</option><option>其他</option></select></label>
+        <label><span>单位或学校 *</span><input id="profileOrg" maxlength="120" required /></label>
+        <label><span>部门、专业或岗位</span><input id="profileDepartment" maxlength="100" /></label>
+        <label><span>所在地区</span><input id="profileRegion" maxlength="80" /></label>
+        <label><span>联系微信</span><input id="profileWechat" maxlength="80" /></label>
+        <label><span>联系邮箱</span><input id="profileEmail" type="email" maxlength="120" /></label>
+        <label class="wide"><span>简短介绍</span><textarea id="profileBio" rows="3" maxlength="500"></textarea></label>
+      </div>
+      <div class="system-tip compact">手机号沿用主平台登录信息。联系方式只向管理员和已确定的项目负责人开放。</div>
+      <button class="primary" type="submit">保存个人资料</button>
+    </form>
+  </div>
+
+  <div class="modal" id="applyModal">
+    <form class="modal-card" id="applyForm">
+      <div class="modal-head"><div><strong>申请参与项目</strong><span id="applyDemandName"></span></div><button type="button" class="icon" id="applyCloseBtn" aria-label="关闭">×</button></div>
+      <input id="applyDemandId" type="hidden" />
+      <label><span>申请说明 *</span><textarea id="applyMessage" rows="4" maxlength="1000" placeholder="说明希望负责的部分、相关经验和可投入时间。" required></textarea></label>
+      <label><span>希望承担的角色</span><select id="applyRole"><option>项目负责人</option><option>前端开发</option><option>云函数开发</option><option>测试与需求沟通</option><option>项目成员</option></select></label>
+      <button class="primary" type="submit">提交参与申请</button>
+    </form>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="./config.js"></script>
+  <script src="./demand.js"></script>
+</body>
+</html>
