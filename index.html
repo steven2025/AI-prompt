@@ -1055,7 +1055,8 @@
 
     .training-float,
     .works-float,
-    .collab-float {
+    .collab-float,
+    .demand-float {
       position: fixed;
       right: 14px;
       top: 50%;
@@ -1088,17 +1089,63 @@
       background: linear-gradient(180deg, rgba(251, 191, 36, .94), rgba(52, 211, 153, .92));
     }
 
+    .demand-float {
+      top: calc(50% + 396px);
+      background: linear-gradient(180deg, rgba(244, 114, 182, .94), rgba(251, 191, 36, .92));
+    }
+
     .training-float:hover,
     .works-float:hover,
-    .collab-float:hover {
+    .collab-float:hover,
+    .demand-float:hover {
       right: 18px;
       transform: translateY(-50%) scale(1.02);
       box-shadow: 0 22px 60px rgba(34, 211, 238, .22);
     }
 
+    .module-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .module-nav::-webkit-scrollbar { display: none; }
+
+    .module-nav .training-float,
+    .module-nav .works-float,
+    .module-nav .collab-float,
+    .module-nav .demand-float {
+      position: static;
+      transform: none;
+      width: auto;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid rgba(34, 211, 238, .3);
+      padding: 0 13px;
+      writing-mode: horizontal-tb;
+      letter-spacing: 0;
+      box-shadow: none;
+      font-size: 12px;
+      flex: 0 0 auto;
+    }
+
+    .module-nav .training-float:hover,
+    .module-nav .works-float:hover,
+    .module-nav .collab-float:hover,
+    .module-nav .demand-float:hover {
+      right: auto;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(34, 211, 238, .16);
+    }
+
     .training-overlay,
     .works-overlay,
     .collab-overlay,
+    .demand-overlay,
     .auth-modal,
     .admin-modal {
       position: fixed;
@@ -1113,6 +1160,7 @@
     .training-overlay.open,
     .works-overlay.open,
     .collab-overlay.open,
+    .demand-overlay.open,
     .auth-modal.open,
     .admin-modal.open {
       display: grid;
@@ -1121,6 +1169,7 @@
     .training-head,
     .works-head,
     .collab-head,
+    .demand-head,
     .auth-head,
     .admin-head {
       display: flex;
@@ -1135,6 +1184,7 @@
     .training-head strong,
     .works-head strong,
     .collab-head strong,
+    .demand-head strong,
     .auth-head strong,
     .admin-head strong {
       color: #e0f2fe;
@@ -1144,6 +1194,7 @@
     .training-head span,
     .works-head span,
     .collab-head span,
+    .demand-head span,
     .auth-head span,
     .admin-head span {
       color: var(--muted);
@@ -1154,6 +1205,7 @@
     .training-body,
     .works-body,
     .collab-body,
+    .demand-body,
     .auth-body,
     .admin-body {
       min-height: 0;
@@ -1196,6 +1248,16 @@
       border: 0;
       background: #fff;
       display: none;
+    }
+
+    .demand-body { padding: 0; place-items: stretch; }
+
+    .demand-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #f8fafc;
+      display: block;
     }
 
     .auth-card,
@@ -1700,16 +1762,11 @@
     }
 
     @media (max-width: 980px) {
-      .training-float,
-      .works-float,
-      .collab-float {
-        right: 8px;
-        width: 36px;
-        height: 104px;
-        font-size: 12px;
-      }
-      .works-float { top: calc(50% + 118px); }
-      .collab-float { top: calc(50% + 236px); }
+      .module-nav { width: 100%; justify-content: flex-start; order: 2; }
+      .module-nav .training-float,
+      .module-nav .works-float,
+      .module-nav .collab-float,
+      .module-nav .demand-float { width: auto; height: 36px; font-size: 12px; }
       .works-grid,
       .collab-grid { grid-template-columns: 1fr; }
       .collab-form-grid,
@@ -1723,7 +1780,7 @@
       body { overflow: auto; }
       .app { height: auto; min-height: 100vh; grid-template-rows: auto auto auto; }
       .topbar { flex-wrap: wrap; padding: 12px; }
-      .teacher { width: 100%; order: 3; }
+      .teacher { display: none; }
       .top-actions { min-width: auto; }
       .layout {
         grid-template-columns: 1fr;
@@ -1758,7 +1815,12 @@
         </div>
       </div>
 
-      <div class="teacher"><b>AI 应用开发训练工具</b></div>
+      <nav class="module-nav" aria-label="平台模块">
+        <button class="training-float" id="trainingBtn" title="打开 AI 开发培训小程序">培训</button>
+        <button class="demand-float" id="demandBtn" title="打开真实需求对接平台">需求</button>
+        <button class="collab-float" id="collabBtn" title="打开 AI 应用开发协作中心">协作</button>
+        <button class="works-float" id="worksBtn" title="打开成员作品展示">作品</button>
+      </nav>
 
       <div class="top-actions">
         <button class="btn" id="authBtn">登录</button>
@@ -1950,10 +2012,6 @@
   </div>
 
 
-  <button class="training-float" id="trainingBtn" title="打开 AI 开发培训小程序">培训</button>
-  <button class="works-float" id="worksBtn" title="打开成员作品展示">作品</button>
-  <button class="collab-float" id="collabBtn" title="打开 AI 应用开发协作中心">协作</button>
-
   <div class="training-overlay" id="trainingOverlay">
     <div class="training-head">
       <div>
@@ -1974,6 +2032,24 @@
         <p>建议用途：放置 AI 应用开发课程导航、提示词模板、云函数部署教程、百度云 BOS 对象存储教程、学生作品案例等。</p>
         <button class="btn-primary" id="trainingPlaceholderBtn">已接入培训小程序</button>
       </div>
+    </div>
+  </div>
+
+  <div class="demand-overlay" id="demandOverlay">
+    <div class="demand-head">
+      <div>
+        <strong>真实需求对接</strong>
+        <span>公益、免费、真实场景驱动的AI应用开发实践</span>
+      </div>
+      <div class="row">
+        <button class="btn" id="demandRefreshBtn">刷新</button>
+        <button class="btn" id="demandFullscreenBtn">全屏</button>
+        <button class="btn" id="demandOpenNewBtn">新窗口</button>
+        <button class="btn-danger" id="demandCloseBtn">关闭</button>
+      </div>
+    </div>
+    <div class="demand-body">
+      <iframe class="demand-frame" id="demandFrame" title="真实需求对接平台" allow="fullscreen"></iframe>
     </div>
   </div>
 
@@ -2557,6 +2633,7 @@
     // 后续把你的 AI 开发培训小程序链接填到这里，例如：
     // const TRAINING_APP_URL = './training.html';
     const TRAINING_APP_URL = './training.html';
+    const DEMAND_APP_URL = './demand/index.html';
     // 部署新版云函数后，把 HTTP 触发器地址填到这里；留空时使用本机浏览器数据演示。
     const PLATFORM_API_URL = 'https://1311686407-kknzdy9zdr.ap-guangzhou.tencentscf.com';
     const ADMIN_NAME = '鄢清华';
@@ -2639,6 +2716,13 @@
       trainingFullscreenBtn: $('trainingFullscreenBtn'),
       trainingOpenNewBtn: $('trainingOpenNewBtn'),
       trainingPlaceholderBtn: $('trainingPlaceholderBtn'),
+      demandBtn: $('demandBtn'),
+      demandOverlay: $('demandOverlay'),
+      demandFrame: $('demandFrame'),
+      demandCloseBtn: $('demandCloseBtn'),
+      demandRefreshBtn: $('demandRefreshBtn'),
+      demandFullscreenBtn: $('demandFullscreenBtn'),
+      demandOpenNewBtn: $('demandOpenNewBtn'),
       worksBtn: $('worksBtn'),
       worksOverlay: $('worksOverlay'),
       worksCloseBtn: $('worksCloseBtn'),
@@ -4310,6 +4394,47 @@ ${userText}
       else toast('当前浏览器不支持全屏 API');
     }
 
+    function sendDemandUser() {
+      if (!state.currentUser || !els.demandFrame?.contentWindow) return;
+      const user = {
+        name: state.currentUser.name,
+        phone: state.currentUser.phone,
+        role: state.currentUser.role,
+        sessionId: state.currentSessionId || '',
+        sharedAt: Date.now()
+      };
+      sessionStorage.setItem('ai-demand-parent-user', JSON.stringify(user));
+      els.demandFrame.contentWindow.postMessage({ type: 'DS_PLATFORM_USER', user }, location.origin);
+    }
+
+    function openDemandApp() {
+      if (!state.currentUser) {
+        toast('请先登录后使用需求对接模块');
+        openAuthModal();
+        return;
+      }
+      if (location.protocol === 'file:') {
+        toast('需求模块需要通过本地预览服务或GitHub静态链接打开');
+        return;
+      }
+      els.demandOverlay.classList.add('open');
+      els.demandFrame.onload = sendDemandUser;
+      if (!els.demandFrame.src) els.demandFrame.src = DEMAND_APP_URL;
+      setTimeout(sendDemandUser, 400);
+      recordPlatformAction('打开需求对接', '真实需求对接');
+    }
+
+    function closeDemandApp() {
+      els.demandOverlay.classList.remove('open');
+    }
+
+    function fullscreenDemandApp() {
+      const target = els.demandOverlay;
+      if (target.requestFullscreen) target.requestFullscreen();
+      else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+      else toast('当前浏览器不支持全屏 API');
+    }
+
     function emptyWorksStore() {
       return { works: [], workSeq: 0 };
     }
@@ -4392,11 +4517,40 @@ ${userText}
       return state.works.find(work => work.id === id);
     }
 
-    function openWork(id) {
+    async function openWork(id) {
       const work = findWork(id);
-      if (!work || !work.url) return toast('作品链接不可用');
+      if (!work) return toast('作品信息不存在');
       recordPlatformAction('打开作品', work.title || '作品');
-      window.open(work.url, '_blank', 'noopener,noreferrer');
+      if (work.type !== 'html') {
+        if (!work.url) return toast('作品链接不可用');
+        window.open(work.url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      if (!PLATFORM_API_URL) return toast('HTML作品需要配置云函数后才能打开');
+      if (work.status === 'approved') {
+        const url = new URL(PLATFORM_API_URL);
+        url.searchParams.set('action', 'openWork');
+        url.searchParams.set('workId', work.id);
+        window.open(url.toString(), '_blank', 'noopener,noreferrer');
+        return;
+      }
+      const previewWindow = window.open('', '_blank');
+      try {
+        const data = await platformApi({
+          action: 'getWorkHtml',
+          name: state.currentUser?.name || '',
+          phone: state.currentUser?.phone || '',
+          workId: work.id
+        });
+        const blob = base64ToBlob(data.dataBase64, data.type || 'text/html;charset=utf-8');
+        const blobUrl = URL.createObjectURL(blob);
+        if (previewWindow) previewWindow.location.href = blobUrl;
+        else window.open(blobUrl, '_blank', 'noopener,noreferrer');
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      } catch (err) {
+        if (previewWindow) previewWindow.close();
+        toast(err.message || 'HTML作品预览失败');
+      }
     }
 
     function switchWorksPanel(panel) {
@@ -5510,6 +5664,28 @@ ${userText}
         else toast('培训小程序链接尚未设置');
       });
       els.trainingPlaceholderBtn.addEventListener('click', () => toast('占位入口已保留，后续可接入链接或程序'));
+      els.demandBtn.addEventListener('click', openDemandApp);
+      els.demandCloseBtn.addEventListener('click', closeDemandApp);
+      els.demandRefreshBtn.addEventListener('click', () => {
+        els.demandFrame.src = `${DEMAND_APP_URL}?v=${Date.now()}`;
+      });
+      els.demandFullscreenBtn.addEventListener('click', fullscreenDemandApp);
+      els.demandOpenNewBtn.addEventListener('click', () => {
+        sendDemandUser();
+        window.open(DEMAND_APP_URL, '_blank', 'noopener');
+      });
+      window.addEventListener('message', event => {
+        if (event.origin !== location.origin) return;
+        if (event.data?.type === 'DEMAND_OPEN_COLLAB') {
+          closeDemandApp();
+          openCollabApp();
+        }
+        if (event.data?.type === 'DEMAND_OPEN_WORKS') {
+          closeDemandApp();
+          openWorksApp();
+          switchWorksPanel('upload');
+        }
+      });
       els.worksBtn.addEventListener('click', openWorksApp);
       els.worksCloseBtn.addEventListener('click', closeWorksApp);
       els.worksRefreshBtn.addEventListener('click', loadWorks);
@@ -5608,6 +5784,7 @@ ${userText}
         if (e.key === 'Escape' && els.worksOverlay.classList.contains('open')) closeWorksApp();
         if (e.key === 'Escape' && els.collabOverlay.classList.contains('open')) closeCollabApp();
         if (e.key === 'Escape' && els.authModal.classList.contains('open')) closeAuthModal();
+        if (e.key === 'Escape' && els.demandOverlay.classList.contains('open')) closeDemandApp();
         if (e.key === 'Escape' && els.adminModal.classList.contains('open')) closeAdminModal();
         if (e.key === 'Escape' && els.helpModal.classList.contains('open')) closeHelpModal();
       });
