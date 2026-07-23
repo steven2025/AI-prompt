@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI应用开发知识库</title>
+  <link rel="stylesheet" href="./knowledge.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><strong>AI应用开发知识库</strong><span>从工具选择到项目发布的实践指南</span></div>
+      <div class="search"><input id="searchInput" type="search" placeholder="搜索工具、云服务、错误代码或标签" /><button id="searchBtn">搜索</button></div>
+      <div class="user" id="userText">正在读取登录信息</div>
+    </header>
+
+    <div class="service-alert hidden" id="serviceAlert">云端知识库尚未配置。当前可阅读平台内置指南；资源提交、审核和附件下载需要先部署知识库云函数，并在 <b>knowledge/config.js</b> 填写触发器 URL。</div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <button class="nav active" data-view="library">知识库</button>
+        <button class="nav" data-view="submit">提交资源</button>
+        <button class="nav" data-view="mine">我的提交</button>
+        <button class="nav" data-view="notices">新到通知 <span class="badge hidden" id="noticeBadge">0</span></button>
+        <button class="nav admin-only hidden" data-view="admin">审核管理 <span class="badge hidden" id="reviewBadge">0</span></button>
+        <div class="sidebar-note">成员分享的内容经管理员审核后公开。涉及密钥、账号和接口时，请勿上传真实凭据。</div>
+      </aside>
+
+      <main class="content">
+        <section class="view" id="view-library">
+          <div class="view-head"><div><h1>开发知识导航</h1><p>按开发阶段查找经过整理和审核的操作方法。</p></div><div class="filters"><select id="typeFilter"><option value="">全部类型</option><option>操作教程</option><option>官方文档</option><option>案例模板</option><option>资源链接</option><option>排错经验</option></select><select id="levelFilter"><option value="">全部难度</option><option>初学者</option><option>进阶</option><option>教师</option></select></div></div>
+          <div class="category-grid" id="categoryGrid"></div>
+          <div class="result-bar"><strong id="resultTitle">全部资源</strong><span id="resultCount">0 条</span></div>
+          <div class="resource-grid" id="resourceList"></div>
+        </section>
+
+        <section class="view hidden" id="view-submit">
+          <div class="view-head"><div><h1>提交知识与资源</h1><p>原创经验、可靠教程和有明确来源的资源都可以提交。</p></div></div>
+          <div class="system-tip">请先确认内容可以公开分享。不要提交 API Key、Secret Key、手机号清单、付费课程副本或来源不明的软件安装包。</div>
+          <form class="form-panel" id="resourceForm">
+            <div class="form-grid">
+              <label><span>资源名称 *</span><input id="resourceTitle" maxlength="100" required placeholder="例如：TRAE 使用 DeepSeek 完成前端修改" /></label>
+              <label><span>所属分类 *</span><select id="resourceCategory" required></select></label>
+              <label><span>资源类型 *</span><select id="resourceType" required><option>操作教程</option><option>官方文档</option><option>案例模板</option><option>资源链接</option><option>排错经验</option></select></label>
+              <label><span>适用对象 *</span><select id="resourceLevel" required><option>初学者</option><option>进阶</option><option>教师</option></select></label>
+              <label class="wide"><span>简要说明 *</span><textarea id="resourceSummary" rows="3" maxlength="500" required placeholder="说明它能解决什么问题、适用于什么场景。"></textarea></label>
+              <label class="wide"><span>正文内容</span><textarea id="resourceContent" rows="9" maxlength="12000" placeholder="可直接编写操作步骤、注意事项和常见错误。提交链接或附件时也建议填写简要使用方法。"></textarea></label>
+              <label class="wide"><span>资源链接</span><input id="resourceUrl" type="url" placeholder="https://... 建议优先填写官方文档、GitHub 或公开视频链接" /></label>
+              <label><span>标签</span><input id="resourceTags" maxlength="160" placeholder="DeepSeek, TRAE, 初学者" /></label>
+              <label><span>适用版本或日期</span><input id="resourceVersion" maxlength="100" placeholder="例如：2026年7月核验" /></label>
+              <label class="wide file-field"><span>附件</span><input id="resourceFile" type="file" accept=".txt,.md,.pdf,.doc,.docx,.zip,.png,.jpg,.jpeg" /><small id="fileName">支持 TXT、Markdown、PDF、Word、ZIP和图片，单个文件不超过5MB。</small></label>
+              <label class="wide"><span>来源与版权说明 *</span><input id="resourceSource" maxlength="300" required placeholder="原创请填写“本人原创”；引用请填写原作者或来源网站。" /></label>
+            </div>
+            <label class="confirm"><input id="resourceConfirm" type="checkbox" required /> 我确认内容不包含真实密钥、隐私数据和无权传播的材料。</label>
+            <button class="primary" id="submitResourceBtn" type="submit">提交管理员审核</button>
+            <div class="submit-state hidden" id="submitState"></div>
+          </form>
+        </section>
+
+        <section class="view hidden" id="view-mine"><div class="view-head"><div><h1>我的提交</h1><p>查看待审核、已发布、退回和下架状态。</p></div><button class="secondary" id="refreshMineBtn">刷新</button></div><div class="resource-grid" id="mineList"></div></section>
+        <section class="view hidden" id="view-notices"><div class="view-head"><div><h1>新到通知</h1><p>提交审核结果和内容状态变化会显示在这里。</p></div><button class="secondary" id="markReadBtn">全部标记已读</button></div><div class="notice-list" id="noticeList"></div></section>
+        <section class="view hidden" id="view-admin"><div class="view-head"><div><h1>资源审核</h1><p>核查来源、安全性、准确性和分类后再发布。</p></div><button class="secondary" id="refreshAdminBtn">刷新</button></div><div class="system-tip">审核重点：不得包含真实密钥或隐私信息；链接应可访问；附件来源清楚；操作路径应注明适用版本或核验日期。</div><div class="review-list" id="reviewList"></div></section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="detailModal"><div class="modal-card detail-card"><div class="modal-head"><div><strong id="detailTitle"></strong><span id="detailMeta"></span></div><button class="icon" id="detailCloseBtn" aria-label="关闭">×</button></div><div id="detailBody"></div></div></div>
+  <div class="toast" id="toast"></div>
+  <script src="./config.js"></script>
+  <script src="./knowledge.js"></script>
+</body>
+</html>
+
