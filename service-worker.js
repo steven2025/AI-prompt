@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v41-html-work-post-viewer';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v42-knowledge';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,6 +6,10 @@ const APP_SHELL = [
   './demand/index.html',
   './demand/demand.css',
   './demand/demand.js',
+  './knowledge/index.html',
+  './knowledge/config.js',
+  './knowledge/knowledge.css',
+  './knowledge/knowledge.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -40,7 +44,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  if (new URL(request.url).pathname.endsWith('/demand/config.js')) {
+  if (/\/(demand|knowledge)\/config\.js$/.test(new URL(request.url).pathname)) {
     event.respondWith(
       fetch(request).then(response => {
         const copy = response.clone();
@@ -62,7 +66,13 @@ self.addEventListener('fetch', event => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         return response;
-      }).catch(() => caches.match(request).then(cached => cached || (new URL(request.url).pathname.includes('/demand/') ? caches.match('./demand/index.html') : caches.match('./index.html'))))
+      }).catch(() => caches.match(request).then(cached => {
+        if (cached) return cached;
+        const path = new URL(request.url).pathname;
+        if (path.includes('/demand/')) return caches.match('./demand/index.html');
+        if (path.includes('/knowledge/')) return caches.match('./knowledge/index.html');
+        return caches.match('./index.html');
+      }))
     );
     return;
   }

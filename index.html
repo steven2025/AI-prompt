@@ -1056,7 +1056,8 @@
     .training-float,
     .works-float,
     .collab-float,
-    .demand-float {
+    .demand-float,
+    .knowledge-float {
       position: fixed;
       right: 14px;
       top: 50%;
@@ -1094,10 +1095,16 @@
       background: linear-gradient(180deg, rgba(244, 114, 182, .94), rgba(251, 191, 36, .92));
     }
 
+    .knowledge-float {
+      top: calc(50% + 528px);
+      background: linear-gradient(180deg, rgba(96, 165, 250, .94), rgba(52, 211, 153, .92));
+    }
+
     .training-float:hover,
     .works-float:hover,
     .collab-float:hover,
-    .demand-float:hover {
+    .demand-float:hover,
+    .knowledge-float:hover {
       right: 18px;
       transform: translateY(-50%) scale(1.02);
       box-shadow: 0 22px 60px rgba(34, 211, 238, .22);
@@ -1118,7 +1125,8 @@
     .module-nav .training-float,
     .module-nav .works-float,
     .module-nav .collab-float,
-    .module-nav .demand-float {
+    .module-nav .demand-float,
+    .module-nav .knowledge-float {
       position: static;
       transform: none;
       width: auto;
@@ -1136,7 +1144,8 @@
     .module-nav .training-float:hover,
     .module-nav .works-float:hover,
     .module-nav .collab-float:hover,
-    .module-nav .demand-float:hover {
+    .module-nav .demand-float:hover,
+    .module-nav .knowledge-float:hover {
       right: auto;
       transform: translateY(-1px);
       box-shadow: 0 8px 24px rgba(34, 211, 238, .16);
@@ -1146,6 +1155,7 @@
     .works-overlay,
     .collab-overlay,
     .demand-overlay,
+    .knowledge-overlay,
     .auth-modal,
     .admin-modal {
       position: fixed;
@@ -1161,6 +1171,7 @@
     .works-overlay.open,
     .collab-overlay.open,
     .demand-overlay.open,
+    .knowledge-overlay.open,
     .auth-modal.open,
     .admin-modal.open {
       display: grid;
@@ -1170,6 +1181,7 @@
     .works-head,
     .collab-head,
     .demand-head,
+    .knowledge-head,
     .auth-head,
     .admin-head {
       display: flex;
@@ -1185,6 +1197,7 @@
     .works-head strong,
     .collab-head strong,
     .demand-head strong,
+    .knowledge-head strong,
     .auth-head strong,
     .admin-head strong {
       color: #e0f2fe;
@@ -1195,6 +1208,7 @@
     .works-head span,
     .collab-head span,
     .demand-head span,
+    .knowledge-head span,
     .auth-head span,
     .admin-head span {
       color: var(--muted);
@@ -1206,6 +1220,7 @@
     .works-body,
     .collab-body,
     .demand-body,
+    .knowledge-body,
     .auth-body,
     .admin-body {
       min-height: 0;
@@ -1250,9 +1265,11 @@
       display: none;
     }
 
-    .demand-body { padding: 0; place-items: stretch; }
+    .demand-body,
+    .knowledge-body { padding: 0; place-items: stretch; }
 
-    .demand-frame {
+    .demand-frame,
+    .knowledge-frame {
       width: 100%;
       height: 100%;
       border: 0;
@@ -1766,7 +1783,8 @@
       .module-nav .training-float,
       .module-nav .works-float,
       .module-nav .collab-float,
-      .module-nav .demand-float { width: auto; height: 36px; font-size: 12px; }
+      .module-nav .demand-float,
+      .module-nav .knowledge-float { width: auto; height: 36px; font-size: 12px; }
       .works-grid,
       .collab-grid { grid-template-columns: 1fr; }
       .collab-form-grid,
@@ -1817,6 +1835,7 @@
 
       <nav class="module-nav" aria-label="平台模块">
         <button class="training-float" id="trainingBtn" title="打开 AI 开发培训小程序">培训</button>
+        <button class="knowledge-float" id="knowledgeBtn" title="打开 AI 开发知识库">知识库</button>
         <button class="demand-float" id="demandBtn" title="打开真实需求对接平台">需求</button>
         <button class="collab-float" id="collabBtn" title="打开 AI 应用开发协作中心">协作</button>
         <button class="works-float" id="worksBtn" title="打开成员作品展示">作品</button>
@@ -2050,6 +2069,24 @@
     </div>
     <div class="demand-body">
       <iframe class="demand-frame" id="demandFrame" title="真实需求对接平台" allow="fullscreen"></iframe>
+    </div>
+  </div>
+
+  <div class="knowledge-overlay" id="knowledgeOverlay">
+    <div class="knowledge-head">
+      <div>
+        <strong>AI应用开发知识库</strong>
+        <span>工具攻略、云端配置、调试经验与成员资源</span>
+      </div>
+      <div class="row">
+        <button class="btn" id="knowledgeRefreshBtn">刷新</button>
+        <button class="btn" id="knowledgeFullscreenBtn">全屏</button>
+        <button class="btn" id="knowledgeOpenNewBtn">新窗口</button>
+        <button class="btn-danger" id="knowledgeCloseBtn">关闭</button>
+      </div>
+    </div>
+    <div class="knowledge-body">
+      <iframe class="knowledge-frame" id="knowledgeFrame" title="AI应用开发知识库" allow="fullscreen"></iframe>
     </div>
   </div>
 
@@ -2634,6 +2671,7 @@
     // const TRAINING_APP_URL = './training.html';
     const TRAINING_APP_URL = './training.html';
     const DEMAND_APP_URL = './demand/index.html';
+    const KNOWLEDGE_APP_URL = './knowledge/index.html';
     // 部署新版云函数后，把 HTTP 触发器地址填到这里；留空时使用本机浏览器数据演示。
     const PLATFORM_API_URL = 'https://1311686407-kknzdy9zdr.ap-guangzhou.tencentscf.com';
     const ADMIN_NAME = '鄢清华';
@@ -2723,6 +2761,13 @@
       demandRefreshBtn: $('demandRefreshBtn'),
       demandFullscreenBtn: $('demandFullscreenBtn'),
       demandOpenNewBtn: $('demandOpenNewBtn'),
+      knowledgeBtn: $('knowledgeBtn'),
+      knowledgeOverlay: $('knowledgeOverlay'),
+      knowledgeFrame: $('knowledgeFrame'),
+      knowledgeCloseBtn: $('knowledgeCloseBtn'),
+      knowledgeRefreshBtn: $('knowledgeRefreshBtn'),
+      knowledgeFullscreenBtn: $('knowledgeFullscreenBtn'),
+      knowledgeOpenNewBtn: $('knowledgeOpenNewBtn'),
       worksBtn: $('worksBtn'),
       worksOverlay: $('worksOverlay'),
       worksCloseBtn: $('worksCloseBtn'),
@@ -4435,6 +4480,47 @@ ${userText}
       else toast('当前浏览器不支持全屏 API');
     }
 
+    function sendKnowledgeUser() {
+      if (!state.currentUser || !els.knowledgeFrame?.contentWindow) return;
+      const user = {
+        name: state.currentUser.name,
+        phone: state.currentUser.phone,
+        role: state.currentUser.role,
+        sessionId: state.currentSessionId || '',
+        sharedAt: Date.now()
+      };
+      sessionStorage.setItem('ai-knowledge-parent-user', JSON.stringify(user));
+      els.knowledgeFrame.contentWindow.postMessage({ type: 'DS_PLATFORM_USER', user }, location.origin);
+    }
+
+    function openKnowledgeApp() {
+      if (!state.currentUser) {
+        toast('请先登录后使用知识库模块');
+        openAuthModal();
+        return;
+      }
+      if (location.protocol === 'file:') {
+        toast('知识库需要通过本地预览服务或GitHub静态链接打开');
+        return;
+      }
+      els.knowledgeOverlay.classList.add('open');
+      els.knowledgeFrame.onload = sendKnowledgeUser;
+      if (!els.knowledgeFrame.src) els.knowledgeFrame.src = KNOWLEDGE_APP_URL;
+      setTimeout(sendKnowledgeUser, 400);
+      recordPlatformAction('打开知识库', 'AI应用开发知识库');
+    }
+
+    function closeKnowledgeApp() {
+      els.knowledgeOverlay.classList.remove('open');
+    }
+
+    function fullscreenKnowledgeApp() {
+      const target = els.knowledgeOverlay;
+      if (target.requestFullscreen) target.requestFullscreen();
+      else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+      else toast('当前浏览器不支持全屏 API');
+    }
+
     function emptyWorksStore() {
       return { works: [], workSeq: 0 };
     }
@@ -5667,6 +5753,16 @@ ${userText}
       els.demandOpenNewBtn.addEventListener('click', () => {
         sendDemandUser();
         window.open(DEMAND_APP_URL, '_blank', 'noopener');
+      });
+      els.knowledgeBtn.addEventListener('click', openKnowledgeApp);
+      els.knowledgeCloseBtn.addEventListener('click', closeKnowledgeApp);
+      els.knowledgeRefreshBtn.addEventListener('click', () => {
+        els.knowledgeFrame.src = `${KNOWLEDGE_APP_URL}?v=${Date.now()}`;
+      });
+      els.knowledgeFullscreenBtn.addEventListener('click', fullscreenKnowledgeApp);
+      els.knowledgeOpenNewBtn.addEventListener('click', () => {
+        sendKnowledgeUser();
+        window.open(KNOWLEDGE_APP_URL, '_blank', 'noopener');
       });
       window.addEventListener('message', event => {
         if (event.origin !== location.origin) return;
