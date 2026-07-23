@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>活动与交流</title>
+  <link rel="stylesheet" href="./events.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><strong>活动与交流</strong><span>共同记录活动，围绕真实话题持续交流</span></div>
+      <div class="search"><input id="searchInput" type="search" placeholder="搜索活动、话题、创建者或标签" /><button id="searchBtn">搜索</button></div>
+      <div class="user" id="userText">正在读取登录信息</div>
+    </header>
+
+    <div class="service-alert hidden" id="serviceAlert">活动云函数尚未配置。请部署 `cloud-function-events.zip`，并在 <b>events/config.js</b> 填写HTTP触发器URL。</div>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <button class="nav active" data-view="square">交流广场</button>
+        <button class="nav" data-view="create">创建活动/话题</button>
+        <button class="nav" data-view="mine">我的创建</button>
+        <button class="nav" data-view="notices">新到通知 <span class="badge hidden" id="noticeBadge">0</span></button>
+        <button class="nav admin-only hidden" data-view="admin">审核管理 <span class="badge hidden" id="reviewBadge">0</span></button>
+        <div class="sidebar-note">照片由成员共同补充；视频优先提交对象存储文件直链，审核通过后公开。</div>
+      </aside>
+
+      <main class="content">
+        <section class="view" id="view-square">
+          <div class="view-head">
+            <div><h1>交流广场</h1><p>每个活动或话题都是一个可共同补充照片、视频和讨论的内容集。</p></div>
+            <div class="filters"><select id="kindFilter"><option value="">全部分类</option><option value="activity">活动</option><option value="topic">话题</option></select><select id="sortFilter"><option value="updated">最近更新</option><option value="created">最近创建</option><option value="eventTime">活动时间</option></select></div>
+          </div>
+          <div class="kind-strip">
+            <button class="kind-card active" data-kind=""><strong>全部</strong><span>查看所有活动与话题</span></button>
+            <button class="kind-card activity" data-kind="activity"><strong>活动</strong><span>照片、视频与现场交流</span></button>
+            <button class="kind-card topic" data-kind="topic"><strong>话题</strong><span>技术、学习与项目讨论</span></button>
+          </div>
+          <div class="event-grid" id="eventList"></div>
+        </section>
+
+        <section class="view hidden" id="view-create">
+          <div class="view-head"><div><h1>创建内容集</h1><p>创建者姓名由统一登录自动记录，其他成员可按权限共同添加内容。</p></div></div>
+          <form class="form-panel" id="eventForm">
+            <div class="form-grid">
+              <label><span>分类 *</span><select id="eventKind" required><option value="activity">活动</option><option value="topic">话题</option></select></label>
+              <label><span>标题 *</span><input id="eventTitle" maxlength="100" required placeholder="例如：AI应用开发暑期工作坊" /></label>
+              <label class="activity-field"><span>活动时间 *</span><input id="eventTime" type="datetime-local" /></label>
+              <label class="activity-field"><span>活动地点</span><input id="eventLocation" maxlength="120" placeholder="线下地点或线上会议" /></label>
+              <label class="topic-field hidden"><span>话题方向</span><select id="topicCategory"><option>IDE与AI工具</option><option>大模型接入</option><option>前端开发</option><option>对象存储</option><option>云函数</option><option>部署与调试</option><option>项目交流</option><option>其他</option></select></label>
+              <label><span>标签</span><input id="eventTags" maxlength="160" placeholder="DeepSeek, 云函数, 学习交流" /></label>
+              <label class="wide"><span>简介 *</span><textarea id="eventDescription" rows="5" maxlength="2000" required placeholder="说明活动内容，或描述希望成员共同讨论的问题。"></textarea></label>
+              <label class="wide file-field"><span>封面图片</span><input id="eventCover" type="file" accept=".png,.jpg,.jpeg,.webp" /><small id="coverName">可选，建议横向图片，文件不超过4MB。</small></label>
+            </div>
+            <div class="checks">
+              <label><input id="allowMemberMedia" type="checkbox" checked /> 允许登录成员添加照片和视频链接</label>
+              <label><input id="allowComments" type="checkbox" checked /> 允许成员评论、回复和点赞</label>
+            </div>
+            <button class="primary" id="createEventBtn" type="submit">创建并进入内容集</button>
+            <div class="submit-state hidden" id="createState"></div>
+          </form>
+        </section>
+
+        <section class="view hidden" id="view-mine"><div class="view-head"><div><h1>我的创建</h1><p>管理自己创建的活动和话题。</p></div><button class="secondary" id="refreshMineBtn">刷新</button></div><div class="event-grid" id="mineList"></div></section>
+        <section class="view hidden" id="view-notices"><div class="view-head"><div><h1>新到通知</h1><p>成员投稿、视频审核、评论和回复都会留下记录。</p></div><button class="secondary" id="markReadBtn">全部标记已读</button></div><div class="notice-list" id="noticeList"></div></section>
+        <section class="view hidden" id="view-admin"><div class="view-head"><div><h1>审核管理</h1><p>审核视频直链，处理被隐藏的媒体和评论。</p></div><button class="secondary" id="refreshAdminBtn">刷新</button></div><div class="system-tip">对象存储视频直链应使用HTTPS，返回正确的视频类型并允许平台域名读取；公众号、视频号和普通网页链接只能作为外部页面打开。</div><div class="review-list" id="reviewList"></div></section>
+      </main>
+    </div>
+  </div>
+
+  <div class="detail-overlay" id="detailOverlay">
+    <div class="detail-head">
+      <div><strong id="detailTitle">内容集</strong><span id="detailMeta"></span></div>
+      <div class="actions"><button class="secondary" id="detailRefreshBtn">刷新</button><button class="danger" id="detailCloseBtn">关闭</button></div>
+    </div>
+    <div class="detail-scroll">
+      <section class="event-intro" id="eventIntro"></section>
+
+      <section class="section">
+        <div class="section-head"><div><h2>照片与视频</h2><p>成员共同补充，视频审核通过后公开。</p></div><button class="primary" id="toggleMediaFormBtn">添加内容</button></div>
+        <div class="media-submit hidden" id="mediaSubmit">
+          <div class="media-tabs"><button class="tab active" data-media-tab="photo">上传照片</button><button class="tab" data-media-tab="video">添加视频链接</button></div>
+          <form id="photoForm">
+            <div class="system-tip">可一次选择多张照片。请为本批照片填写名称或说明，系统会自动记录上传者姓名。</div>
+            <div class="form-grid">
+              <label><span>照片名称 *</span><input id="photoTitle" maxlength="100" required placeholder="例如：云函数部署演示" /></label>
+              <label><span>照片文件 *</span><input id="photoFiles" type="file" multiple accept=".png,.jpg,.jpeg,.webp" required /></label>
+              <label class="wide"><span>照片说明</span><textarea id="photoDescription" rows="3" maxlength="500"></textarea></label>
+            </div>
+            <button class="primary" id="submitPhotoBtn" type="submit">上传照片</button>
+          </form>
+          <form class="hidden" id="videoForm">
+            <div class="video-priority">
+              <strong>优先选择对象存储视频直链</strong>
+              <p>推荐将MP4上传到百度BOS、腾讯COS、阿里OSS或其他对象存储，再填写视频文件的HTTPS直链。桶应允许浏览器GET/HEAD读取，正确返回 <code>video/mp4</code>，允许Range分段请求，并将平台域名加入CORS和防盗链白名单。</p>
+              <p>微信公众号、视频号、网盘或普通视频网页请选择“外部视频页面”，平台只显示封面并在新窗口打开，不能保证站内播放。</p>
+            </div>
+            <div class="form-grid">
+              <label><span>链接类型 *</span><select id="videoLinkType"><option value="direct">对象存储视频直链（推荐）</option><option value="external">外部视频页面</option></select></label>
+              <label><span>视频名称 *</span><input id="videoTitle" maxlength="100" required /></label>
+              <label class="wide"><span>视频链接 *</span><input id="videoUrl" type="url" required placeholder="https://bucket.example.com/events/video.mp4" /></label>
+              <label><span>来源平台</span><input id="videoPlatform" maxlength="80" placeholder="百度BOS、腾讯COS、微信公众号等" /></label>
+              <label class="file-field"><span>封面图片</span><input id="videoCover" type="file" accept=".png,.jpg,.jpeg,.webp" /><small>可选，不超过4MB。</small></label>
+              <label class="wide"><span>视频说明</span><textarea id="videoDescription" rows="3" maxlength="500"></textarea></label>
+            </div>
+            <button class="primary" id="submitVideoBtn" type="submit">提交管理员审核</button>
+          </form>
+          <div class="submit-state hidden" id="mediaState"></div>
+        </div>
+        <div class="media-grid" id="mediaList"></div>
+      </section>
+
+      <section class="section discussion">
+        <div class="section-head"><div><h2>活动/话题讨论</h2><p>不针对某张照片或视频时，在这里交流。</p></div></div>
+        <div class="comment-list" id="eventComments"></div>
+        <form class="comment-form" id="eventCommentForm"><textarea id="eventCommentText" rows="3" maxlength="1000" placeholder="写下评论或交流内容"></textarea><button class="primary" type="submit">发表评论</button></form>
+      </section>
+    </div>
+  </div>
+
+  <div class="media-window hidden" id="mediaWindow">
+    <div class="media-window-head" id="mediaDragHandle">
+      <div><strong id="viewerTitle">媒体浏览</strong><span id="viewerMeta"></span></div>
+      <div class="window-actions"><button class="icon" id="viewerMaxBtn" title="放大">□</button><button class="icon" id="viewerFullscreenBtn" title="全屏">⛶</button><button class="icon danger" id="viewerCloseBtn" title="关闭">×</button></div>
+    </div>
+    <div class="media-window-body">
+      <div class="media-stage" id="mediaStage"></div>
+      <aside class="media-comments">
+        <div class="media-info" id="mediaInfo"></div>
+        <div class="like-row"><button class="secondary" id="mediaLikeBtn">点赞</button><span id="mediaLikeCount">0 人点赞</span></div>
+        <div class="comment-list" id="mediaComments"></div>
+        <form class="comment-form compact" id="mediaCommentForm"><div class="reply-banner hidden" id="replyBanner"></div><textarea id="mediaCommentText" rows="3" maxlength="1000" placeholder="评论这张照片或视频"></textarea><button class="primary" type="submit">发送</button></form>
+      </aside>
+    </div>
+    <div class="media-window-foot"><button class="secondary" id="mediaPrevBtn">上一个</button><span id="mediaPosition"></span><button class="secondary" id="mediaNextBtn">下一个</button></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="./config.js"></script>
+  <script src="./events.js"></script>
+</body>
+</html>
+
