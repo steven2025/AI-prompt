@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deepseek-enhanced-assistant-v42-knowledge';
+const CACHE_NAME = 'deepseek-enhanced-assistant-v43-events';
 const APP_SHELL = [
   './',
   './index.html',
@@ -10,6 +10,10 @@ const APP_SHELL = [
   './knowledge/config.js',
   './knowledge/knowledge.css',
   './knowledge/knowledge.js',
+  './events/index.html',
+  './events/config.js',
+  './events/events.css',
+  './events/events.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -44,7 +48,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  if (/\/(demand|knowledge)\/config\.js$/.test(new URL(request.url).pathname)) {
+  if (/\/(demand|knowledge|events)\/config\.js$/.test(new URL(request.url).pathname)) {
     event.respondWith(
       fetch(request).then(response => {
         const copy = response.clone();
@@ -71,6 +75,7 @@ self.addEventListener('fetch', event => {
         const path = new URL(request.url).pathname;
         if (path.includes('/demand/')) return caches.match('./demand/index.html');
         if (path.includes('/knowledge/')) return caches.match('./knowledge/index.html');
+        if (path.includes('/events/')) return caches.match('./events/index.html');
         return caches.match('./index.html');
       }))
     );
